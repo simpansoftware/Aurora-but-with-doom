@@ -26,7 +26,8 @@ Mirrors with a star next to them may not have all boards uploaded yet.
 </details>
 
 # Credits
-- [xmb9](https://discord.com/users/988950574387068968) - Pioneering the creation of this tool
+- [xmb9](https://discord.com/users/988950574387068968) - Lead developer of Aurora
+- [Sophie](https://discord.com/users/1012095822957133976) - Lead developer of Aurora
 - [Mercury Workshop](https://mercurywork.shop) - Developing SH1MMER
 - [OlyB](https://discord.com/users/476169716998733834) - Help with adapting wax to Aurora and PID1
 - [kxtzownsu](https://discord.com/users/952792525637312552) - Help with `sed` syntax
