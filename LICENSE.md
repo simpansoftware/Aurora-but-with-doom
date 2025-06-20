@@ -1,7 +1,7 @@
 Modified BSD License
 ====================
 
-_Copyright © `2025`, `Ethereal Workshop`_  
+_Copyright © 2025, Ethereal Workshop_  
 _All rights reserved._
 
 Redistribution and use in source and binary forms, with or without
