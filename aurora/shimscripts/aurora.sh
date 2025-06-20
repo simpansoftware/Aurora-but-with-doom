@@ -25,8 +25,9 @@ declare -A VERSION
 
 VERSION["BRANCH"]="dev"
 VERSION["NUMBER"]="3.0"
-VERSION["BUILDDATE"]="[2025-05-24]"
-VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]}"
+VERSION["BUILDDATE"]="[2025-06-20]"
+VERSION["RELNAME"]="A New Dawn"
+VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]} - \"${VERSION["RELNAME"]}\""
 
 ####################
 ## BASE FUNCTIONS ##
@@ -102,6 +103,11 @@ funText() {
 }
 
 splash() {
+    local width=42
+	local verstring=${VERSION["STRING"]}
+	local build=${VERSION["BUILDDATE"]}
+	local version_pad=$(( (width - ${#verstring}) / 2 ))
+    local build_pad=$(( (width - ${#build}) / 2 ))
     echo -e "$COLOR_BLUE_B"
     cat <<EOF
 ╒════════════════════════════════════════╕
@@ -120,8 +126,9 @@ splash() {
 │     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
 │     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
 ╘════════════════════════════════════════╛
-          v3.0 dev - "A New Dawn"
 EOF
+    echo -e "$(printf "%*s%s" $version_pad "" "$verstring")"
+    echo -e "$(printf "%*s%s" $build_pad "" "$build")"
     echo -e "${COLOR_RESET}"
     echo -e "https://github.com/EtherealWorkshop/Aurora"
     funText
