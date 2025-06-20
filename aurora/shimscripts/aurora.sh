@@ -79,7 +79,7 @@ menu() {
 }
 
 credits() {
-	echo -e "${COLOR_MAGENTA_B}Credits"
+    echo -e "${COLOR_MAGENTA_B}Credits"
     echo -e "${COLOR_PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Figured out wifi + i forgor"
     echo -e "${COLOR_GREEN_B}xmb9${COLOR_RESET}: Lead developer of Aurora, almost everything on Priism, Pint"
     echo -e "${COLOR_YELLOW_B}Synaptic${COLOR_RESET}: Emotional Support"
@@ -88,7 +88,7 @@ credits() {
     echo -e "${COLOR_RED_B}Mariah Carey${COLOR_RESET}: Bugtesting wifi"
     echo -e "${COLOR_MAGNETA_B}AC3${COLOR_RESET}: Literally nothing"
     echo -e "${COLOR_GREEN_B}Rainestorme${COLOR_RESET}: Murkmod's version finder"
-	echo -e " "
+    echo -e " "
 	read -p "Press enter to continue."
 	clear
 	splash # haha 69
@@ -105,9 +105,9 @@ splash() {
     echo -e "$COLOR_BLUE_B"
     cat <<EOF
 ╒════════════════════════════════════════╕
-│ .    . .    '    +   *       o    .    │ 
-│+  '.                    '   .-.     +  │ 
-│          +      .    +   .   ) )     ''│ 
+│ .    . .    '    +   *       o    .    │
+│+  '.                    '   .-.     +  │
+│          +      .    +   .   ) )     ''│
 │                   '  .      '-´  *.    │
 │     .    \      .     .  .  +          │
 │         .-o-'       '    .o        o   │
@@ -116,9 +116,9 @@ splash() {
 │        .*       .       o   o      .   │
 │              o     . *.                │
 │ 'o*           .        .'    .         │
-|  	           ┏┓   '. O           *     │
+│              ┏┓   '. O           *     │
 │     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
-│     o        ┛┗┗┻┛ ┗┛┛ ┗┻	+            │
+│     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
 ╘════════════════════════════════════════╛
           v3.0 dev - "A New Dawn"
 EOF
