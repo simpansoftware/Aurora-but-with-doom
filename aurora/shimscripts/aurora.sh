@@ -95,7 +95,7 @@ credits() {
 }
 
 funText() {
-	splashText=("The lower tape fade meme is still massive!" "  It probably existed in the first place." "              HACKED BY GEEN")
+	splashText=("The lower tape fade meme is still massive." "  It probably existed in the first place." "              HACKED BY GEEN")
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]}
 	echo -e " "
    	echo -e "$selectedSplashText"
