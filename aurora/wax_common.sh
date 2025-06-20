@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 # wax common file, this should probably be sourced
 
 # internal variables

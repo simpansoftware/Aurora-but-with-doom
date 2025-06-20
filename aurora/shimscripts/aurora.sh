@@ -1,5 +1,20 @@
 #!/bin/bash
 
+# Copyright 2025 Ethereal Workshop. All rights reserved.
+# Use of this source code is governed by the BSD 3-Clause license
+# that can be found in the LICENSE.md file.
+
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 #################
 ## DEFINITIONS ##
 #################
@@ -92,7 +107,7 @@ credits() {
     echo -e " "
 	read -p "Press enter to continue."
 	clear
-	splash # haha 69
+	splash
 }
 
 funText() {
@@ -281,6 +296,7 @@ pv_dircopy() {
 	mkdir -p "$2"
 	tar -C $mount/shimroot -cf - . | tar -C /newroot -xf -
 }
+
 ##############
 ## SHIMBOOT ##
 ##############
@@ -464,8 +480,8 @@ wifi() {
 	dbus-daemon --system > /dev/null 2>&1
 	mkdir -p /var/lib
 	firmware
-    read -p "Enter your wifi SSID/Name: " ssid
-    read -p "Enter your wifi password (leave blank if none): " psk
+    read -p "Enter your network SSID: " ssid
+    read -p "Enter your network password (leave blank if none): " psk
     iface=$(ip -o link show | awk -F': ' '/wl/ {print $2; exit}')
     ifconfig $iface up || return
     if [ -z "$psk" ]; then
@@ -490,10 +506,10 @@ EOF
 }
 
 canwifi() {
-  if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # we gotta have the max uptime
+  if curl -Is https://example.com | head -n 1 | grep -q "HTTP/"; then
     "$@"
   else
-    echo "Not connected to wifi."
+    echo "You are not connected to the internet."
     sleep 2
   fi
 }
@@ -573,7 +589,7 @@ menu_actions=(
     payloads
     credits
     "canwifi updateshim"
-    "reboot -f || echo 'Consider killing yourself'"
+    "reboot -f"
 )
 
 while true; 
