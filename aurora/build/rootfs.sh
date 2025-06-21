@@ -5,7 +5,7 @@ if [[ "$(basename "$(pwd)")" != "build" ]]; then
     exit 1
 fi
 
-source /utils/functions.sh
+source ./utils/functions.sh
 
 echo_c "Running with flags: ($@)" GEEN_B
 if [ "$EUID" -ne 0 ]; then
