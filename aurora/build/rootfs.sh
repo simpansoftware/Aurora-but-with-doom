@@ -33,10 +33,8 @@ fi
 
 echo_c "Bootstrapping Alpine" GEEN_B
 
-if [ ! -f alpine-minirootfs*.tar.gz ]; then # incase user has copied an alpine image to the build dir
+if [ ! -f alpine-minirootfs.tar.gz ]; then
     curl -L https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$arch/alpine-minirootfs-3.22.0-$arch.tar.gz -o alpine-minirootfs.tar.gz
-else
-    mv alpine-minirootfs*.tar.gz alpine-minirootfs.tar.gz
 fi
 tar -xf alpine-minirootfs.tar.gz -C $rootfs
 
