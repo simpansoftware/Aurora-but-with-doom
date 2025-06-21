@@ -52,9 +52,9 @@ for arg in "$@"; do
     esac
 done
 if [ "$NOWIFI" = true ]; then
-    log_info "Flag 'nowifi' set. Skipping firmware download..."
+    echo_c "Flag 'nowifi' set. Skipping firmware download..." YELLOW_B
 else
-    log_info "Downloading firmware..."
+    echo_c "Downloading firmware..." GEEN_B
     [ ! -d "linux-firmware" ] && git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware $rootfs/lib/firmware/
 fi
 unmount() {
@@ -67,7 +67,7 @@ for dir in proc sys dev run; do
     mount --make-rslave --rbind "/$dir" "$rootfs/$dir"
 done
 
-chroot $rootfs /bin/sh -c "/opt/setup_rootfs_alpine.sh $arch"
+chroot $rootfs /bin/sh -c "chmod +x /opt/setup_rootfs_alpine.sh && /opt/setup_rootfs_alpine.sh $arch"
 
 trap - EXIT
 unmount
