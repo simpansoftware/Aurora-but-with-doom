@@ -121,6 +121,8 @@ launchHandoff() {
 	hang
 }
 
+/bin/busybox --install /bin || true # i think this should be here
+
 /usr/bin/setsid -c test # Prevent CTRL + C on init
 detectHandoff
 runServices "$services"

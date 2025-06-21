@@ -102,7 +102,7 @@ patch_sh1mmer() {
     rmdir "$MNT_IRS"
 }
 
-FLAGS_sh1mmer_part_size=580M
+FLAGS_sh1mmer_part_size=220M
 
 if [ -b "$IMAGE" ]; then
     log_info "Image is a block device, performance may suffer..."
