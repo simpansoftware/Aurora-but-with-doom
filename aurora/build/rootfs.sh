@@ -17,7 +17,8 @@ rootfs=$(realpath -m "./rootfs")
 buildrootfs=$(realpath -m "./buildrootfs")
 arch="${args[arch]:-x86_64}"
 
-rm -rf "${rootfs}" & mkdir -p "${rootfs}"
+rm -rf "${rootfs}" 
+mkdir -p "${rootfs}"
 
 need_remount() {
     findmnt -T "$1" -o OPTIONS -n | grep -qE 'noexec|nodev'
