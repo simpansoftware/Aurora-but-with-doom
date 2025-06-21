@@ -1,9 +1,8 @@
 #!/bin/sh
 set -e
 
-arch="${10}"
+arch="${1}"
 
-echo "$hostname" > /etc/hostname
 echo "https://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
 apk add wpa_supplicant vboot-utils curl tpm2-tools cryptsetup
 apk del apk-tools

@@ -19,13 +19,6 @@ arch="${args['arch']-x86_64}"
 
 rm -rf "${rootfs}" & mkdir -p "${rootfs}"
 
-
-unmount() {
-    for dir in proc sys dev run; do
-        umount -l "$rootfs/$dir"
-    done
-}
-
 need_remount() {
     findmnt -T "$1" -o OPTIONS -n | grep -qE 'noexec|nodev'
 }
@@ -65,3 +58,19 @@ else
     log_info "Downloading firmware..."
     [ ! -d "linux-firmware" ] && git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware $rootfs/lib/firmware/
 fi
+unmount() {
+    for dir in proc sys dev run; do
+        umount -l "$rootfs/$dir"
+    done
+}
+trap unmount EXIT
+for dir in proc sys dev run; do
+    mount --make-rslave --rbind "/$dir" "$rootfs/$dir"
+done
+
+chroot $rootfs /bin/sh -c "/opt/setup_rootfs_alpine.sh $arch"
+
+trap - EXIT
+unmount
+
+echo_c "Rootfs Created" GEEN_B
