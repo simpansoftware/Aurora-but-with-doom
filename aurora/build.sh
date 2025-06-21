@@ -26,6 +26,7 @@ COLOR_BLUE_B="\033[1;34m"
 COLOR_MAGENTA_B="\033[1;35m"
 COLOR_PINK_B="\x1b[1;38;2;235;170;238m"
 COLOR_CYAN_B="\033[1;36m"
+export NOWIFI=false
 
 IMAGE=$1
 SCRIPT_DIR=$(dirname "$0")
@@ -51,9 +52,19 @@ check_raw_shim() {
 }
 
 patch_sh1mmer() {
-    log_info "Downloading firmware..."
-    [ ! -d "linux-firmware" ] && git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware
-
+    for arg in "$@"; do
+        case "$arg" in
+            --nowifi|-nw)
+                export NOWIFI=true
+                ;;
+        esac
+    done
+    if [ "$NOWIFI" = true ]; then
+        log_info "Flag 'nowifi' set. Skipping firmware download..."
+    else
+        log_info "Downloading firmware..."
+        [ ! -d "linux-firmware" ] && git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware
+    fi
     log_info "Creating IRS images partition ($(format_bytes "$SH1MMER_PART_SIZE"))"
     local sector_size
     sector_size=$(get_sector_size "$LOOPDEV")
@@ -120,7 +131,7 @@ safesync
 trap 'cleanup; exit' EXIT
 trap 'echo Abort.; cleanup; exit' INT
 
-patch_sh1mmer
+patch_sh1mmer "$@"
 safesync
 
 losetup -d "$LOOPDEV"
