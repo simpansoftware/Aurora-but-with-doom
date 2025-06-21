@@ -15,7 +15,7 @@ fi
 
 rootfs=$(realpath -m "./rootfs")
 buildrootfs=$(realpath -m "./buildrootfs")
-arch="${args['arch']-x86_64}"
+arch="${args[arch]:-x86_64}"
 
 rm -rf "${rootfs}" & mkdir -p "${rootfs}"
 
