@@ -56,13 +56,15 @@ if need_remount "$rootfs"; then
 fi
 
 echo_c "Bootstrapping Alpine" GEEN_B
-rm $rootfs/sbin/init
-cp -r ../rootfs/* $rootfs
 
 if [ ! -f alpine-minirootfs.tar.gz ]; then
     curl -L https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$arch/alpine-minirootfs-3.22.0-$arch.tar.gz -o alpine-minirootfs.tar.gz
 fi
 tar -xf alpine-minirootfs.tar.gz -C $rootfs
+
+rm $rootfs/sbin/init
+cp -r ../rootfs/* $rootfs
+
 rm -rf $(find "$rootfs/lib/firmware/"* \
     -not -name "iwlwifi-7265D-29.ucode.ucode" \
     -not -name "iwlwifi-9000-pu-b0-jf-b0-41.ucode" \

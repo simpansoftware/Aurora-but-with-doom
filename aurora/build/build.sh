@@ -36,23 +36,90 @@ else
     arch="$2"
     export arch
 fi
-if [ -z "$(ls -A "./rootfs")" ]; then
+
+shim=$1
+rootfs="./rootfs/"
+initramfs="./initramfs/"
+
+if [ -z "$(ls -A "$rootfs")" ]; then
     echo_c "Please run 'sudo bash rootfs.sh [cpu_architecture(x86_64 or aarch64)]'." RED_B
 fi
+
+mkdir -p "$initramfs"
+
+if ! $(losetup | grep loop0); then
+	touch /tmp/loop0
+	dd if=/dev/urandom of=/tmp/loop0 bs=1 count=512 status=none > /dev/null 2>&1
+	losetup -P /dev/loop0 /tmp/loop0
+fi
+loopdev=$(losetup -f)
+losetup -P "$loopdev" "$SHIM"
+extract_initramfs_full "$loopdev" "$initramfs" "/tmp/shim_kernel/kernel.img" "$arch"
 
 source ./utils/functions.sh
 echo_c "Running with flags: ($@)" "BLUE_B"
 echo_c "Architecture: ($arch)" "BLUE_B"
 
-shim=$1
-
 dev="$(losetup -Pf --show $shim)"
-root="$(cgpt find -l ROOT-A $dev || cgpt find -t rootfs $dev | head -n 1)"
-rootmount=$(mktemp -d)
-echo -e "y\n" | mkfs.ext4 -F $root
-mount $root $rootmount
+
+fdisk "$dev" <<EOF
+d
+12
+d
+11
+d
+10
+d
+9
+d
+8
+d
+7
+d
+6
+d
+5
+d
+4
+d
+3
+n
+3
+
+
++20M
+n
+4
+
+
+t
+3
+175
+t
+4
+20
+w
+EOF
+
+root_a="${dev}p3"
+root_b="${dev}p4"
+
+mkfs.ext4 "$root_a" -L ROOT-A
+mkfs.ext4 "$root_b" -L ROOT-B
+
+root_amount=$(mktemp -d)
+root_bmount=$(mktemp -d)
+mount $root_a $root_amount
+mount $root_b $root_bmount
+
 echo_c "Copying rootfs to shim" "GEEN_B" 
-rsync -avH --info=progress2 "./rootfs/" "$rootmount"
+rsync -avH --info=progress2 "$rootfs" "$root_bmount"
+echo_c "Copying initram to shim" "GEEN_B" 
+rsync -avH --info=progress2 "$initramfs" "$root_amount"
+rm -f $root_amount/sbin/init
+cp ../root-a/sbin/init $root_amount/sbin/init
+chmod +x $root_amount/sbin/init
+chmod +x $root_bmount/sbin/init
 echo_c "Done!" "GEEN_B"
 umount $rootmount
 umount $rootmount -l
