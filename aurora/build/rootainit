@@ -1,0 +1,24 @@
+#!/bin/busybox sh
+
+# replace /dev/sda4 with actual root-b
+mkdir -p /newroot
+mount /dev/sda4 /newroot
+echo "Moving mounts..."
+            mkdir -p "/newroot/dev" "/newroot/proc" "/newroot/sys" "/newroot/tmp" "/newroot/run"
+            mount -t tmpfs -o mode=1777 none /newroot/tmp
+            mount -t tmpfs -o mode=0555 run /newroot/run
+            mkdir -p -m 0755 /newroot/run/lock
+
+            umount -l /dev/pts
+            umount -f /dev/pts
+            mount --move "/dev" "/newroot/dev"
+            umount -l "/dev"
+            mount --move "/proc" "/newroot/proc"
+            umount -l "/proc"
+            mount --move "/sys" "/newroot/sys"
+            umount -l "/sys"
+mkdir -p /newroot/tmp/oldroot
+pivot_root /newroot /newroot/tmp/oldroot
+ls -lah /sbin/init
+chmod +x /sbin/init
+exec /sbin/init
