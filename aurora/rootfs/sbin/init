@@ -32,7 +32,10 @@ COLOR_BLUE_B="\033[1;34m"
 COLOR_MAGENTA_B="\033[1;35m"
 COLOR_CYAN_B="\033[1;36m"
 
-echo -e "Starting up ${COLOR_GREEN_B}${VERSION["STRING"]}${COLOR_RESET} on ${COLOR_BLUE_B}$(/bin/busybox uname -o) $(/bin/busybox uname -r)${COLOR_RESET}"
+PRETTY_NAME=
+source /etc/os-release
+
+echo -e "Starting up ${COLOR_GREEN_B}${VERSION["STRING"]}${COLOR_RESET} on ${COLOR_BLUE_B}${PRETTY_NAME} Linux ($(/bin/busybox uname -o) $(/bin/busybox uname -r))${COLOR_RESET}"
 
 services="/usr/share/pint/pint.d/"
 handoffConfig="/usr/share/pint/handoff.conf"

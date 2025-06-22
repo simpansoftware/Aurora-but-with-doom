@@ -1,3 +1,4 @@
+#!/bin/bash
 
 export COLOR_RESET="\033[0m"
 export BLACK_B="\033[1;30m"
