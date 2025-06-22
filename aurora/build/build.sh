@@ -49,11 +49,10 @@ shim=$1
 dev="$(losetup -Pf --show $shim)"
 root="$(cgpt find -l ROOT-A $dev || cgpt find -t rootfs $dev | head -n 1)"
 rootmount=$(mktemp -d)
-
 echo -e "y\n" | mkfs.ext4 -F $root
 mount $root $rootmount
 echo_c "Copying rootfs to shim" "GEEN_B" 
-rsync -avH --info=progress2 "./rootfs" "$rootmount"
+rsync -avH --info=progress2 "./rootfs/" "$rootmount"
 echo_c "Done!" "GEEN_B"
 umount $rootmount
 umount $rootmount -l

@@ -98,7 +98,6 @@ runServices() {
 			"$s"
 			if [[ $? -ne 0 ]]; then
 				log "${COLOR_RED_B}ERROR${COLOR_RESET}" "Failure running service $s"
-				hang
 			else
 				log "${COLOR_GREEN_B}OK${COLOR_RESET}" "Started service $s"
 			fi
