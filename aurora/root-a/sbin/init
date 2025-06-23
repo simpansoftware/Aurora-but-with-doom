@@ -1,11 +1,17 @@
 #!/bin/busybox sh
 
-# replace /dev/sda4 with actual root-b
 mkdir -p /newroot
-cgpt find -l ROOT-A "$dev" || cgpt find -t rootfs "$dev" | head -n 1
 mount /dev/sda4 /newroot
-mkdir -p /newroot/tmp/oldroot
-pivot_root /newroot /newroot/tmp/oldroot
-ls -lah /sbin/init
-chmod +x /sbin/init
-exec /sbin/init
+
+echo "Moving mounts to /newroot"
+mkdir -p "/newroot/sys"
+mount -n -o move "/sys" "/newroot/sys"
+mkdir -p "/newroot/proc"
+mount -n -o move "/proc" "/newroot/proc"
+mkdir -p "/newroot/dev"
+mount -n -o move "/dev" "/newroot/dev"
+
+echo "exec switch_root"
+echo "this shouldn't take more than a few seconds"
+chmod +x /newroot/sbin/init
+exec switch_root /newroot /sbin/init -v --default-console output || :

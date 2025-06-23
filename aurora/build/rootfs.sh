@@ -49,6 +49,8 @@ loopdev=$(losetup -f)
 losetup -P "$loopdev" "$shim"
 initramfs="./initramfs"
 extract_initramfs_full "$loopdev" "$initramfs" "/tmp/shim_kernel/kernel.img" "$arch"
+umount ${loopdev}p3
+umount ${loopdev}p4
 losetup -D
 
 echo_c "Extracted initramfs" GEEN_B
@@ -77,8 +79,6 @@ if [ ! -f alpine-minirootfs.tar.gz ]; then
     curl -L https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$arch/alpine-minirootfs-3.22.0-$arch.tar.gz -o alpine-minirootfs.tar.gz
 fi
 tar -xf alpine-minirootfs.tar.gz -C $rootfs
-
-rm $rootfs/sbin/init
 cp -r ../rootfs/* $rootfs
 
 echo "nameserver 8.8.8.8" > $rootfs/etc/resolv.conf
@@ -111,7 +111,10 @@ trap unmount EXIT
 for dir in proc sys dev run; do
     mount --make-rslave --rbind "/$dir" "$rootfs/$dir"
 done
-
+mount --make-rslave --rbind "/sys" "${rootfs}/sys"
+mount --make-rslave --rbind "/dev" "${rootfs}/dev"
+mount --make-rslave --rbind "/proc" "${rootfs}/proc"
+mount --make-rslave --rbind "/run" "${rootfs}/run"
 chroot $rootfs /bin/sh -c "chmod +x /opt/setup_rootfs_alpine.sh && /opt/setup_rootfs_alpine.sh $arch"
 
 trap - EXIT
