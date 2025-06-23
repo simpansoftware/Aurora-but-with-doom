@@ -76,6 +76,8 @@ root_b="${dev}p4"
 
 echo -e "y\n" | mkfs.ext4 "$root_a" -L ROOT-A
 echo -e "y\n" | mkfs.ext4 "$root_b" -L ROOT-B
+parted /dev/loop0 name 3 ROOT-A
+parted /dev/loop0 name 4 ROOT-B
 
 root_amount=$(mktemp -d)
 root_bmount=$(mktemp -d)
