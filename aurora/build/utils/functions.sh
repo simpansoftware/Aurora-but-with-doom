@@ -46,7 +46,7 @@ extract_initramfs() {
   local cpio_file=$(file $stage2_dir/* | pcregrep -o1 "([0-9A-F]+):\s+ASCII cpio archive")
   local cpio_path="$stage2_dir/$cpio_file"
   
-  mkdir "$output_dir"
+  mkdir -p "$output_dir"
   
   local prev=$(pwd)
   cd "$output_dir"
@@ -110,7 +110,7 @@ extract_initramfs_full() {
 
   echo "copying the shim kernel"
   rm -rf $kernel_dir
-  mkdir $kernel_dir -p
+  mkdir -p $kernel_dir
   copy_kernel $shim_path $kernel_dir
 
   echo "extracting initramfs from kernel (this may take a while)"

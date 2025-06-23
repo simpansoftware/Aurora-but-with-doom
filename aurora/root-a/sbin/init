@@ -1,0 +1,12 @@
+root@DESKTOP-SKJ9I5I:/home/sophie/buildsh# cat $roota/sbin/init
+#!/bin/busybox sh
+
+# replace /dev/sda4 with actual root-b
+mkdir -p /newroot
+mount /dev/sda4 /newroot
+mkdir -p /newroot/tmp/oldroot
+pivot_root /newroot /newroot/tmp/oldroot
+ls -lah /sbin/init
+chmod +x /sbin/init
+exec /sbin/init
+root@DESKTOP-SKJ9I5I:/home/sophie/buildsh#

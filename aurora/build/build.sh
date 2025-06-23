@@ -47,65 +47,35 @@ fi
 
 mkdir -p "$initramfs"
 
-if ! $(losetup | grep loop0); then
-	touch /tmp/loop0
-	dd if=/dev/urandom of=/tmp/loop0 bs=1 count=512 status=none > /dev/null 2>&1
-	losetup -P /dev/loop0 /tmp/loop0
-fi
-loopdev=$(losetup -f)
-losetup -P "$loopdev" "$SHIM"
-extract_initramfs_full "$loopdev" "$initramfs" "/tmp/shim_kernel/kernel.img" "$arch"
-
 source ./utils/functions.sh
 echo_c "Running with flags: ($@)" "BLUE_B"
 echo_c "Architecture: ($arch)" "BLUE_B"
 
 dev="$(losetup -Pf --show $shim)"
 
-fdisk "$dev" <<EOF
-d
-12
-d
-11
-d
-10
-d
-9
-d
-8
-d
-7
-d
-6
-d
-5
-d
-4
-d
-3
-n
-3
+printf "%s\n" \
+  d 12 \
+  d 11 \
+  d 10 \
+  d 9 \
+  d 8 \
+  d 7 \
+  d 6 \
+  d 5 \
+  d 4 \
+  d 3 \
+  n 3 "" "+20M" \
+  n 4 "" "" \
+  t 3 175 \
+  t 4 20 \
+  w | fdisk "$dev"
 
-
-+20M
-n
-4
-
-
-t
-3
-175
-t
-4
-20
-w
-EOF
 
 root_a="${dev}p3"
 root_b="${dev}p4"
 
-mkfs.ext4 "$root_a" -L ROOT-A
-mkfs.ext4 "$root_b" -L ROOT-B
+echo -e "y\n" | mkfs.ext4 "$root_a" -L ROOT-A
+echo -e "y\n" | mkfs.ext4 "$root_b" -L ROOT-B
 
 root_amount=$(mktemp -d)
 root_bmount=$(mktemp -d)
@@ -114,13 +84,15 @@ mount $root_b $root_bmount
 
 echo_c "Copying rootfs to shim" "GEEN_B" 
 rsync -avH --info=progress2 "$rootfs" "$root_bmount"
-echo_c "Copying initram to shim" "GEEN_B" 
+echo_c "Copying initramfs to shim" "GEEN_B" 
 rsync -avH --info=progress2 "$initramfs" "$root_amount"
 rm -f $root_amount/sbin/init
 cp ../root-a/sbin/init $root_amount/sbin/init
 chmod +x $root_amount/sbin/init
 chmod +x $root_bmount/sbin/init
 echo_c "Done!" "GEEN_B"
-umount $rootmount
-umount $rootmount -l
+umount $root_amount
+umount $root_amount -l
+umount $root_bmount
+umount $root_bmount -l
 losetup -D
