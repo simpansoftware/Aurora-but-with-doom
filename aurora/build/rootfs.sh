@@ -108,13 +108,7 @@ unmount() {
     done
 }
 trap unmount EXIT
-for dir in proc sys dev run; do
-    mount --make-rslave --rbind "/$dir" "$rootfs/$dir"
-done
-mount --make-rslave --rbind "/sys" "${rootfs}/sys"
-mount --make-rslave --rbind "/dev" "${rootfs}/dev"
-mount --make-rslave --rbind "/proc" "${rootfs}/proc"
-mount --make-rslave --rbind "/run" "${rootfs}/run"
+
 chroot $rootfs /bin/sh -c "chmod +x /opt/setup_rootfs_alpine.sh && /opt/setup_rootfs_alpine.sh $arch"
 
 trap - EXIT
