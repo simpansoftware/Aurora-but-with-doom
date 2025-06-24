@@ -18,6 +18,12 @@
 # THE LEGAL RIGHTS TO YOUR FIRSTBORN CHILD, AND MAY STEAL ANY OF
 # YOUR CHILDREN AND THROW THEM ON A ROAD DURING ONCOMING TRAFFIC.
 
+setsid -c test
+trap '' INT
+trap '' SIGINT
+trap '' EXIT
+set -m
+
 #################
 ## DEFINITIONS ##
 #################
@@ -30,18 +36,19 @@ export recoroot="$mount/recoroot"
 export COLOR_RESET="\033[0m"
 export COLOR_BLACK_B="\033[1;30m"
 export COLOR_RED_B="\033[1;31m"
-export COLOR_GREEN="\033[0;32m"
-export COLOR_GREEN_B="\033[1;32m"
+export COLOR_GEEN="\033[0;32m"
+export COLOR_GEEN_B="\033[1;32m"
 export COLOR_YELLOW="\033[0;33m"
 export COLOR_YELLOW_B="\033[1;33m"
 export COLOR_BLUE_B="\033[1;34m"
 export COLOR_MAGENTA_B="\033[1;35m"
 export COLOR_PINK_B="\x1b[1;38;2;235;170;238m"
 export COLOR_CYAN_B="\033[1;36m"
+export PS1='$(cat /etc/hostname):\w\$ '
 
 declare -A VERSION
 
-VERSION["BRANCH"]="dev"
+VERSION["BRANCH"]="dev-alpine"
 VERSION["NUMBER"]="3.0"
 VERSION["BUILDDATE"]="[2025-06-20]"
 VERSION["RELNAME"]="A New Dawn"
@@ -97,16 +104,59 @@ menu() {
     return $selected
 }
 
+fail() {
+	printf "Aurora panic: ${COLOR_RED_B}%b${COLOR_RESET}\n" "$*" >&2 || :
+	printf "panic: We are hanging here..."
+	sync
+	umount $mount/aurora &> /dev/null
+	umount $mount/shimroot &> /dev/null
+	umount /newroot &> /dev/null
+	umount $mount/recoroot &> /dev/null
+	losetup -D
+	hang
+}
+
+hang() {
+	tput civis
+	stty -echo
+	sleep 1h
+	echo "You really still haven't turned off your device?"
+	sleep 1d
+	echo "I give up. Bye."
+	sleep 5
+	reboot -f
+}
+
+get_largest_cros_blockdev() {
+	local largest size dev_name tmp_size remo
+	size=0
+	for blockdev in /sys/block/*; do
+		dev_name="${blockdev##*/}"
+		echo -e "$dev_name" | grep -q '^\(loop\|ram\)' && continue
+		tmp_size=$(cat "$blockdev"/size)
+		remo=$(cat "$blockdev"/removable)
+		if [ "$tmp_size" -gt "$size" ] && [ "${remo:-0}" -eq 0 ]; then
+			case "$(sfdisk -d "/dev/$dev_name" 2>/dev/null)" in
+				*'name="STATE"'*'name="KERN-A"'*'name="ROOT-A"'*)
+					largest="/dev/$dev_name"
+					size="$tmp_size"
+					;;
+			esac
+		fi
+	done
+	echo -e "$largest"
+}
+
 credits() {
     echo -e "${COLOR_MAGENTA_B}Credits"
-    echo -e "${COLOR_PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Figured out wifi + i forgor"
-    echo -e "${COLOR_GREEN_B}xmb9${COLOR_RESET}: Lead developer of Aurora, almost everything on Priism, Pint"
+    echo -e "${COLOR_PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Wifi, Aurora's Alpine rootfs"
+    echo -e "${COLOR_GEEN_B}xmb9${COLOR_RESET}: Lead developer of Aurora, Booting Shims & Reco Images"
     echo -e "${COLOR_YELLOW_B}Synaptic${COLOR_RESET}: Emotional Support"
     echo -e "${COLOR_CYAN_B}Simon${COLOR_RESET}: Brainstormed how to do wifi, helped with dhcpcd"
     echo -e "${COLOR_BLUE_B}kraeb${COLOR_RESET}: QoL improvements and initial idea"
     echo -e "${COLOR_RED_B}Mariah Carey${COLOR_RESET}: Bugtesting wifi"
     echo -e "${COLOR_MAGNETA_B}AC3${COLOR_RESET}: Literally nothing"
-    echo -e "${COLOR_GREEN_B}Rainestorme${COLOR_RESET}: Murkmod's version finder"
+    echo -e "${COLOR_GEEN_B}Rainestorme${COLOR_RESET}: Murkmod's version finder"
     echo -e " "
 	read -p "Press enter to continue."
 	clear
@@ -114,8 +164,24 @@ credits() {
 }
 
 funText() {
-	splashText=("The lower tape fade meme is still massive." "  It probably existed in the first place." "              HACKED BY GEEN" "    \"how do i type a backslash\" -simon")
-  	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]}
+	splashText=(
+        "The lower tape fade meme is still massive." 
+        " It most like existed in the first place." 
+        "              HACKED BY GEEN" 
+        "    \"how do i type a backslash\" -simon" 
+        "  MURDER DRONES SEASON 2 IS REAL I SWEAR"
+        "   Well-made Quality Assured Durability" 
+        "        "purr :3 mrrow" - Synaptic" 
+        "          who else but quagmire?\n         he's quagmire, quagmire,\n        you never really know what\n            he's gonna do next\n          he's quagmire, quagmire,\n       giggitygiggitygiggitygiggity\n             let's have [...]"
+        "             rhymes with grug"
+        "             rhymes with grug"
+        "               i'm kxtz cuh"
+        "        now with free thigh highs!"
+        "                    :3"
+        " cr50 hammer? i think you meant \"no PoC\"."
+        "            public nuisance???\n        is that a hannah reference"
+        )
+  	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
 	echo -e " "
    	echo -e "$selectedSplashText"
 }
@@ -352,7 +418,7 @@ shimboot() {
 			clear
 			return
 		elif cat /mnt/shimroot/sbin/bootstrap.sh | grep "│ Priishimboot OS Selector" --quiet; then
-			echo -e "${COLOR_GREEN}Priishimboot detected.${COLOR_RESET}"
+			echo -e "${COLOR_GEEN}Priishimboot detected.${COLOR_RESET}"
 			if ! cgpt find -l "shimboot_rootfs:priism" > /dev/null; then
 				echo -e "${COLOR_YELLOW_B}Please use Priishimbooter before booting!${COLOR_RESET}"
 				umount /mnt/shimroot
@@ -363,7 +429,7 @@ shimboot() {
 				return
 			fi
 		fi
-		if cat /mnt/shimroot/usr/sbin/sh1mmer_main.sh | grep "https://github.com/EtherealWorkshop/Aurora" --quiet; then
+		if cat /mnt/shimroot/usr/share/aurora/aurora.sh | grep "https://github.com/EtherealWorkshop/Aurora" --quiet; then
 			echo -e "${COLOR_YELLOW_B}$(detect_aurora_in_shimboot_function)${COLOR_RESET}"
 			losetup -D
 			read -p "Press enter to continue."
@@ -568,7 +634,6 @@ menu_options=(
     "Install a ChromeOS recovery image"
     "Boot an RMA shim"
     "Connect to WiFi"
-    "Download a recovery image or RMA shim"
     "Payloads"
     "Credits"
     "Update"
@@ -576,7 +641,7 @@ menu_options=(
 )
 
 menu_actions=(
-    bash
+    "bash -l"
     installcros
     shimboot
     wifi
@@ -585,13 +650,55 @@ menu_actions=(
     "canwifi updateshim"
     "reboot -f"
 )
+splash
+aurora_files="/dev/disk/by-label/AURORA"
+aurora_disk=$(echo /dev/$(lsblk -ndo pkname ${aurora_files} || echo -e "${COLOR_YELLOW_B}Warning${COLOR_RESET}: Failed to enumerate disk! Resizing will most likely fail."))
+
+board_name="$(cat /sys/devices/virtual/dmi/id/board_name | head -n 1)"
+if ! [ $? -eq 0 ]; then
+	echo -e "${COLOR_YELLOW_B}Board name detection failed. This isn't that big of an issue.${COLOR_RESET}"
+ 	board_name=""
+fi
+
+source /etc/lsb-release 2&> /dev/null
+
+mount $aurora_files /mnt/aurora || fail "Failed to mount AURORA partition!"
+
+if [ ! -z "$(ls -A $mount/aurora/.IMAGES_NOT_YET_RESIZED 2> /dev/null)" ]; then # this janky shit is the only way it works. idk why.
+	echo -e "${COLOR_YELLOW}Aurora needs to resize your images partition!${COLOR_RESET}"
+	
+	read -p "Press enter to continue."
+	
+	echo -e "${COLOR_GEEN}Info: Growing AURORA partition${COLOR_RESET}"
+	
+	umount $aurora_files
+	
+	growpart $aurora_disk 5 # growpart. why. why did you have to be different.
+	e2fsck -f $aurora_files
+	
+	echo -e "${COLOR_GEEN}Info: Resizing filesystem (This operation may take a while, do not panic if it looks stuck!)${COLOR_RESET}"
+	
+	resize2fs -p $aurora_files || fail "Failed to resize filesystem on ${aurora_files}!"
+	
+	echo -e "${COLOR_GEEN}Done. Remounting partition...${COLOR_RESET}"
+	
+	mount $aurora_files $mount/aurora/
+	rm -rf $mount/aurora/.IMAGES_NOT_YET_RESIZED
+	sync
+fi
+
+chmod 777 $mount/aurora/*
+
+recochoose=($mount/aurora/recovery/*)
+shimchoose=($mount/aurora/shims/*)
+selpayload=($mount/aurora/payloads/*.sh)
+
+STATEFUL_MNT=/stateful
 
 while true; 
 do
     clear
     splash
     menu "Select an option (use ↑ ↓ arrows, Enter to select):" "${menu_options[@]}"
-    menu_selected=$?
-    eval "${menu_actions[$menu_selected]}"
-    echo
+    eval "${menu_actions[$?]}"
 done

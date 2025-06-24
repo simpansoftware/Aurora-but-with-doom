@@ -53,6 +53,13 @@ echo_c "Architecture: ($arch)" "BLUE_B"
 
 dev="$(losetup -Pf --show $shim)"
 
+chromeos="$(cgpt find -l $shim | head -n 1)"
+tempmount="$(mktemp -d)"
+
+mount $chromeos $tempmount
+cp -ar $tempmount/lib/modules ./rootfs/
+umount $tempmount
+
 printf "%s\n" \
   d 12 \
   d 11 \
@@ -89,15 +96,11 @@ rsync -avH --info=progress2 "$rootfs" "$root_bmount"
 echo_c "Copying initramfs to shim" "GEEN_B" 
 rsync -avH --info=progress2 "$initramfs" "$root_amount"
 rm -f $root_amount/sbin/init
-rm -f $root_amount/sbin/bootstrap.sh
-rm -f $root_bmount/usr/share/pint/shell.sh
+rm -f $root_bmount/sbin/init
 cp ../root-a/sbin/init $root_amount/sbin/init
-cp ../root-a/sbin/bootstrap.sh $root_amount/sbin/bootstrap.sh
-cp ../rootfs/usr/share/pint/shell.sh $root_bmount/usr/share/pint/shell.sh
+cp ../root-b/sbin/init $root_bmount/sbin/init
 chmod +x $root_amount/sbin/init
-chmod +x $root_amount/sbin/bootstrap.sh
 chmod +x $root_bmount/sbin/init
-chmod +x $root_bmount/usr/share/pint/shell.sh
 echo_c "Done!" "GEEN_B"
 umount $root_amount
 umount $root_amount -l

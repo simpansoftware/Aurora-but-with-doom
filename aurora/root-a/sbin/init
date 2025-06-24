@@ -1,17 +1,26 @@
 #!/bin/busybox sh
 
+set -e
+
+echo "[init] Mounting Alpine rootfs..."
 mkdir -p /newroot
-mount /dev/sda4 /newroot
+mount -t ext4 /dev/sda4 /newroot
 
-echo "Moving mounts to /newroot"
-mkdir -p "/newroot/sys"
-mount -n -o move "/sys" "/newroot/sys"
-mkdir -p "/newroot/proc"
-mount -n -o move "/proc" "/newroot/proc"
-mkdir -p "/newroot/dev"
-mount -n -o move "/dev" "/newroot/dev"
+echo "[init] Moving mount points..."
+mkdir -p /newroot/{dev,proc,sys}
+mount --move /dev  /newroot/dev
+mount --move /proc /newroot/proc
+mount --move /sys  /newroot/sys
 
-echo "exec switch_root"
-echo "this shouldn't take more than a few seconds"
+if [ -d /run ]; then
+  mkdir -p /newroot/run
+  mount --move /run /newroot/run || echo "[warn] /run not moved"
+fi
+
+echo "[init] Switching to new root..."
 chmod +x /newroot/sbin/init
-exec switch_root /newroot /sbin/init -v --default-console output || :
+
+exec switch_root /newroot /sbin/init || {
+  echo "[init] switch_root failed! Dropping to emergency shell..."
+  exec /bin/sh
+}
