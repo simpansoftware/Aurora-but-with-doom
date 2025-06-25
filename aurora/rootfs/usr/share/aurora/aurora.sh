@@ -24,6 +24,13 @@ trap '' SIGINT
 trap '' EXIT
 set -m
 
+source /etc/profile
+echo "Starting udevd..."
+/sbin/udevd --daemon || :
+udevadm trigger || :
+udevadm settle || :
+echo "Done."
+
 #################
 ## DEFINITIONS ##
 #################
@@ -180,6 +187,7 @@ funText() {
         "                    :3"
         " cr50 hammer? i think you meant \"no PoC\"."
         "            public nuisance???\n        is that a hannah reference"
+
         )
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
 	echo -e " "
@@ -419,7 +427,7 @@ shimboot() {
 			return
 		elif cat /mnt/shimroot/sbin/bootstrap.sh | grep "│ Priishimboot OS Selector" --quiet; then
 			echo -e "${COLOR_GEEN}Priishimboot detected.${COLOR_RESET}"
-			if ! cgpt find -l "shimboot_rootfs:priism" > /dev/null; then
+			if ! cgpt find -l "shimboot_rootfs:aurora" > /dev/null; then
 				echo -e "${COLOR_YELLOW_B}Please use Priishimbooter before booting!${COLOR_RESET}"
 				umount /mnt/shimroot
 				losetup -D
@@ -650,50 +658,6 @@ menu_actions=(
     "canwifi updateshim"
     "reboot -f"
 )
-splash
-aurora_files="/dev/disk/by-label/AURORA"
-aurora_disk=$(echo /dev/$(lsblk -ndo pkname ${aurora_files} || echo -e "${COLOR_YELLOW_B}Warning${COLOR_RESET}: Failed to enumerate disk! Resizing will most likely fail."))
-
-board_name="$(cat /sys/devices/virtual/dmi/id/board_name | head -n 1)"
-if ! [ $? -eq 0 ]; then
-	echo -e "${COLOR_YELLOW_B}Board name detection failed. This isn't that big of an issue.${COLOR_RESET}"
- 	board_name=""
-fi
-
-source /etc/lsb-release 2&> /dev/null
-
-mount $aurora_files /mnt/aurora || fail "Failed to mount AURORA partition!"
-
-if [ ! -z "$(ls -A $mount/aurora/.IMAGES_NOT_YET_RESIZED 2> /dev/null)" ]; then # this janky shit is the only way it works. idk why.
-	echo -e "${COLOR_YELLOW}Aurora needs to resize your images partition!${COLOR_RESET}"
-	
-	read -p "Press enter to continue."
-	
-	echo -e "${COLOR_GEEN}Info: Growing AURORA partition${COLOR_RESET}"
-	
-	umount $aurora_files
-	
-	growpart $aurora_disk 5 # growpart. why. why did you have to be different.
-	e2fsck -f $aurora_files
-	
-	echo -e "${COLOR_GEEN}Info: Resizing filesystem (This operation may take a while, do not panic if it looks stuck!)${COLOR_RESET}"
-	
-	resize2fs -p $aurora_files || fail "Failed to resize filesystem on ${aurora_files}!"
-	
-	echo -e "${COLOR_GEEN}Done. Remounting partition...${COLOR_RESET}"
-	
-	mount $aurora_files $mount/aurora/
-	rm -rf $mount/aurora/.IMAGES_NOT_YET_RESIZED
-	sync
-fi
-
-chmod 777 $mount/aurora/*
-
-recochoose=($mount/aurora/recovery/*)
-shimchoose=($mount/aurora/shims/*)
-selpayload=($mount/aurora/payloads/*.sh)
-
-STATEFUL_MNT=/stateful
 
 while true; 
 do

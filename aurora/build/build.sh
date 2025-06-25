@@ -1,5 +1,20 @@
 #!/bin/bash
 
+# Copyright 2025 Ethereal Workshop. All rights reserved.
+# Use of this source code is governed by the BSD 3-Clause license
+# that can be found in the LICENSE.md file.
+
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 if [[ "$(basename "$(pwd)")" != "build" ]]; then
     echo "Please run in the build directory. (Aurora/build/)"
     exit 1
@@ -82,9 +97,9 @@ root_a="${dev}p3"
 root_b="${dev}p4"
 
 echo -e "y\n" | mkfs.ext4 "$root_a" -L ROOT-A
-echo -e "y\n" | mkfs.ext4 "$root_b" -L ROOT-B
+echo -e "y\n" | mkfs.ext4 "$root_b" -L Aurora
 parted /dev/loop0 name 3 ROOT-A
-parted /dev/loop0 name 4 ROOT-B
+parted /dev/loop0 name 4 Aurora
 
 root_amount=$(mktemp -d)
 root_bmount=$(mktemp -d)
@@ -92,15 +107,16 @@ mount $root_a $root_amount
 mount $root_b $root_bmount
 
 echo_c "Copying rootfs to shim" "GEEN_B" 
-rsync -avH --info=progress2 "$rootfs" "$root_bmount"
+rsync -avH --info=progress2 "$rootfs" "$root_bmount" &>/dev/null
 echo_c "Copying initramfs to shim" "GEEN_B" 
-rsync -avH --info=progress2 "$initramfs" "$root_amount"
+rsync -avH --info=progress2 "$initramfs" "$root_amount" &>/dev/null
 rm -f $root_amount/sbin/init
 rm -f $root_bmount/sbin/init
 cp ../root-a/sbin/init $root_amount/sbin/init
 cp ../root-b/sbin/init $root_bmount/sbin/init
 chmod +x $root_amount/sbin/init
 chmod +x $root_bmount/sbin/init
+touch $root_amount/.NOTRESIZED
 echo_c "Done!" "GEEN_B"
 umount $root_amount
 umount $root_amount -l

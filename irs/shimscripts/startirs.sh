@@ -1,50 +1,84 @@
 #!/bin/bash
 
+setsid -c test
+trap '' INT
+trap '' SIGINT
+trap '' EXIT
+
 clear
+export aroot="/usr/share/aurora"
 export releaseBuild=1
-export shimroot="/mnt/shimroot"
-export recoroot="/mnt/recoroot"
+export shimroot="$aroot/shimroot"
+export recoroot="$aroot/recoroot"
 export COLOR_RESET="\033[0m"
 export COLOR_BLACK_B="\033[1;30m"
 export COLOR_RED_B="\033[1;31m"
-export COLOR_GREEN="\033[0;32m"
-export COLOR_GREEN_B="\033[1;32m"
+export COLOR_GEEN="\033[0;32m"
+export COLOR_GEEN_B="\033[1;32m"
 export COLOR_YELLOW="\033[0;33m"
 export COLOR_YELLOW_B="\033[1;33m"
 export COLOR_BLUE_B="\033[1;34m"
 export COLOR_MAGENTA_B="\033[1;35m"
 export COLOR_PINK_B="\x1b[1;38;2;235;170;238m"
 export COLOR_CYAN_B="\033[1;36m"
+export PS1='$(cat /etc/hostname):\w\$ '
 
 funText() {
-	splashText=("    The lower tape fade meme is still massive" "     It probably existed in the first place." "                 now with kvs!" "                 HACKED BY GEEN")
-  	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]}
+	splashText=(
+        "The lower tape fade meme is still massive." 
+        " It most like existed in the first place." 
+        "              HACKED BY GEEN" 
+        "    \"how do i type a backslash\" -simon" 
+        "  MURDER DRONES SEASON 2 IS REAL I SWEAR"
+        "   Well-made Quality Assured Durability" 
+        "        "purr :3 mrrow" - Synaptic" 
+        "          who else but quagmire?\n         he's quagmire, quagmire,\n        you never really know what\n            he's gonna do next\n          he's quagmire, quagmire,\n       giggitygiggitygiggitygiggity\n             let's have [...]"
+        "             rhymes with grug"
+        "             rhymes with grug"
+        "               i'm kxtz cuh"
+        "        now with free thigh highs!"
+        "                    :3"
+        " cr50 hammer? i think you meant \"no PoC\"."
+        "            public nuisance???\n        is that a hannah reference"
+
+        )
+  	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
 	echo -e " "
    	echo -e "$selectedSplashText"
 }
-export -f funText
 
 splash() {
-    echo -e "$COLOR_GREEN_B"
-    echo -e "               _____   _    __  __                "
-    echo -e "              |_   _| / \   \ \/ /                "
-    echo -e "                | |  / _ \   \  /                 "
-    echo -e "                | | / ___ \  /  \                 "
-    echo -e "                |_|/_/   \_\/_/\_\                "
-    echo -e "   _____ __     __ _     ____  ___  ___   _   _   "
-    echo -e "  | ____|\ \   / // \   / ___||_ _|/ _ \ | \ | |  "
-    echo -e "  |  _|   \ \ / // _ \  \___ \ | || | | ||  \| |  "
-    echo -e "  | |___   \ V // ___ \  ___) || || |_| || |\  |  "
-    echo -e "  |_____|   \_//_/   \_\|____/|___|\___/ |_| \_|  "
+    local width=42
+	local verstring=${VERSION["STRING"]}
+	local build=${VERSION["BUILDDATE"]}
+	local version_pad=$(( (width - ${#verstring}) / 2 ))
+    local build_pad=$(( (width - ${#build}) / 2 ))
+    echo -e "$COLOR_BLUE_B"
+    cat <<EOF
+╒════════════════════════════════════════╕
+│ .    . .    '    +   *       o    .    │
+│+  '.                    '   .-.     +  │
+│          +      .    +   .   ) )     ''│
+│                   '  .      '-´  *.    │
+│     .    \      .     .  .  +          │
+│         .-o-'       '    .o        o   │
+│  *        \      *            +'       │
+│                '       '               │
+│        .*       .       o   o      .   │
+│              o     . *.                │
+│ 'o*           .        .'    .         │
+│              ┏┓   '. O           *     │
+│     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
+│     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
+╘════════════════════════════════════════╛
+EOF
+    echo -e "$(printf "%*s%s" $version_pad "" "$verstring")"
+    echo -e "$(printf "%*s%s" $build_pad "" "$build")"
     echo -e "${COLOR_RESET}"
-    if [ "$1" -eq 1 ]; then
-        echo -e "        The IRS is initializing. Please wait..."
-    fi
-    echo -e "            https://github.com/soap-phia/IRS"
+    echo -e "https://github.com/EtherealWorkshop/Aurora"
     funText
     echo -e " "
 }
-export -f splash
 
 if [[ $releaseBuild -eq 1 ]]; then
 	trap '' INT
@@ -76,27 +110,45 @@ get_largest_cros_blockdev() {
 	echo -e "$largest"
 }
 export -f get_largest_cros_blockdev
-splash 1
-mkdir /irs
-mkdir /mnt/{newroot,shimroot,recoroot}
-# Credits to xmb9 for a good portion of what's below this comment
-irs_files="/dev/disk/by-label/IRS_FILES"
-irs_disk=$(echo /dev/$(lsblk -ndo pkname ${irs_files} || echo -e "${COLOR_YELLOW_B}Warning${COLOR_RESET}: Failed to enumerate disk! Resizing will most likely fail."))
-mount $irs_files /irs || fail "Failed to mount IRS_FILES partition!"
-if [ ! -z "$(ls -A /irs/.IMAGES_NOT_YET_RESIZED 2> /dev/null)" ]; then
-	echo -e "${COLOR_YELLOW}IRS needs to resize your images partition!${COLOR_RESET}"
-	echo -e "${COLOR_GREEN}Info: Growing IRS_FILES partition${COLOR_RESET}"
-	umount $irs_files
-	growpart $irs_disk 5
-    e2fsck -f $irs_files
-	echo -e "${COLOR_GREEN}Info: Resizing filesystem (This operation may take a while, do not panic if it looks stuck!)${COLOR_RESET}"
-	resize2fs -p $irs_files || fail "Failed to resize filesystem on ${irs_files}!"
-	echo -e "${COLOR_GREEN}Done. Remounting partition...${COLOR_RESET}"
-	mount $irs_files /irs
-	rm -rf /irs/.IMAGES_NOT_YET_RESIZED
+
+splash
+aurora_files=dev=$(cgpt find -l Aurora $dev || cgpt find -t rootfs $dev | head -n 1)
+aurora_disk=$(echo /dev/$(lsblk -ndo pkname ${aurora_files} || echo -e "${COLOR_YELLOW_B}Warning${COLOR_RESET}: Failed to enumerate disk! Resizing will most likely fail."))
+
+
+source /etc/lsb-release 2&> /dev/null
+
+mount $aurora_files $aroot || fail "Failed to mount Aurora partition!"
+
+if [ ! -z "$(ls -A $aroot/.IMAGES_NOT_YET_RESIZED 2> /dev/null)" ]; then # this janky shit is the only way it works. idk why.
+	echo -e "${COLOR_YELLOW}Aurora needs to resize your images partition!${COLOR_RESET}"
+	
+	read -p "Press enter to continue."
+	
+	echo -e "${COLOR_GEEN}Info: Growing Aurora partition${COLOR_RESET}"
+	
+	umount $aurora_files
+	
+	growpart $aurora_disk 5 # growpart. why. why did you have to be different.
+	# those who know why it had to be different
+	e2fsck -f $aurora_files
+	
+	echo -e "${COLOR_GEEN}Info: Resizing filesystem (This operation may take a while, do not panic if it looks stuck!)${COLOR_RESET}"
+	
+	resize2fs -p $aurora_files || fail "Failed to resize filesystem on ${aurora_files}!"
+	
+	echo -e "${COLOR_GEEN}Done. Remounting partition...${COLOR_RESET}"
+	
+	mount $aurora_files $aroot/
+	rm -rf $aroot/.IMAGES_NOT_YET_RESIZED
 	sync
 fi
-chmod 777 /irs/*
+
+chmod 777 $aroot/*
+recochoose=($aroot/recovery/*)
+shimchoose=($aroot/shims/*)
+selpayload=($aroot/payloads/*.sh)
+STATEFUL_MNT=/stateful
 source /irs/shimscripts/packages.sh
 source /irs/shimscripts/irs.sh
 mkdir /mnt/cros && mount /dev/mmcblk
