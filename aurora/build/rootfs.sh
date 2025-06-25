@@ -82,7 +82,6 @@ tar -xf alpine-minirootfs.tar.gz -C $rootfs
 cp -r ../rootfs/* $rootfs
 
 echo "nameserver 8.8.8.8" > $rootfs/etc/resolv.conf
-echo "aurora" > $rootfs/etc/hostname # we do a bit of self-advertising
 # haha 69
 for arg in "$@"; do
     case "$arg" in

@@ -52,7 +52,8 @@ export COLOR_MAGENTA_B="\033[1;35m"
 export COLOR_PINK_B="\x1b[1;38;2;235;170;238m"
 export COLOR_CYAN_B="\033[1;36m"
 export PS1='$(cat /etc/hostname):\w\$ '
-
+if [ -z cat /etc/profile ]
+echo "export PS1='$(cat /etc/hostname):\w\$ '" &> /etc/profile
 declare -A VERSION
 
 VERSION["BRANCH"]="dev-alpine"
@@ -178,7 +179,7 @@ funText() {
         "    \"how do i type a backslash\" -simon" 
         "  MURDER DRONES SEASON 2 IS REAL I SWEAR"
         "   Well-made Quality Assured Durability" 
-        "        "purr :3 mrrow" - Synaptic" 
+        "        \"purr :3 mrrow\" - Synaptic" 
         "          who else but quagmire?\n         he's quagmire, quagmire,\n        you never really know what\n            he's gonna do next\n          he's quagmire, quagmire,\n       giggitygiggitygiggitygiggity\n             let's have [...]"
         "             rhymes with grug"
         "             rhymes with grug"
@@ -638,7 +639,7 @@ payloads() {
 }
 
 menu_options=(
-    "Bash shell"
+    "Open terminal"
     "Install a ChromeOS recovery image"
     "Boot an RMA shim"
     "Connect to WiFi"
@@ -649,7 +650,7 @@ menu_options=(
 )
 
 menu_actions=(
-    "bash -l"
+    "fish -l || bash -l"
     installcros
     shimboot
     wifi
