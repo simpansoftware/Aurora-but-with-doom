@@ -191,6 +191,7 @@ funText() {
         "make me staff lil bro i'm overqualified..."
         "                 :cheese;"
         "       toilet command best command!"
+        "          Sign in to Letterloop:\n                Hi friend,\nClick here to sign in with this magic link\n             -Letterloop Team"
         )
        #"                cen-><-ter" 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
@@ -222,6 +223,7 @@ splash() {
 │     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
 │     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
 ╘════════════════════════════════════════╛
+
 EOF
     echo -e "$(printf "%*s%s" $version_pad "" "$verstring")"
     echo -e "$(printf "%*s%s" $build_pad "" "$build")"

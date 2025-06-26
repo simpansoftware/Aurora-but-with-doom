@@ -73,7 +73,7 @@ echo_c "Shim: ($1)" "BLUE_B"
 echo_c "Architecture: ($arch)" "BLUE_B"
 
 shimdev="$(losetup -Pf --show $shim)"
-dev="$(losetup -Pf --show $aurorashim)
+dev="$(losetup -Pf --show $aurorashim)"
 
 chromeos="$(cgpt find -l ROOT-A $shimdev | head -n 1)"
 tempmount="$(mktemp -d)"
@@ -87,29 +87,38 @@ else
     exit
 fi
 
-printf "%s\n" \
-  n 1 "2048" "10239"
-  n 2 "10240" "75775" \
-  n 3 "75776" "86015" \
-  n 4 "86016" "1356640" \
-  t 3 175 \
-  t 4 20 \
-  w | fdisk "$shimdev"
+sgdisk --zap-all "$dev"
+
+sgdisk -n 1:2048:10239     "$dev"
+sgdisk -n 2:10240:75775    "$dev"
+sgdisk -n 3:75776:86015    "$dev"
+sgdisk -n 4:86016:1387183  "$dev"
+
+sgdisk -t 3:fe3a2a5d-4f32-41a7-b725-accc3285a309 "$dev"
+sgdisk -t 4:8300 "$dev"
+
+sgdisk -p "$dev"
+
+
 
 shimkernelpartition="$(cgpt find -l KERN-A $shimdev | head -n 1)"
 shimstatepartition="$(cgpt find -l STATE $shimdev | head -n 1)"
 kernelpartition="${dev}p2"
 statepartition="${dev}p1"
-dd if=$shimkernelpartition of=$kernelpartition bs=32M
-dd if=$shimstatepartition of=$statepartition bs=4M
+dd if=$shimkernelpartition of=$kernelpartition
+dd if=$shimstatepartition of=$statepartition
+
+cgpt add -i 2 -t "$(cgpt show -i 2 -t "$shimdev")" -l "$(cgpt show -i 2 -l "$shimdev")" "$dev"
+cgpt add -i 1 -t "$(cgpt show -i 1 -t "$shimdev")" -l "$(cgpt show -i 1 -l "$shimdev")" "$dev"
+
 
 root_a="${dev}p3"
 root_b="${dev}p4"
 
 echo -e "y\n" | mkfs.ext4 "$root_a" -L ROOT-A
 echo -e "y\n" | mkfs.ext4 "$root_b" -L Aurora
-parted /dev/loop0 name 3 ROOT-A
-parted /dev/loop0 name 4 Aurora
+parted $root_a name 3 ROOT-A
+parted $root_b name 4 Aurora
 
 root_amount=$(mktemp -d)
 root_bmount=$(mktemp -d)
@@ -117,6 +126,7 @@ mount $root_a $root_amount
 mount $root_b $root_bmount
 
 echo_c "Copying rootfs to shim" "GEEN_B" 
+cp ../rootfs/* rootfs/ -r
 rsync -avH --info=progress2 "$rootfs" "$root_bmount" &>/dev/null
 echo_c "Copying initramfs to shim" "GEEN_B" 
 rsync -avH --info=progress2 "$initramfs" "$root_amount" &>/dev/null
@@ -127,9 +137,10 @@ cp ../root-b/sbin/init $root_bmount/sbin/init
 chmod +x $root_amount/sbin/init
 chmod +x $root_bmount/sbin/init
 touch $root_amount/.NOTRESIZED
-echo_c "Done!" "GEEN_B"
+echo_c "Unmounting..." "GEEN_B"
 umount $root_amount
 umount $root_amount -l
 umount $root_bmount
 umount $root_bmount -l
 losetup -D
+echo_c "Done!" "GEEN_B"
