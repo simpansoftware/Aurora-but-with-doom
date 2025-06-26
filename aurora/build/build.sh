@@ -131,9 +131,9 @@ mount $root_b $root_bmount
 
 echo_c "Copying rootfs to shim" "GEEN_B" 
 cp ../rootfs/* rootfs/ -r
-rsync -avH --info=progress2 "$rootfs" "$root_bmount" &>/dev/null
+rsync -avH --info=progress2 "$rootfs" "$root_bmount"
 echo_c "Copying initramfs to shim" "GEEN_B" 
-rsync -avH --info=progress2 "$initramfs" "$root_amount" &>/dev/null
+rsync -avH --info=progress2 "$initramfs" "$root_amount"
 rm -f $root_bmount/sbin/init
 rm -f $root_amount/bin/init
 cp ../root-a/sbin/init $root_amount/sbin/init
