@@ -20,7 +20,6 @@ done
 alias toilet="figlet" # those who know
 echo "cat /etc/motd" >> /etc/profile
 
-hostname aurora
 echo "aurora" > /etc/hostname
 echo "127.0.0.1 localhost aurora" >> /etc/hosts
 echo "%wheel ALL=(ALL:ALL) ALL" >> /etc/sudoers

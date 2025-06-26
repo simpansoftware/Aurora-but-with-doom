@@ -12,5 +12,6 @@ tty="/dev/tty"
 [ -e /dev/pts/0 ] && tty="/dev/pts/0"
 
 setsid -c test
+hostname aurora
 exec <${tty} >>${tty} 2>&1
 exec bash -l /usr/share/aurora/aurora.sh <${tty} >>${tty} 2>&1
