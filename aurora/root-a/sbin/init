@@ -1,5 +1,7 @@
 #!/bin/busybox sh
 
+set -x
+
 mkdir -p /newroot
 
 dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}')

@@ -53,6 +53,10 @@ else
 fi
 
 shim=$1
+aurorashim="./$(basename "${shim%.*}")-aurora.bin"
+if [ -z $shim ]; then
+    echo_c "Please specify a valid rawshim file." RED_B
+fi
 rootfs="./rootfs/"
 initramfs="./initramfs/"
 
@@ -62,36 +66,42 @@ fi
 
 mkdir -p "$initramfs"
 
+truncate -s 694200K "$aurorashim" # haha 69
+
 source ./utils/functions.sh
-echo_c "Running with flags: ($@)" "BLUE_B"
+echo_c "Shim: ($1)" "BLUE_B"
 echo_c "Architecture: ($arch)" "BLUE_B"
 
-dev="$(losetup -Pf --show $shim)"
+shimdev="$(losetup -Pf --show $shim)"
+dev="$(losetup -Pf --show $aurorashim)
 
-chromeos="$(cgpt find -l $shim | head -n 1)"
+chromeos="$(cgpt find -l ROOT-A $shimdev | head -n 1)"
 tempmount="$(mktemp -d)"
-
-mount $chromeos $tempmount
-cp -ar $tempmount/lib/modules ./rootfs/
-umount $tempmount
+echo_c "Copying Modules..." GEEN_B
+mount -o ro $chromeos $tempmount
+if [ -d $tempmount/lib/modules ]; then
+    cp -ar $tempmount/lib/modules ./rootfs/lib/
+    umount $tempmount
+else
+    echo_c "Please run on a raw shim." RED_B
+    exit
+fi
 
 printf "%s\n" \
-  d 12 \
-  d 11 \
-  d 10 \
-  d 9 \
-  d 8 \
-  d 7 \
-  d 6 \
-  d 5 \
-  d 4 \
-  d 3 \
-  n 3 "" "+20M" \
-  n 4 "" "" \
+  n 1 "2048" "10239"
+  n 2 "10240" "75775" \
+  n 3 "75776" "86015" \
+  n 4 "86016" "1356640" \
   t 3 175 \
   t 4 20 \
-  w | fdisk "$dev"
+  w | fdisk "$shimdev"
 
+shimkernelpartition="$(cgpt find -l KERN-A $shimdev | head -n 1)"
+shimstatepartition="$(cgpt find -l STATE $shimdev | head -n 1)"
+kernelpartition="${dev}p2"
+statepartition="${dev}p1"
+dd if=$shimkernelpartition of=$kernelpartition bs=32M
+dd if=$shimstatepartition of=$statepartition bs=4M
 
 root_a="${dev}p3"
 root_b="${dev}p4"

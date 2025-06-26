@@ -42,7 +42,7 @@ initramfs="./initramfs/"
 
 source ./utils/functions.sh
 echo_c "Architecture: ($arch)" BLUE_B
-echo_c "Running with flags: ($@)" "BLUE_B"
+echo_c "Shim: ($1)" "BLUE_B"
 echo_c "Extracting initramfs" GEEN_B
 
 loopdev=$(losetup -f)
@@ -96,11 +96,9 @@ else
     echo_c "Downloading firmware..." GEEN_B
     [ ! -d "linux-firmware" ] && git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware $rootfs/lib/firmware/
 fi
-rm -rf $(find "$rootfs/lib/firmware/"* \
-    -not -name "iwlwifi-7265D-29.ucode.ucode" \
-    -not -name "iwlwifi-9000-pu-b0-jf-b0-41.ucode" \
-    -not -name "iwlwifi-QuZ-a0-hr-b0-57.ucode" \
-    -not -name "iwlwifi-so-a0-gf-a0-83.ucode")
+
+rm -rf $(find $rootfs/lib/firmware/* -not -name "iwlwifi*.ucode")
+
 unmount() {
     for dir in proc sys dev run; do
         umount -l "$rootfs/$dir"

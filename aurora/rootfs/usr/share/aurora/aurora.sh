@@ -24,7 +24,7 @@ trap '' SIGINT
 trap '' EXIT
 set -m
 
-source /etc/profile
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 echo "Starting udevd..."
 /sbin/udevd --daemon || :
 udevadm trigger || :
@@ -52,8 +52,8 @@ export COLOR_MAGENTA_B="\033[1;35m"
 export COLOR_PINK_B="\x1b[1;38;2;235;170;238m"
 export COLOR_CYAN_B="\033[1;36m"
 export PS1='$(cat /etc/hostname):\w\$ '
-if [ -z cat /etc/profile ]
-echo "export PS1='$(cat /etc/hostname):\w\$ '" &> /etc/profile
+echo "export PS1='$(cat /etc/hostname):\w\$ '" >> /etc/profile
+
 declare -A VERSION
 
 VERSION["BRANCH"]="dev-alpine"
@@ -173,7 +173,7 @@ credits() {
 
 funText() {
 	splashText=(
-        "The lower tape fade meme is still massive." 
+        "The lower tape fade meme is still massive."
         " It most like existed in the first place." 
         "              HACKED BY GEEN" 
         "    \"how do i type a backslash\" -simon" 
@@ -183,13 +183,16 @@ funText() {
         "          who else but quagmire?\n         he's quagmire, quagmire,\n        you never really know what\n            he's gonna do next\n          he's quagmire, quagmire,\n       giggitygiggitygiggitygiggity\n             let's have [...]"
         "             rhymes with grug"
         "             rhymes with grug"
-        "               i'm kxtz cuh"
         "        now with free thigh highs!"
         "                    :3"
         " cr50 hammer? i think you meant \"no PoC\"."
         "            public nuisance???\n        is that a hannah reference"
-
+        "  can you overdose on pepperjack cheese"
+        "make me staff lil bro i'm overqualified..."
+        "                 :cheese;"
+        "       toilet command best command!"
         )
+       #"                cen-><-ter" 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
 	echo -e " "
    	echo -e "$selectedSplashText"
@@ -429,7 +432,7 @@ shimboot() {
 		elif cat /mnt/shimroot/sbin/bootstrap.sh | grep "│ Priishimboot OS Selector" --quiet; then
 			echo -e "${COLOR_GEEN}Priishimboot detected.${COLOR_RESET}"
 			if ! cgpt find -l "shimboot_rootfs:aurora" > /dev/null; then
-				echo -e "${COLOR_YELLOW_B}Please use Priishimbooter before booting!${COLOR_RESET}"
+				echo -e "${COLOR_YELLOW_B}Please use Priishimbooter before booting Shimboot!${COLOR_RESET}"
 				umount /mnt/shimroot
 				losetup -D
 				unpatched_shimboot=1
@@ -650,7 +653,7 @@ menu_options=(
 )
 
 menu_actions=(
-    "fish -l || bash -l"
+    "fish -l || bash -l || busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
     installcros
     shimboot
     wifi
@@ -660,10 +663,10 @@ menu_actions=(
     "reboot -f"
 )
 
-while true; 
-do
+while true; do
     clear
     splash
     menu "Select an option (use ↑ ↓ arrows, Enter to select):" "${menu_options[@]}"
     eval "${menu_actions[$?]}"
+    sleep 5
 done
