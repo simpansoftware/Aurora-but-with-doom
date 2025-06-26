@@ -1,7 +1,5 @@
 #!/bin/busybox sh
 
-set -x
-
 echo "Making the newroot partition..."
 mkdir -p /newroot
 
