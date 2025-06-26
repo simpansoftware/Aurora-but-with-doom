@@ -91,8 +91,8 @@ sgdisk --zap-all "$dev"
 
 sgdisk -n 1:2048:10239     "$dev"
 sgdisk -n 2:10240:75775    "$dev"
-sgdisk -n 3:75776:86015    "$dev"
-sgdisk -n 4:86016:1387183  "$dev"
+sgdisk -n 3:75776:86015 -c 3:"ROOT-A" "$dev"
+sgdisk -n 4:86016:1387183 -c 4:"Aurora" "$dev"
 
 sgdisk -t 3:3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC "$dev"
 sgdisk -t 4:8300 "$dev"
@@ -103,6 +103,7 @@ skpart="$(cgpt find -l KERN-A $shimdev | head -n 1)"
 sspart="$(cgpt find -l STATE $shimdev | head -n 1)"
 skpartnum="$(echo $skpart | sed "s|${shimdev}p||")"
 sspartnum="$(echo $sspart | sed "s|${shimdev}p||")"
+skguid="$(sgdisk -i $skpartnum "$shimdev")"
 
 kernelpartition="${dev}p2"
 statepartition="${dev}p1"
@@ -110,11 +111,10 @@ statepartition="${dev}p1"
 dd if=$skpart of=$kernelpartition
 dd if=$sspart of=$statepartition
 
-cgpt add -i 2 -t "$(cgpt show -i $skpartnum -t "$shimdev")" -l "$(cgpt show -i $skpartnum -l "$shimdev")" "$dev"
-cgpt add -i 1 -t "$(cgpt show -i $sspartnum -t "$shimdev")" -l "$(cgpt show -i $sspartnum -l "$shimdev")" "$dev"
 
-cgpt add -i 2 -t "$(cgpt show -i 2 -t "$shimdev")" -l "$(cgpt show -i 2 -l "$shimdev")" "$dev"
-cgpt add -i 1 -t "$(cgpt show -i 1 -t "$shimdev")" -l "$(cgpt show -i 1 -l "$shimdev")" "$dev"
+sgdisk --partition-guid=2:B5BAF579-07EF-A747-858B-87C0E507CD29 "$dev"
+cgpt add -i 2 -t "$(cgpt show -i $skpartnum -t "$shimdev")" -l "$(cgpt show -i $skpartnum -l "$shimdev")" -P 15 -T 15 -S 1 "$dev"
+cgpt add -i 1 -t "$(cgpt show -i $sspartnum -t "$shimdev")" -l "$(cgpt show -i $sspartnum -l "$shimdev")" "$dev"
 
 
 root_a="${dev}p3"
@@ -122,8 +122,7 @@ root_b="${dev}p4"
 
 echo -e "y\n" | mkfs.ext4 "$root_a" -L ROOT-A
 echo -e "y\n" | mkfs.ext4 "$root_b" -L Aurora
-parted $root_a name 3 ROOT-A
-parted $root_b name 4 Aurora
+
 
 root_amount=$(mktemp -d)
 root_bmount=$(mktemp -d)
@@ -137,11 +136,14 @@ echo_c "Copying initramfs to shim" "GEEN_B"
 rsync -avH --info=progress2 "$initramfs" "$root_amount" &>/dev/null
 rm -f $root_amount/sbin/init
 rm -f $root_bmount/sbin/init
+rm -f $root_amount/bin/init
+rm -f $root_bmount/bin/init
 cp ../root-a/sbin/init $root_amount/sbin/init
 cp ../root-b/sbin/init $root_bmount/sbin/init
 chmod +x $root_amount/sbin/init
 chmod +x $root_bmount/sbin/init
 touch $root_amount/.NOTRESIZED
+cat $root_amount/sbin/init
 echo_c "Unmounting..." "GEEN_B"
 umount $root_amount
 umount $root_amount -l
