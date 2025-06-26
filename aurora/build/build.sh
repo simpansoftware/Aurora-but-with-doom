@@ -65,7 +65,7 @@ if [ -z "$(ls -A "$rootfs")" ]; then
 fi
 
 mkdir -p "$initramfs"
-
+rm -f $aurorashim
 truncate -s 694200K "$aurorashim" # haha 69
 
 source ./utils/functions.sh
@@ -94,19 +94,24 @@ sgdisk -n 2:10240:75775    "$dev"
 sgdisk -n 3:75776:86015    "$dev"
 sgdisk -n 4:86016:1387183  "$dev"
 
-sgdisk -t 3:fe3a2a5d-4f32-41a7-b725-accc3285a309 "$dev"
+sgdisk -t 3:3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC "$dev"
 sgdisk -t 4:8300 "$dev"
 
 sgdisk -p "$dev"
 
+skpart="$(cgpt find -l KERN-A $shimdev | head -n 1)"
+sspart="$(cgpt find -l STATE $shimdev | head -n 1)"
+skpartnum="$(echo $skpart | sed "s|${shimdev}p||")"
+sspartnum="$(echo $sspart | sed "s|${shimdev}p||")"
 
-
-shimkernelpartition="$(cgpt find -l KERN-A $shimdev | head -n 1)"
-shimstatepartition="$(cgpt find -l STATE $shimdev | head -n 1)"
 kernelpartition="${dev}p2"
 statepartition="${dev}p1"
-dd if=$shimkernelpartition of=$kernelpartition
-dd if=$shimstatepartition of=$statepartition
+
+dd if=$skpart of=$kernelpartition
+dd if=$sspart of=$statepartition
+
+cgpt add -i 2 -t "$(cgpt show -i $skpartnum -t "$shimdev")" -l "$(cgpt show -i $skpartnum -l "$shimdev")" "$dev"
+cgpt add -i 1 -t "$(cgpt show -i $sspartnum -t "$shimdev")" -l "$(cgpt show -i $sspartnum -l "$shimdev")" "$dev"
 
 cgpt add -i 2 -t "$(cgpt show -i 2 -t "$shimdev")" -l "$(cgpt show -i 2 -l "$shimdev")" "$dev"
 cgpt add -i 1 -t "$(cgpt show -i 1 -t "$shimdev")" -l "$(cgpt show -i 1 -l "$shimdev")" "$dev"
