@@ -570,8 +570,11 @@ NetworkManager
 connect() {
     read -p "Enter your network SSID: " ssid
     read -p "Enter your network password (leave blank if none): " psk
-    nmcli connection add type wifi ifname $wifidevice con-name "$ssid" ssid "$ssid" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "$psk" ipv4.method auto ipv6.method auto
-    nmcli dev $wifidevice up
+    if [ -z "$psk" ]; then
+        nmcli connection add type wifi ifname "$wifidevice" con-name "$ssid" ssid "$ssid" ipv4.method auto ipv6.method auto
+    else
+        nmcli connection add type wifi ifname "$wifidevice" con-name "$ssid" ssid "$ssid" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "$psk" ipv4.method auto ipv6.method auto
+    fi
 }
 wifi() {
     rm -f /etc/resolv.conf
