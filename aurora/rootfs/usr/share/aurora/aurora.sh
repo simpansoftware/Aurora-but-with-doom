@@ -62,6 +62,10 @@ VERSION["BUILDDATE"]="[2025-06-20]"
 VERSION["RELNAME"]="A New Dawn"
 VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]} - \"${VERSION["RELNAME"]}\""
 
+if [ ! -f "/.UNRESIZED" ]; then
+    bash "/usr/share/aurora/resize.sh"
+fi
+
 ####################
 ## BASE FUNCTIONS ##
 ####################

