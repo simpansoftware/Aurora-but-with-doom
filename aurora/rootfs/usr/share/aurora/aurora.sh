@@ -585,7 +585,7 @@ wifi() {
         modprobe $wifi
     done
     wifidevice=$(nmcli dev | grep wifi | awk '{print $1}' | head -n1) # WifiDevice???? you mean EpicDevice??? YOU MEAN EPICDEVICES??????
-    if [ $(nmcli dev | grep wifi | head -n1 | grep " connected") ]; then
+    if nmcli -t -f TYPE,STATE dev | grep -q '^wifi:connected'; then
         echo_c "Currently Connected to previously configured network." COLOR_GEEN_B
         echo_c "Connect to a different network? (y/N)" COLOR_YELLOW_B
         read connectornah
