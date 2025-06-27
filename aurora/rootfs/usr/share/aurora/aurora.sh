@@ -582,8 +582,6 @@ wifi() {
     NetworkManager
     wifidevice=$(nmcli dev | grep wifi | awk '{print $1}' | head -n1) # WifiDevice???? you mean EpicDevice??? YOU MEAN EPICDEVICES??????
     if [ $(nmcli dev | grep wifi | head -n1 | grep " connected") ]; then
-        connect
-    else
         echo_c "Currently Connected to previously configured network." COLOR_GEEN_B
         echo_c "Connect to a different network? (y/N)" COLOR_YELLOW_B
         read connectornah
@@ -591,6 +589,8 @@ wifi() {
             y|Y|yes|Yes) connect ;;
             *) ;;
         esac
+    else
+        connect
     fi
 }
 
