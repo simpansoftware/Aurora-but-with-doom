@@ -70,6 +70,13 @@ fi
 ## BASE FUNCTIONS ##
 ####################
 
+echo_c() {
+    local text="$1"
+    local color_variable="$2"
+    local color="${!color_variable}"
+    echo -e "${color}${text}${COLOR_RESET}"
+}
+
 menu() {
     local prompt="$1"
     shift
@@ -555,76 +562,43 @@ shimboot() {
 ## WIFI ##
 ##########
 
-changedhcpinfo() {
-	read -p "Enter IP address (leave blank to keep: $ip): " input
-	ip="${input:-$ip}"
-	read -p "Enter Gateway (leave blank to keep: $gateway): " input
-	gateway="${input:-$gateway}"
-	read -p "Enter Subnet Mask (leave blank to keep: $mask): " input
-	mask="${input:-$mask}"
-	echo "Using IP: $ip"
-	echo "Using Gateway: $gateway"
-	echo "Using Subnet Mask: $mask"
-	read -p "Confirm these changes? (Y/n): " confirmchanges
+mkdir -p /run/dbus
+rm -f /run/dbus/dbus.pid
+dbus-daemon --system
+connect() {
+    read -p "Enter your network SSID: " ssid
+    read -p "Enter your network password (leave blank if none): " psk
+    nmcli connection add type wifi ifname $wifidevice con-name "$ssid" ssid "$ssid" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "$psk" ipv4.method auto ipv6.method auto
+    nmcli dev $wifidevice up
 }
-
-manipcon() {
-    iface=$(ip -o link show | awk -F': ' '/wl/ {print $2; exit}')
-    DHCP_INFO=$(dhcpcd -d -4 -G -K -T $iface 2>&1)
-    ip=$(echo "$DHCP_INFO" | grep -oE 'offered [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | awk '{print $2}')
-    gateway=$(echo "$DHCP_INFO" | grep -oE 'offered .* from [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+' | awk '{print $NF}')
-    if [ -z "$ip" ] || [ -z "$gateway" ]; then
-        echo "Failed to get ip/gateway. Please report this bug in Aurora's issues."
-	sleep 1
-    fi
-    firstnum=$(echo "$ip" | cut -d. -f1)
-    if [ "$firstnum" = "10" ]; then
-        mask="255.0.0.0"
-    else
-        mask="255.255.255.0"
-    fi
-	changedhcpinfo
-}
-
 wifi() {
     rm -f /etc/resolv.conf
     sync
-    echo "nameserver 8.8.8.8" > /etc/resolv.conf 
-	echo -e "This may take a while!!!"
-	mkdir -p /run/dbus
-	dbus-daemon --system > /dev/null 2>&1
-	mkdir -p /var/lib
-	firmware
-    read -p "Enter your network SSID: " ssid
-    read -p "Enter your network password (leave blank if none): " psk
-    iface=$(ip -o link show | awk -F': ' '/wl/ {print $2; exit}')
-    ifconfig $iface up || return
-    if [ -z "$psk" ]; then
-        wpa_supplicant -i $iface -C /run/wpa_supplicant -B -c <(
-            cat <<EOF
-network={
-    ssid="$ssid"
-    key_mgmt=NONE
-}
-EOF
-            )
-        else
-            wpa_supplicant -i $iface -C /run/wpa_supplicant -B -c <(wpa_passphrase "$ssid" "$psk")
-        fi
-        dhcpcd >/dev/null
-        manipcon
-    	case "$confirmchanges" in
-    		n | N) changedhcpinfo ;;
-    		*) ifconfig $iface "$ip" netmask "$mask" up
-    		       route add default gw "$gateway" ;;
-	    esac
+    echo "nameserver 8.8.8.8" > /etc/resolv.conf
+    for wifi in iwlwifi iwlmvm ccm 8021q; do
+        modprobe -r $wifi
+        modprobe $wifi
+    done
+    NetworkManager
+    wifidevice=$(nmcli dev | grep wifi | awk '{print $1}' | head -n1) # WifiDevice???? you mean EpicDevice??? YOU MEAN EPICDEVICES??????
+    if [ $(nmcli dev | grep wifi | head -n1 | grep " connected") ]; then
+        connect
+    else
+        echo_c "Currently Connected to previously configured network." COLOR_GEEN_B
+        echo_c "Connect to a different network? (y/N)" COLOR_YELLOW_B
+        read connectornah
+        case $connectornah in
+            y|Y|yes|Yes) connect ;;
+            *) ;;
+        esac
+    fi
 }
 
 canwifi() {
-  if curl -Is https://example.com | head -n 1 | grep -q "HTTP/"; then
+  if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase
     "$@"
   else
-    echo "You are not connected to the internet."
+    echo_c "You are not connected to the internet." COLOR_RED_B
     sleep 2
   fi
 }

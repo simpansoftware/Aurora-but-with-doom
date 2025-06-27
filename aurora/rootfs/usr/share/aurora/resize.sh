@@ -11,5 +11,5 @@ dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
 
 growpart "$dev" 4 || true
 resize2fs "$dev_partition" || true
-
+rm -f /.UNRESIZED
 echo "Root filesystem expanded."
