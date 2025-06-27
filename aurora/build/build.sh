@@ -140,8 +140,6 @@ cp ../root-a/sbin/init $root_amount/sbin/init
 cp ../root-b/sbin/init $root_bmount/sbin/init
 chmod +x $root_amount/sbin/init
 chmod +x $root_bmount/sbin/init
-touch $root_amount/.NOTRESIZED
-cat $root_amount/sbin/init
 echo_c "Unmounting..." "GEEN_B"
 umount $root_amount
 umount $root_amount -l
