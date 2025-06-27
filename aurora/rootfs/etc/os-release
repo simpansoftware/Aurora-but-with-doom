@@ -1,0 +1,6 @@
+NAME="Aurora"
+ID=ethereal
+VERSION_ID=3.0
+PRETTY_NAME="Aurora v3.0"
+HOME_URL="https://aurora.etherealwork.shop/"
+BUG_REPORT_URL="https://github.com/EtherealWorkshop/Aurora/issues"
