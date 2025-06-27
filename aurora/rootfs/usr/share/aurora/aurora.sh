@@ -565,6 +565,8 @@ shimboot() {
 mkdir -p /run/dbus
 rm -f /run/dbus/dbus.pid
 dbus-daemon --system
+pkill NetworkManager
+NetworkManager
 connect() {
     read -p "Enter your network SSID: " ssid
     read -p "Enter your network password (leave blank if none): " psk
@@ -579,7 +581,6 @@ wifi() {
         modprobe -r $wifi
         modprobe $wifi
     done
-    NetworkManager
     wifidevice=$(nmcli dev | grep wifi | awk '{print $1}' | head -n1) # WifiDevice???? you mean EpicDevice??? YOU MEAN EPICDEVICES??????
     if [ $(nmcli dev | grep wifi | head -n1 | grep " connected") ]; then
         echo_c "Currently Connected to previously configured network." COLOR_GEEN_B
