@@ -36,10 +36,11 @@ echo "Done."
 #################
 
 export aroot="/usr/share/aurora"
-export mount="$aroot/mount"
+recochoose=($aroot/images/recovery/*)
+shimchoose=($aroot/images/shims/*)
 export releaseBuild=1
-export shimroot="$mount/shimroot"
-export recoroot="$mount/recoroot"
+export shimroot="/shimroot"
+export recoroot="/recoroot"
 export COLOR_RESET="\033[0m"
 export COLOR_BLACK_B="\033[1;30m"
 export COLOR_RED_B="\033[1;31m"
@@ -127,10 +128,6 @@ fail() {
 	printf "Aurora panic: ${COLOR_RED_B}%b${COLOR_RESET}\n" "$*" >&2 || :
 	printf "panic: We are hanging here..."
 	sync
-	umount $mount/aurora &> /dev/null
-	umount $mount/shimroot &> /dev/null
-	umount /newroot &> /dev/null
-	umount $mount/recoroot &> /dev/null
 	losetup -D
 	hang
 }
@@ -418,29 +415,100 @@ pv_dircopy() {
 	local apparent_bytes
 	apparent_bytes=$(du -sb "$1" | cut -f 1)
 	mkdir -p "$2"
-	tar -C $mount/shimroot -cf - . | tar -C /newroot -xf -
+	tar -C /shimroot -cf - . | tar -C /newroot -xf -
 }
 
-##############
-## SHIMBOOT ##
-##############
+############
+## IMAGES ##
+############
+
+installcros() {
+	if [[ -z "$(ls -A $aroot/images/recovery)" ]]; then
+		echo -e "${COLOR_YELLOW_B}You have no recovery images downloaded!\nPlease download a few images."
+		echo -e "Alternatively, these are available on websites such as chrome100.dev, or cros.tech. Put them into /usr/share/aurora/images/recovery"
+		reco="exit"
+	else
+        reco_options=("${recochoose[@]}" "Exit")
+
+        reco_actions=()
+                for reco_opt in "${recochoose[@]}"; do
+            reco_actions+=("reco=\$reco_opt")
+        done
+        reco_actions+=("reco=Exit")
+
+        while true; do
+            clear
+            splash
+            menu "Choose the recovery image you want to boot:" "${reco_options[@]}"
+            eval "${reco_actions[$?]}"
+            break
+        done
+
+	fi
+
+	if [[ $reco == "Exit" ]]; then
+		read -p "Press enter to continue."
+		clear
+		splash 1
+	else
+		mkdir -p $recoroot
+		echo -e "Searching for ROOT-A on reco image..."
+		loop=$(losetup -fP --show $reco)
+		loop_root="$(cgpt find -l ROOT-A $loop | head -n 1)"
+		if mount -r "${loop_root}" $recoroot ; then
+			echo -e "ROOT-A found successfully and mounted."
+		else
+ 			result=$?
+			err1="Mount process failed! Exit code was ${result}.\n"
+			err2="              This may be a bug! Please check your recovery image,\n"
+			err3="              and if it looks fine, report it to the GitHub repo!\n"
+			fail "${err1}${err2}${err3}"
+		fi
+		local cros_dev="$(get_largest_cros_blockdev)"
+  		if [ -z "$cros_dev" ]; then
+			echo -e "${COLOR_YELLOW_B}No ChromeOS drive was found on the device! Please make sure ChromeOS is installed before using Aurora. Continuing anyway...${COLOR_RESET}"
+		fi
+		stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)" || fail "Failed to find stateful partition on ${loop}!"
+		mount $stateful /mnt/stateful_partition || fail "Failed to mount stateful partition!"
+		MOUNTS="/proc /dev /sys /tmp /run /var /mnt/stateful_partition"
+		cd /mnt/recoroot/
+		d=
+		for d in ${MOUNTS}; do
+	  		mount -n --bind "${d}" "./${d}"
+	  		mount --make-slave "./${d}"
+		done
+		chroot ./ /usr/sbin/chromeos-install --payload_image="${loop}" --yes || fail "Failed during chroot!"
+		cgpt add -i 2 $cros_dev -P 15 -T 15 -S 1 -R 1 || echo -e "${COLOR_YELLOW_B}Failed to set kernel priority! Continuing anyway.${COLOR_RESET}"
+		echo -e "${COLOR_GREEN}\n"
+		read -p "Recovery finished. Press any key to reboot."
+		reboot
+		sleep 1
+		echo -e "\n${COLOR_RED_B}Reboot failed. Hanging..."
+	fi
+}
 
 shimboot() {
-	if [[ -z "$(ls -A $mount/images/shims)" ]]; then
-		echo -e "${COLOR_YELLOW_B}You have no shims downloaded!\nPlease download a few images for your board ${board_name} (${CHROMEOS_RELEASE_BOARD}) into the shims folder on PRIISM_IMAGES!"
-		echo -e "If you have a computer running Windows, use Ext4Fsd or this chrome device. If you have a Mac, use this chrome device to download images instead.${COLOR_RESET}\n"
+	if [[ -z "$(ls -A $aroot/images/shims)" ]]; then
+		echo -e "${COLOR_YELLOW_B}You have no shims downloaded!\nPlease download or build a few images."
+		echo -e "Alternatively, these are available on websites such as mirror.akane.network or dl.fanqyxl.net. Put them into /usr/share/aurora/images/shims"
 		shim="Exit"
 	else
-		echo -e "Choose the shim you want to boot:"
-		select FILE in "${shimchoose[@]}" "Exit"; do
-			if [[ -n "$FILE" ]]; then
-				shim=$FILE
-				break
-			elif [[ $FILE == "Exit" ]]; then
-				shim=$FILE
-				break
-			fi
-		done
+        shim_options=("${shimchoose[@]}" "Exit")
+
+        shim_actions=()
+                for shim_opt in "${shimchoose[@]}"; do
+            shim_actions+=("shim=\$shim_opt")
+        done
+        shim_actions+=("shim=Exit")
+
+        while true; do
+            clear
+            splash
+            menu "Choose the shim you want to boot:" "${shim_options[@]}"
+            eval "${shim_actions[$?]}"
+            break
+        done
+
 	fi
 
 	if [[ $shim == "Exit" ]]; then
@@ -610,21 +678,21 @@ canwifi() {
 
 downloadreco() {
 	versions
-	cd $mount/recovery
+	cd $aroot/images/recovery
     curl --progress-bar -k "$FINAL_URL" -o $VERSION.zip
 	unzip $VERSION.zip
 	rm $VERSION.zip
 }
 
 downloadshim() {
-	cd $mount/shims
+	cd $aroot/images/shims
     curl --progress-bar -k "$FINAL_URL" -o $NAME.zip
 	unzip $NAME.zip
 	rm $NAME.zip
 }
 
 downloadyo() {
-    cd $mount/gurt
+    cd $aroot/gurt
     bash <(curl https://gurt.etherealwork.shop)
 }
 
