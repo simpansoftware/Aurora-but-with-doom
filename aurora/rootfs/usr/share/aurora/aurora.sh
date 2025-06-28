@@ -54,7 +54,9 @@ export COLOR_PINK_B="\x1b[1;38;2;235;170;238m"
 export COLOR_CYAN_B="\033[1;36m"
 export PS1='$(cat /etc/hostname):\w\$ '
 echo "export PS1='$(cat /etc/hostname):\w\$ '" >> /etc/profile
-
+mkdir -p $aroot/images/shims
+mkdir -p $aroot/images/recovery
+mkdir -p $aroot/images/gurt
 declare -A VERSION
 
 VERSION["BRANCH"]="dev-alpine"
