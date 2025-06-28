@@ -19,8 +19,8 @@ done
 
 alias toilet="figlet" # those who know
 echo "cat /etc/motd" >> /etc/profile
-
-echo "aurora" > /etc/hostname
-echo "127.0.0.1 localhost aurora" >> /etc/hosts
+echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+echo "Aurora" > /etc/hostname
+echo "127.0.0.1 localhost Aurora" >> /etc/hosts
 echo "%wheel ALL=(ALL:ALL) ALL" >> /etc/sudoers
 echo root:root | chpasswd

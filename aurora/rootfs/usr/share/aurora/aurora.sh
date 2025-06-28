@@ -231,6 +231,8 @@ funText() {
         "              CHICKEN JOCKEY              "
         "             stellaword.12...             "
         "             PLEASE INSERT DI             "
+        "the higher glue appear trend is now large."
+        "    one cannot simply walk into mordor\n- some dumbass who didn't walk into mordor"
         ) #              cen-><-ter" 
 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
