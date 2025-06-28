@@ -51,6 +51,7 @@ checkarch() {
         checkarch
     fi
 }
+checkarch
 shim=$1
 aurorashim="./$(basename "${shim%.*}")-aurora.bin"
 if [ -z $shim ]; then
