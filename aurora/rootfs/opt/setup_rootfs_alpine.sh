@@ -7,7 +7,7 @@ cat <<EOF > /etc/apk/repositories
 http://dl-cdn.alpinelinux.org/alpine/edge/main
 http://dl-cdn.alpinelinux.org/alpine/edge/community
 EOF
-apk add dhcpcd figlet util-linux syslog-ng e2fsprogs fish lsblk losetup wpa_supplicant vboot-utils curl tpm2-tools cryptsetup coreutils bash openrc dbus eudev udev-init-scripts networkmanager networkmanager-cli ncurses udisks2 sudo zram-init networkmanager networkmanager-tui networkmanager-wifi wpa_supplicant cloud-utils-growpart nano
+apk add dhcpcd fastfetch figlet util-linux syslog-ng e2fsprogs fish lsblk losetup wpa_supplicant vboot-utils curl tpm2-tools cryptsetup coreutils bash openrc dbus eudev udev-init-scripts networkmanager networkmanager-cli ncurses udisks2 sudo zram-init networkmanager networkmanager-tui networkmanager-wifi wpa_supplicant cloud-utils-growpart nano
 
 
 
