@@ -562,6 +562,10 @@ shimboot() {
 ## WIFI ##
 ##########
 
+for wifi in iwlwifi iwlmvm ccm 8021q; do
+    modprobe -r $wifi
+    modprobe $wifi
+done
 mkdir -p /run/dbus
 rm -f /run/dbus/dbus.pid
 dbus-daemon --system
@@ -577,13 +581,6 @@ connect() {
     fi
 }
 wifi() {
-    rm -f /etc/resolv.conf
-    sync
-    echo "nameserver 8.8.8.8" > /etc/resolv.conf
-    for wifi in iwlwifi iwlmvm ccm 8021q; do
-        modprobe -r $wifi
-        modprobe $wifi
-    done
     wifidevice=$(nmcli dev | grep wifi | awk '{print $1}' | head -n1) # WifiDevice???? you mean EpicDevice??? YOU MEAN EPICDEVICES??????
     if nmcli -t -f TYPE,STATE dev | grep -q '^wifi:connected'; then
         echo_c "Currently Connected to previously configured network." COLOR_GEEN_B
