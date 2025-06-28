@@ -426,7 +426,7 @@ installcros() {
 	if [[ -z "$(ls -A $aroot/images/recovery)" ]]; then
 		echo -e "${COLOR_YELLOW_B}You have no recovery images downloaded!\nPlease download a few images."
 		echo -e "Alternatively, these are available on websites such as chrome100.dev, or cros.tech. Put them into /usr/share/aurora/images/recovery"
-		reco="exit"
+		return
 	else
         reco_options=("${recochoose[@]}" "Exit")
 
@@ -491,7 +491,7 @@ shimboot() {
 	if [[ -z "$(ls -A $aroot/images/shims)" ]]; then
 		echo -e "${COLOR_YELLOW_B}You have no shims downloaded!\nPlease download or build a few images."
 		echo -e "Alternatively, these are available on websites such as mirror.akane.network or dl.fanqyxl.net. Put them into /usr/share/aurora/images/shims"
-		shim="Exit"
+		return
 	else
         shim_options=("${shimchoose[@]}" "Exit")
 
@@ -499,7 +499,7 @@ shimboot() {
                 for shim_opt in "${shimchoose[@]}"; do
             shim_actions+=("shim=\$shim_opt")
         done
-        shim_actions+=("shim=Exit")
+        shim_actions+=("return")
 
         while true; do
             clear
