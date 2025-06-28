@@ -658,6 +658,7 @@ menu_options=(
     "Payloads"
     "Credits"
     "Update"
+    "System Info"
     "Exit and Reboot"
 )
 
@@ -669,6 +670,7 @@ menu_actions=(
     payloads
     credits
     "canwifi updateshim"
+    "clear && fastfetch && sleep 10"
     "reboot -f"
 )
 
