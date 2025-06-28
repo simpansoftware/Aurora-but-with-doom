@@ -45,7 +45,7 @@ else
 fi
 checkarch() {
     if [[ "$arch" != "aarch64" && "$arch" != "x86_64" ]]; then
-        echo -e "Invalid CPU Architecture\n"
+        echo -e "Invalid CPU Architecture"
         read -p "Enter CPU Architecture (x86_64/aarch64): " arch
         export arch
         checkarch
