@@ -23,14 +23,6 @@ if [ "$EUID" -ne 0 ]; then
     echo "Please run as root."
     exit 1
 fi
-checkarch() {
-    if [[ "$arch" != "aarch64" && "$arch" != "x86_64" ]]; then
-        echo -e "Invalid CPU Architecture\n"
-        read -p "Enter CPU Architecture (x86_64/aarch64): " arch
-        export arch
-        checkarch
-    fi
-}
 if [ -z "$1" ]; then
     echo "Usage: sudo bash build.sh /path/to/rawshim.bin [cpu_architecture(x86_64 or aarch64)]"
     exit 1
@@ -51,7 +43,14 @@ else
     arch="$2"
     export arch
 fi
-
+checkarch() {
+    if [[ "$arch" != "aarch64" && "$arch" != "x86_64" ]]; then
+        echo -e "Invalid CPU Architecture\n"
+        read -p "Enter CPU Architecture (x86_64/aarch64): " arch
+        export arch
+        checkarch
+    fi
+}
 shim=$1
 aurorashim="./$(basename "${shim%.*}")-aurora.bin"
 if [ -z $shim ]; then
