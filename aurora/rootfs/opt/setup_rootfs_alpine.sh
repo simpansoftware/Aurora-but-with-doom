@@ -6,6 +6,7 @@ arch="${1}"
 cat <<EOF > /etc/apk/repositories
 http://dl-cdn.alpinelinux.org/alpine/edge/main
 http://dl-cdn.alpinelinux.org/alpine/edge/community
+http://dl-cdn.alpinelinux.org/alpine/edge/testing
 EOF
 apk add dhcpcd fastfetch figlet util-linux syslog-ng e2fsprogs fish lsblk losetup wpa_supplicant vboot-utils curl tpm2-tools cryptsetup coreutils bash openrc dbus eudev udev-init-scripts networkmanager networkmanager-cli ncurses udisks2 sudo zram-init networkmanager networkmanager-tui networkmanager-wifi wpa_supplicant cloud-utils-growpart nano
 
@@ -19,7 +20,6 @@ done
 
 alias toilet="figlet" # those who know
 echo "cat /etc/motd" >> /etc/profile
-echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
 echo "Aurora" > /etc/hostname
 echo "127.0.0.1 localhost Aurora" >> /etc/hosts
 echo "%wheel ALL=(ALL:ALL) ALL" >> /etc/sudoers
