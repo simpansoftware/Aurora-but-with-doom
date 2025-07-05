@@ -17,6 +17,7 @@ alias ls='ls --color=auto'
 alias dir='dir --color=auto'
 alias grep='grep --color=auto'
 alias toilet="figlet" # those who know
+cat /etc/motd
 EOF
 
 
@@ -25,8 +26,6 @@ for module in $modules; do
   cat "/etc/modules-load.d/$module" >> /etc/modules
   echo >> /etc/modules
 done
-
-echo "cat /etc/motd" >> /etc/profile
 echo "Aurora" > /etc/hostname
 echo "127.0.0.1 localhost Aurora" >> /etc/hosts
 echo "%wheel ALL=(ALL:ALL) ALL" >> /etc/sudoers
