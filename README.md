@@ -5,7 +5,7 @@ A tool similar to Ventoy for ChromeOS RMA shims and recovery images based on the
 Recovery :white_check_mark:<br>
 Payloads menu :white_check_mark:<br>
 Booting other shims :white_check_mark:<br>
-Synaptic :white_check_mark:<br>
+Synaptic :x:<br>
 
 # Downloads
 :trollface:
