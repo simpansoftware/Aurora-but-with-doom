@@ -8,15 +8,15 @@
 # AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
 # DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 # BY USING THIS SOFTWARE, YOU ALSO AGREE THAT ETHEREAL WORKSHOP HAS
 # THE LEGAL RIGHTS TO YOUR FIRSTBORN CHILD, AND MAY STEAL ANY OF
 # YOUR CHILDREN AND THROW THEM ON A ROAD DURING ONCOMING TRAFFIC.
+# DAMAGES INCLUDE, BUT ARE NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 setsid -c test
 trap '' INT
@@ -52,8 +52,11 @@ export COLOR_BLUE_B="\033[1;34m"
 export COLOR_MAGENTA_B="\033[1;35m"
 export COLOR_PINK_B="\x1b[1;38;2;235;170;238m"
 export COLOR_CYAN_B="\033[1;36m"
-export PS1='$(cat /etc/hostname):\w\$ '
-echo "export PS1='$(cat /etc/hostname):\w\$ '" >> /etc/profile
+export PS1='\[\033[1;34m\]$(cat /etc/hostname):\[\e[0m\]\[\033[1;32m\]\w/\[\e[0m\] # '
+
+alias ls='ls --color=auto'
+alias dir='dir --color=auto'
+alias grep='grep --color=auto'
 mkdir -p $aroot/images/shims
 mkdir -p $aroot/images/recovery
 mkdir -p $aroot/images/gurt
@@ -65,7 +68,7 @@ VERSION["BUILDDATE"]="[2025-06-20]"
 VERSION["RELNAME"]="A New Dawn"
 VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]} - \"${VERSION["RELNAME"]}\""
 
-if [ ! -f "/.UNRESIZED" ]; then
+if [ -f "/.UNRESIZED" ]; then
     bash "/usr/share/aurora/resize.sh"
 fi
 
@@ -78,6 +81,12 @@ echo_c() {
     local color_variable="$2"
     local color="${!color_variable}"
     echo -e "${color}${text}${COLOR_RESET}"
+}
+
+errormessage() {
+    if [ -n "$errormsg" ]; then 
+        echo -e "${COLOR_RED_B}Error: ${errormsg}${COLOR_RESET}"
+    fi
 }
 
 menu() {
@@ -181,6 +190,8 @@ credits() {
 	splash
 }
 
+
+
 funText() {
 	splashText=(
         "The lower tape fade meme is still massive."
@@ -270,6 +281,7 @@ EOF
     echo -e "${COLOR_RESET}"
     echo -e "https://github.com/EtherealWorkshop/Aurora"
     funText
+    errormessage
     echo -e " "
 }
 
@@ -634,15 +646,18 @@ shimboot() {
 ## WIFI ##
 ##########
 
-for wifi in iwlwifi iwlmvm ccm 8021q; do
-    modprobe -r $wifi
-    modprobe $wifi
-done
-mkdir -p /run/dbus
-rm -f /run/dbus/dbus.pid
-dbus-daemon --system
-pkill NetworkManager
-NetworkManager
+if [ "$needswifi" -eq 1 ]; then
+    for wifi in iwlwifi iwlmvm ccm 8021q; do
+        modprobe -r $wifi || true
+        modprobe $wifi
+    done
+    mkdir -p /run/dbus
+    rm -f /run/dbus/dbus.pid
+    dbus-daemon --system
+    pkill NetworkManager
+    NetworkManager
+    export needswifi=0
+fi
 connect() {
     read -p "Enter your network SSID: " ssid
     read -p "Enter your network password (leave blank if none): " psk
@@ -671,12 +686,9 @@ canwifi() {
   if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase
     "$@"
   else
-    echo_c "You are not connected to the internet." COLOR_RED_B
-    sleep 2
+    export errormsg="You are not connected to the internet (or Nebula's down)."
   fi
 }
-
-
 
 downloadreco() {
 	versions
@@ -751,5 +763,5 @@ while true; do
     splash
     menu "Select an option (use ↑ ↓ arrows, Enter to select):" "${menu_options[@]}"
     eval "${menu_actions[$?]}"
-    sleep 5
+    export errormsg=""
 done

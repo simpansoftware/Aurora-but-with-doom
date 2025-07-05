@@ -13,5 +13,6 @@ tty="/dev/tty"
 
 setsid -c test
 hostname aurora
+export needswifi=1
 exec <${tty} >>${tty} 2>&1
 exec bash -l /usr/share/aurora/aurora.sh <${tty} >>${tty} 2>&1

