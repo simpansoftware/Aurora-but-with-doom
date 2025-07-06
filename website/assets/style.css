@@ -1,0 +1,128 @@
+@font-face {
+    font-family: 'Terminus';
+    src: url('Terminus.ttf') format('truetype');
+}
+
+body {
+    margin: 0;
+    height: 100vh;
+    justify-content: center;
+    text-align: center;
+    background-color: #111111;
+    color: white;
+    font-family: 'Terminus', monospace;
+    font-size: 44px;
+    font-weight: bold;
+}
+
+p {
+    font-size: 36px;
+}
+
+img.ewheader {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.margin {
+    margin-bottom: 4vh;
+    margin-top: 4vh;
+}
+
+.button {
+    border: none;
+    border-radius: 20px;
+    background-color: #333333;
+    color: white;
+    text-align: center;
+    font-family: 'Terminus', monospace;
+    font-size: 32px;
+    font-weight: bold;
+    text-decoration: none;
+    transition-duration: 0.4s;
+    cursor: pointer;
+    width: 64vh;
+    height: 16vh;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.button:hover {
+    background-color: #04AA6D;
+    color: white;
+}
+
+@media (max-width: 800px) {
+    .button {
+        width: 64vw;
+        height: 16vh;
+    }
+    .mobile {
+        display: none
+    }
+}
+
+h6 {
+    font-weight: normal;
+    font-size: 20px;
+    margin: 40px;
+    display: block;
+    align-items: center;
+}
+
+h6 img {
+    border-radius: 50%;
+    position: relative;
+    top: 2.5px;
+    margin-right: 5px;
+    width: 20px;
+}
+
+.members {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    margin: 0 auto;
+    max-width: 1000px;
+}
+
+.member {
+    text-align: center;
+    width: 200px;
+    padding: 10px;
+    border-radius: 30px;
+    background-color: rgba(39, 39, 39, 0.2);
+    backdrop-filter: blur(10px);
+}
+
+.credits {
+    margin: 0vh 25vw;
+    text-align: left;
+}
+
+.membericon {
+    width: 100px;
+    border-radius: 50%;
+}
+
+i {
+    margin: 5px;
+    cursor: pointer;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+}
+
+@media (min-width: 800px) {
+    .socials {
+        position: relative;
+        bottom: 58px;
+    }
+    .web {
+        display: none;
+    }
+}
