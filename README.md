@@ -1,5 +1,5 @@
 # Aurora
-A tool similar to Ventoy for ChromeOS RMA shims and recovery images based on Alpine Linux<br>
+A tool similar to Ventoy for ChromeOS RMA shims and recovery images based on Alpine Linux<br><br>
 ![i spend too much time working](https://hackatime-badge.hackclub.com/U085HGVQE9F/Aurora)
 # What works? What doesn't?
 Recovery :white_check_mark:<br>
