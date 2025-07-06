@@ -1,1 +1,0 @@
-read -p "Press Enter to continue..."

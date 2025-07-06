@@ -1,1 +1,0 @@
-bash -i /irs/payloads/play

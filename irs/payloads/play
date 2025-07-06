@@ -1,7 +1,0 @@
-#!/bin/bash
-clear
-for f in /irs/payloads/frames/frame_*.txt; do
-  clear
-  cat "$f"
-  sleep 0.0416
-done
