@@ -63,16 +63,8 @@ buildrootfs=$(realpath -m "./buildrootfs")
 rm -rf "${rootfs}" 
 mkdir -p "${rootfs}"
 
-need_remount() {
-    findmnt -T "$1" -o OPTIONS -n | grep -qE 'noexec|nodev'
-}
-
-do_remount() {
-    mount -o remount,dev,exec "$(findmnt -T "$1" -o TARGET -n)"
-}
-
-if need_remount "$rootfs"; then
-    do_remount "$rootfs"
+if findmnt -T "$rootfs" -o OPTIONS -n | grep -qE 'noexec|nodev'; then
+    mount -o remount,dev,exec "$(findmnt -T "$rootfs" -o TARGET -n)"
 fi
 
 echo_c "Bootstrapping Alpine" GEEN_B
@@ -81,7 +73,7 @@ if [ ! -f alpine-minirootfs.tar.gz ]; then
     curl -L https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$arch/alpine-minirootfs-3.22.0-$arch.tar.gz -o alpine-minirootfs.tar.gz
 fi
 tar -xf alpine-minirootfs.tar.gz -C $rootfs
-cp -r ../rootfs/* $rootfs
+cp -r ../rootfs/. $rootfs
 
 echo "nameserver 8.8.8.8" > $rootfs/etc/resolv.conf
 # haha 69

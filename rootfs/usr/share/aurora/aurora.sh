@@ -25,11 +25,7 @@ trap '' EXIT
 set -m
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-echo "Starting udevd..."
-/sbin/udevd --daemon || :
-udevadm trigger || :
-udevadm settle || :
-echo "Done."
+
 
 #################
 ## DEFINITIONS ##
@@ -68,10 +64,6 @@ VERSION["BUILDDATE"]="[2025-06-20]"
 VERSION["RELNAME"]="A New Dawn"
 VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]} - \"${VERSION["RELNAME"]}\""
 
-if [ -f "/.UNRESIZED" ]; then
-    bash "/usr/share/aurora/resize.sh"
-fi
-
 ####################
 ## BASE FUNCTIONS ##
 ####################
@@ -82,6 +74,16 @@ echo_c() {
     local color="${!color_variable}"
     echo -e "${color}${text}${COLOR_RESET}"
 }
+echo_center() {
+    local width=$(tput cols)
+    local text="$1"
+    local length=${#text}
+    local spacing=$(( ($width - $length) / 2 ))
+    for number in $spacing; do
+    echo -n " "
+    done
+}
+
 
 errormessage() {
     if [ -n "$errormsg" ]; then 
@@ -284,6 +286,19 @@ EOF
     errormessage
     echo -e " "
 }
+
+#############
+## STARTUP ##
+#############
+
+echo "Starting udevd..."
+/sbin/udevd --daemon || :
+udevadm trigger || :
+udevadm settle || :
+echo "Done."
+if [ -f "/.UNRESIZED" ]; then
+    bash "/usr/share/aurora/resize.sh"
+fi
 
 ##################
 ## MURKMOD SHIT ##
