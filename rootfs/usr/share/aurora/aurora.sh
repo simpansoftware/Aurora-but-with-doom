@@ -61,7 +61,7 @@ declare -A VERSION
 VERSION["BRANCH"]="dev-alpine"
 VERSION["NUMBER"]="3.0"
 VERSION["BUILDDATE"]="[2025-06-20]"
-VERSION["RELNAME"]="A New Dawn"
+VERSION["RELNAME"]="Rhymes with Grug"
 VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]} - \"${VERSION["RELNAME"]}\""
 
 ####################
@@ -75,15 +75,13 @@ echo_c() {
     echo -e "${color}${text}${COLOR_RESET}"
 }
 echo_center() {
-    local width=$(tput cols)
     local text="$1"
+    local width=$(tput cols)
     local length=${#text}
-    local spacing=$(( ($width - $length) / 2 ))
-    for number in $spacing; do
-    echo -n " "
-    done
+    local spacing=$(( (width - length) / 2 ))
+    spacing=$((spacing < 0 ? 0 : spacing))
+    printf "%*s%s\n" "$spacing" "" "$text"
 }
-
 
 errormessage() {
     if [ -n "$errormsg" ]; then 
@@ -291,12 +289,33 @@ EOF
 ## STARTUP ##
 #############
 
-echo "Starting udevd..."
+cat <<EOF | while IFS= read -r line; do echo_center "$line"; done
+╒════════════════════════════════════════╕
+│ .    . .    '    +   *       o    .    │
+│+  '.                    '   .-.     +  │
+│          +      .    +   .   ) )     ''│
+│                   '  .      '-´  *.    │
+│     .    \      .     .  .  +          │
+│         .-o-'       '    .o        o   │
+│  *        \      *            +'       │
+│                '       '               │
+│        .*       .       o   o      .   │
+│              o     . *.                │
+│ 'o*           .        .'    .         │
+│              ┏┓   '. O           *     │
+│     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
+│     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
+╘════════════════════════════════════════╛
+EOF
+
+
+echo_center "Starting udevd..."
 /sbin/udevd --daemon || :
 udevadm trigger || :
 udevadm settle || :
-echo "Done."
+echo_center "Done."
 if [ -f "/.UNRESIZED" ]; then
+    echo_center "Resizing rootfs..."
     bash "/usr/share/aurora/resize.sh"
 fi
 
