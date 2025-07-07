@@ -89,7 +89,7 @@ fi
 
 sgdisk --zap-all "$dev"
 
-sgdisk -n 1:2048:10239     "$dev"
+sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev"
 sgdisk -n 2:10240:75775    "$dev"
 sgdisk -n 3:75776:96255 -c 3:"ROOT-A" "$dev"
 sgdisk -n 4:96256:1387183 -c 4:"Aurora" "$dev"
@@ -100,32 +100,31 @@ sgdisk -t 4:8300 "$dev"
 sgdisk -p "$dev"
 
 skpart="$(cgpt find -l KERN-A $shimdev | head -n 1)"
-sspart="$(cgpt find -l STATE $shimdev | head -n 1)"
 skpartnum="$(echo $skpart | sed "s|${shimdev}p||")"
-sspartnum="$(echo $sspart | sed "s|${shimdev}p||")"
 skguid="$(sgdisk -i $skpartnum "$shimdev")"
 
 kernelpartition="${dev}p2"
-statepartition="${dev}p1"
 
 dd if=$skpart of=$kernelpartition
-dd if=$sspart of=$statepartition
 
 
 sgdisk --partition-guid=2:B5BAF579-07EF-A747-858B-87C0E507CD29 "$dev"
 cgpt add -i 2 -t "$(cgpt show -i $skpartnum -t "$shimdev")" -l "$(cgpt show -i $skpartnum -l "$shimdev")" -P 15 -T 15 -S 1 "$dev"
-cgpt add -i 1 -t "$(cgpt show -i $sspartnum -t "$shimdev")" -l "$(cgpt show -i $sspartnum -l "$shimdev")" "$dev"
 
-
+state="${dev}p1"
 root_a="${dev}p3"
 root_b="${dev}p4"
 
+echo -e "y\n" | mkfs.ext4 "$state" -L STATE
 echo -e "y\n" | mkfs.ext4 "$root_a" -L ROOT-A
 echo -e "y\n" | mkfs.ext4 "$root_b" -L Aurora
 
-
+statemount=$(mktemp -d)
 root_amount=$(mktemp -d)
 root_bmount=$(mktemp -d)
+mount $state $statemount
+mkdir $statemount/etc/
+touch $statemount/etc/lsb-factory
 mount $root_a $root_amount
 mount $root_b $root_bmount
 
@@ -139,6 +138,8 @@ cp ../root-a/sbin/init $root_amount/sbin/init
 chmod +x $root_amount/sbin/init
 chmod +x $root_bmount/sbin/init
 echo_c "Unmounting..." "GEEN_B"
+umount $statemount
+umount $statemount -l
 umount $root_amount
 umount $root_amount -l
 umount $root_bmount
