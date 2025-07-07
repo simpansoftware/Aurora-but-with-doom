@@ -780,7 +780,7 @@ menu_options=(
 )
 
 menu_actions=(
-    "fish -l 2>/dev/null || bash -l 2>/dev/null || busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
+    "bash -l || busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
     installcros
     shimboot
     wifi

@@ -123,8 +123,8 @@ statemount=$(mktemp -d)
 root_amount=$(mktemp -d)
 root_bmount=$(mktemp -d)
 mount $state $statemount
-mkdir $statemount/etc/
-touch $statemount/etc/lsb-factory
+mkdir -p $statemount/dev_image/etc/
+touch $statemount/dev_image/etc/lsb-factory
 mount $root_a $root_amount
 mount $root_b $root_bmount
 
@@ -134,7 +134,7 @@ rm -f $root_bmount/sbin/init
 cp ../rootfs/. $root_bmount -ar
 rsync -avH --info=progress2 "$rootfs" "$root_bmount" &>/dev/null
 echo_c "Copying initramfs to shim" "GEEN_B" 
-rsync -avH --info=progress2 "$initramfs" "$root_amount" &>/dev/null
+rsync -avH --info=progress2 "$initramfs" "$root_amount"
 rm -f $root_amount/bin/init
 cp ../root-a/sbin/init $root_amount/sbin/init
 chmod +x $root_amount/sbin/init
