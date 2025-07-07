@@ -18,7 +18,6 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-export HUSHLOGIN=1
 setsid -c test
 trap '' INT
 trap '' SIGINT
@@ -289,7 +288,8 @@ EOF
 #############
 ## STARTUP ##
 #############
-
+clear
+tput civis
 echo -e "$COLOR_BLUE_B"
 cat <<EOF | while IFS= read -r line; do echo_center "$line"; done
 ╒════════════════════════════════════════╕
@@ -320,8 +320,7 @@ if [ -f "/.UNRESIZED" ]; then
     echo_center "Resizing rootfs..."
     bash "/usr/share/aurora/resize.sh"
 fi
-
-export HUSHLOGIN=0
+tput cnorm
 
 ##################
 ## MURKMOD SHIT ##

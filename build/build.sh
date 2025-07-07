@@ -147,14 +147,14 @@ umount $root_amount -l
 umount $root_bmount
 umount $root_bmount -l
 losetup -D
-echo -e "${COLOR_MAGENTA_B}Credits"
-echo -e "${COLOR_PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Got Wifi"
-echo -e "${COLOR_GEEN_B}xmb9${COLOR_RESET}: Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images"
-echo -e "${COLOR_YELLOW_B}Synaptic${COLOR_RESET}: Emotional Support"
-echo -e "${COLOR_CYAN_B}Simon${COLOR_RESET}: Brainstormed how to do wifi, helped with dhcpcd"
-echo -e "${COLOR_BLUE_B}kraeb${COLOR_RESET}: QoL improvements and initial idea"
-echo -e "${COLOR_RED_B}Mariah Carey${COLOR_RESET}: Bugtesting wifi"
-echo -e "${COLOR_MAGNETA_B}AC3${COLOR_RESET}: Literally nothing"
-echo -e "${COLOR_GEEN_B}Rainestorme${COLOR_RESET}: Murkmod's version finder"
+echo -e "${MAGENTA_B}Credits"
+echo -e "${PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Got Wifi"
+echo -e "${GEEN_B}xmb9${COLOR_RESET}: Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images"
+echo -e "${YELLOW_B}Synaptic${COLOR_RESET}: Emotional Support"
+echo -e "${CYAN_B}Simon${COLOR_RESET}: Brainstormed how to do wifi, helped with dhcpcd"
+echo -e "${BLUE_B}kraeb${COLOR_RESET}: QoL improvements and initial idea"
+echo -e "${RED_B}Mariah Carey${COLOR_RESET}: Bugtesting wifi"
+echo -e "${MAGENTA_B}AC3${COLOR_RESET}: Literally nothing"
+echo -e "${GEEN_B}Rainestorme${COLOR_RESET}: Murkmod's version finder"
 echo -e " "
 echo_c "Done!" "GEEN_B"
