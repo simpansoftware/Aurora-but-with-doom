@@ -18,6 +18,7 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+export HUSHLOGIN=1
 setsid -c test
 trap '' INT
 trap '' SIGINT
@@ -289,6 +290,7 @@ EOF
 ## STARTUP ##
 #############
 
+echo -e "$COLOR_BLUE_B"
 cat <<EOF | while IFS= read -r line; do echo_center "$line"; done
 ╒════════════════════════════════════════╕
 │ .    . .    '    +   *       o    .    │
@@ -307,7 +309,7 @@ cat <<EOF | while IFS= read -r line; do echo_center "$line"; done
 │     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
 ╘════════════════════════════════════════╛
 EOF
-
+echo -e "${COLOR_RESET}"
 
 echo_center "Starting udevd..."
 /sbin/udevd --daemon || :
@@ -318,6 +320,8 @@ if [ -f "/.UNRESIZED" ]; then
     echo_center "Resizing rootfs..."
     bash "/usr/share/aurora/resize.sh"
 fi
+
+export HUSHLOGIN=0
 
 ##################
 ## MURKMOD SHIT ##
@@ -777,7 +781,7 @@ menu_options=(
 )
 
 menu_actions=(
-    "fish -l || bash -l || busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
+    "fish -l 2>/dev/null || bash -l 2>/dev/null || busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
     installcros
     shimboot
     wifi
