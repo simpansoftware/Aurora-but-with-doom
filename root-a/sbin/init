@@ -3,7 +3,12 @@
 echo "Making the newroot partition..."
 mkdir -p /newroot || sleep 10
 sleep 1
-dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}')
+dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' || true)
+if [ -z "$dev_partition" ]; then
+    echo "failed to find aurora partition"
+    exit 10
+fi
+
 dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
 
 echo "Mounting device..."
