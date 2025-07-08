@@ -239,7 +239,7 @@ funText() {
         " I am the Lorax and I speak for the trees "
         "Vaporeon is that a EndlessVortex reference"
         "              CHICKEN JOCKEY              "
-        "             stellaword.12...             "
+        "               stellaword12               "
         "             PLEASE INSERT DI             "
         "the higher glue appear trend is now large."
         "    one cannot simply walk into mordor\n- some dumbass who didn't walk into mordor"
