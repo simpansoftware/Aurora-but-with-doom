@@ -316,10 +316,6 @@ echo_center "Starting udevd..."
 udevadm trigger || :
 udevadm settle || :
 echo_center "Done."
-if [ -f "/.UNRESIZED" ]; then
-    echo_center "Resizing rootfs..."
-    bash "/usr/share/aurora/resize.sh"
-fi
 tput cnorm
 
 ##################

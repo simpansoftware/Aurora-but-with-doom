@@ -129,15 +129,17 @@ mount $root_a $root_amount
 mount $root_b $root_bmount
 
 echo_c "Copying rootfs to shim" "GEEN_B" 
+cp $rootfs/bin/resize2fs $initramfs/sbin/resize2fs #will this work? no.
+cp $rootfs/bin/blkid $initramfs/sbin/blkid #do i care? most certainly not.
 cp ../rootfs/. $rootfs -ar
 rm -f $root_bmount/sbin/init
-cp ../rootfs/. $root_bmount -ar
 rsync -avH --info=progress2 "$rootfs" "$root_bmount" &>/dev/null
+cp ../rootfs/. $root_bmount -ar
 echo_c "Copying initramfs to shim" "GEEN_B" 
-rsync -avH --info=progress2 "$initramfs" "$root_amount"
+rsync -avH --info=progress2 "$initramfs" "$root_amount" &>/dev/null
 rm -f $root_amount/bin/init
-cp ../root-a/sbin/init $root_amount/sbin/init
-chmod +x $root_amount/sbin/init
+cp -r ../initramfs/. $root_amount/
+chmod +x $root_amount/sbin/*
 chmod +x $root_bmount/sbin/init
 echo_c "Unmounting..." "GEEN_B"
 umount $statemount
