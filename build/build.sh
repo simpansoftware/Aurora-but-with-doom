@@ -132,6 +132,7 @@ echo_c "Copying rootfs to shim" "GEEN_B"
 rm -f $root_bmount/sbin/init
 cp ../rootfs/. $rootfs -ar
 rsync -avH --info=progress2 "$rootfs" "$root_bmount" &>/dev/null
+rsync -avH --info=progress2 "../$arch" "$root_bmount" &>/dev/null
 echo_c "Copying initramfs to shim" "GEEN_B" 
 rm -f $root_amount/bin/init
 cp ../initramfs/. $initramfs -ar

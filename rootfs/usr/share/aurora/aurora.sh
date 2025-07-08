@@ -34,6 +34,7 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 export aroot="/usr/share/aurora"
 recochoose=($aroot/images/recovery/*)
 shimchoose=($aroot/images/shims/*)
+payloadchoose=($aroot/payloads/*)
 export releaseBuild=1
 export shimroot="/shimroot"
 export recoroot="/recoroot"
@@ -185,7 +186,7 @@ credits() {
     echo -e "${COLOR_MAGNETA_B}AC3${COLOR_RESET}: Literally nothing"
     echo -e "${COLOR_GEEN_B}Rainestorme${COLOR_RESET}: Murkmod's version finder"
     echo -e " "
-	read -p "Press enter to continue."
+    read -p "Press Enter to return to the main menu..."
 	clear
 	splash
 }
@@ -474,6 +475,7 @@ installcros() {
 	if [[ -z "$(ls -A $aroot/images/recovery)" ]]; then
 		echo -e "${COLOR_YELLOW_B}You have no recovery images downloaded!\nPlease download a few images."
 		echo -e "Alternatively, these are available on websites such as chrome100.dev, or cros.tech. Put them into /usr/share/aurora/images/recovery"
+        read -p "Press Enter to return to the main menu..."
 		return
 	else
         reco_options=("${recochoose[@]}" "Exit")
@@ -495,7 +497,7 @@ installcros() {
 	fi
 
 	if [[ $reco == "Exit" ]]; then
-		read -p "Press enter to continue."
+        read -p "Press Enter to continue..."
 		clear
 		splash 1
 	else
@@ -535,16 +537,11 @@ installcros() {
 	fi
 }
 
-shimbootconditionals() {
-    if [ -f "/bin/kvs" ]; then
-        exec /bin/kvs
-    fi
-}
-
 shimboot() {
 	if [[ -z "$(ls -A $aroot/images/shims)" ]]; then
 		echo -e "${COLOR_YELLOW_B}You have no shims downloaded!\nPlease download or build a few images."
 		echo -e "Alternatively, these are available on websites such as mirror.akane.network or dl.fanqyxl.net. Put them into /usr/share/aurora/images/shims"
+        read -p "Press Enter to return to the main menu..."
 		return
 	else
         shim_options=("${shimchoose[@]}" "Exit")
@@ -566,7 +563,7 @@ shimboot() {
 	fi
 
 	if [[ $shim == "Exit" ]]; then
-		read -p "Press enter to continue."
+        read -p "Press Enter to continue..."
 		clear
 	else
 		mkdir -p $shimroot
@@ -585,24 +582,8 @@ shimboot() {
 			err3="              and if it looks fine, report it to the GitHub repo!\n"
 			fail "${err1}${err2}${err3}"
 		fi
-		unpatched_shimboot=0
-		if cat /mnt/shimroot/sbin/bootstrap.sh | grep "│ Shimboot OS Selector" --quiet; then
-			echo -e "${COLOR_YELLOW_B}Coming soon to viewers like you!${COLOR_RESET}"
-			read -p "Press enter to continue."
-			clear
-			return
-		elif cat /mnt/shimroot/sbin/bootstrap.sh | grep "│ Priishimboot OS Selector" --quiet; then
-			echo -e "${COLOR_YELLOW_B}Coming soon to viewers like you!${COLOR_RESET}"
-			read -p "Press enter to continue."
-			clear
-			return
-		fi
-		if cat /mnt/shimroot/usr/share/aurora/aurora.sh | grep "https://github.com/EtherealWorkshop/Aurora" --quiet; then
-			echo -e "${COLOR_YELLOW_B}I will try my absolute hardest to make the inception work as much as you want when${COLOR_RESET}"
-			read -p "Press enter to continue."
-			clear
-			return
-		fi
+		export skipshimboot=0
+        source /usr/share/aurora/shimbootconditionals.sh
 		if ! stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)"; then
 			echo -e "${COLOR_YELLOW_B}Finding stateful via partition label \"STATE\" failed (try 1...)${COLOR_RESET}"
 			if ! stateful="$(cgpt find -l SH1MMER ${loop} | head -n 1 | grep --color=never /dev/)"; then
@@ -624,7 +605,7 @@ shimboot() {
 			stateful="${loop}p1"
 		fi
 
-		if (( $unpatched_shimboot == 0 )); then
+		if (( $skipshimboot == 0 )); then
 			mkdir -p /stateful
 			mkdir -p /newroot
 
@@ -659,7 +640,7 @@ shimboot() {
 
 			mkdir -p /newroot/tmp/aurora
 			pivot_root /newroot /newroot/tmp/aurora
-            shimbootconditionals
+            source /usr/share/aurora/shimbootconditionals.sh
 			echo "Starting init"
 			exec /sbin/init || {
 				echo "Failed to start init!!!"
@@ -757,7 +738,7 @@ downloadyo() {
 ##################
 
 payloads() {
-	options_payload=("${selpayload[@]}" "Exit")
+	options_payload=("${payloadchoose[@]}" "Exit")
 
 	menu "Choose payload to run:" "${options_payload[@]}"
 	choice=$?
@@ -765,12 +746,12 @@ payloads() {
 	payload="${options_payload[$choice]}"
 
 	if [[ $payload == "Exit" ]]; then
-	    read -p "Press enter to continue."
+	    read -p "Press Enter to continue..."
 	    clear
 	    splash 0
 	else
 	    source "$payload"
-	    read -p "Press enter to continue."
+	    read -p "Press Enter to continue..."
 	    clear
 	    splash 0
 	fi
