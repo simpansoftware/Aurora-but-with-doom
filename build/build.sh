@@ -81,6 +81,10 @@ echo_c "Copying Modules..." GEEN_B
 mount -o ro $chromeos $tempmount
 if [ -d $tempmount/lib/modules ]; then
     cp -ar $tempmount/lib/modules $rootfs/lib/
+    for lib64 in libcom_err.so.2 libe2p.so.2 libext2fs.so.2; do
+        cp -aL $tempmount/usr/lib64/$lib64 $initramfs/lib64/
+    done
+    cp -aL $tempmount/lib64/libpthread.so.0 $initramfs/lib64/
     umount $tempmount
 else
     echo_c "Please run on a raw shim." RED_B
