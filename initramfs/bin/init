@@ -5,6 +5,7 @@ mkdir -p /newroot
 if [ -f "/.UNRESIZED" ]; then
     echo "Resizing rootfs..."
     /sbin/resizedafiles
+    rm -f /.UNRESIZED
 fi
 sleep 5
 dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' || true)
