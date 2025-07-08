@@ -243,6 +243,7 @@ funText() {
         "             PLEASE INSERT DI             "
         "the higher glue appear trend is now large."
         "    one cannot simply walk into mordor\n- some dumbass who didn't walk into mordor"
+        "     i don't want a lot for christmas\n      there is just one thing i need"
         ) #              cen-><-ter" 
 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
@@ -677,31 +678,42 @@ shimboot() {
 
 if [ "$needswifi" -eq 1 ]; then
     for wifi in iwlwifi iwlmvm ccm 8021q; do
-        modprobe -r $wifi || true
-        modprobe $wifi
+        modprobe -r "$wifi" || true
+        modprobe "$wifi"
     done
-    mkdir -p /run/dbus
-    rm -f /run/dbus/dbus.pid
-    dbus-daemon --system
-    pkill NetworkManager
-    NetworkManager
     export needswifi=0
 fi
+
 connect() {
     read -p "Enter your network SSID: " ssid
-    read -p "Enter your network password (leave blank if none): " psk
+    read -p "Enter your network password (leave blank if open network): " psk
+
+    conf="/etc/wpa_supplicant.conf"
     if [ -z "$psk" ]; then
-        nmcli connection add type wifi ifname "$wifidevice" con-name "$ssid" ssid "$ssid" ipv4.method auto ipv6.method auto
-    else
-        nmcli connection add type wifi ifname "$wifidevice" con-name "$ssid" ssid "$ssid" wifi-sec.key-mgmt wpa-psk wifi-sec.psk "$psk" ipv4.method auto ipv6.method auto
-    fi
+        cat > "$conf" <<EOF
+network={
+    ssid="$ssid"
+    key_mgmt=NONE
 }
+EOF
+    else
+        wpa_passphrase "$ssid" "$psk" > "$conf"
+    fi
+    killall wpa_supplicant 2>/dev/null
+    killall udhcpc 2>/dev/null
+    ip link set "$wifidevice" down
+    ip link set "$wifidevice" up
+
+    wpa_supplicant -B -i "$wifidevice" -c "$conf"
+    udhcpc -i "$wifidevice"
+}
+
 wifi() {
-    wifidevice=$(nmcli dev | grep wifi | awk '{print $1}' | head -n1) # WifiDevice???? you mean EpicDevice??? YOU MEAN EPICDEVICES??????
-    if nmcli -t -f TYPE,STATE dev | grep -q '^wifi:connected'; then
-        echo_c "Currently Connected to previously configured network." COLOR_GEEN_B
-        echo_c "Connect to a different network? (y/N)" COLOR_YELLOW_B
-        read connectornah
+    wifidevice=$(ip link | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
+
+    if iw dev "$wifidevice" link | grep -q 'Connected'; then
+        echo "Currently connected to a network."
+        read -p "Connect to a different network? (y/N): " connectornah
         case $connectornah in
             y|Y|yes|Yes) connect ;;
             *) ;;
@@ -710,6 +722,7 @@ wifi() {
         connect
     fi
 }
+
 
 canwifi() {
   if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase

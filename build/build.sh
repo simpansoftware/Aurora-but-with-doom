@@ -94,9 +94,9 @@ fi
 sgdisk --zap-all "$dev"
 
 sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev"
-sgdisk -n 2:10240:75775    "$dev"
-sgdisk -n 3:75776:96255 -c 3:"ROOT-A" "$dev"
-sgdisk -n 4:96256:1387183 -c 4:"Aurora" "$dev"
+sgdisk -n 2:10240:75775 "$dev"
+sgdisk -n 3:75776:116735 -c 3:"ROOT-A" "$dev"
+sgdisk -n 4:116736:1387183 -c 4:"Aurora" "$dev"
 
 sgdisk -t 3:3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC "$dev"
 sgdisk -t 4:8300 "$dev"
