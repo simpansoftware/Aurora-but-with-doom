@@ -11,7 +11,7 @@ fi
 if [ -f "/.UNRESIZED" ]; then
     chmod +x /.UNRESIZED
     bash /.UNRESIZED
-    sleep 10
+    rm -f /.UNRESIZED
     sync
 fi
 
