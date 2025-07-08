@@ -6,7 +6,13 @@ sleep 1
 dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' || true)
 if [ -z "$dev_partition" ]; then
     echo "failed to find aurora partition"
-    exit 10
+    exit 1
+fi
+if [ -f "/.UNRESIZED" ]; then
+    chmod +x /.UNRESIZED
+    bash /.UNRESIZED
+    sleep 10
+    sync
 fi
 
 dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')

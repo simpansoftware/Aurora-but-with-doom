@@ -40,23 +40,13 @@ checkarch() {
 checkarch
 
 shim="$1"
-initramfs="./initramfs/"
 
 source ./utils/functions.sh
 echo_c "Architecture: ($arch)" BLUE_B
 echo_c "Shim: ($1)" "BLUE_B"
-echo_c "Extracting initramfs" GEEN_B
 
-loopdev=$(losetup -f)
-losetup -P "$loopdev" "$shim"
-initramfs="./initramfs"
-extract_initramfs_full "$loopdev" "$initramfs" "/tmp/shim_kernel/kernel.img" "$arch"
-umount ${loopdev}p3
-umount ${loopdev}p4
-losetup -D
 
-echo_c "Extracted initramfs" GEEN_B
-
+initramfs=$(realpath -m "./initramfs")
 rootfs=$(realpath -m "./rootfs")
 buildrootfs=$(realpath -m "./buildrootfs")
 
@@ -74,7 +64,6 @@ if [ ! -f alpine-minirootfs.tar.gz ]; then
 fi
 tar -xf alpine-minirootfs.tar.gz -C $rootfs
 rm -f $rootfs/sbin/init
-cp -r ../rootfs/. $rootfs
 
 echo "nameserver 8.8.8.8" > $rootfs/etc/resolv.conf
 # haha 69
@@ -85,6 +74,19 @@ for arg in "$@"; do
             ;;
     esac
 done
+
+unmount() {
+    for dir in proc sys dev run; do
+        umount -l "$rootfs/$dir"
+    done
+}
+trap unmount EXIT
+cp -Lar $rootfs/. $initramfs/
+cp -r ../initramfs/. $initramfs/
+chroot "$initramfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_initramfs_alpine.sh && /opt/setup_initramfs_alpine.sh $arch"
+cp -r ../rootfs/. $rootfs/
+chroot "$rootfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_rootfs_alpine.sh && /opt/setup_rootfs_alpine.sh $arch"
+
 if [ "$NOWIFI" = true ]; then
     echo_c "Flag 'nowifi' set. Skipping firmware download..." YELLOW_B
 else
@@ -93,15 +95,6 @@ else
 fi
 
 rm -rf $(find $rootfs/lib/firmware/* -not -name "iwlwifi*.ucode")
-
-unmount() {
-    for dir in proc sys dev run; do
-        umount -l "$rootfs/$dir"
-    done
-}
-trap unmount EXIT
-
-chroot "$rootfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_rootfs_alpine.sh && /opt/setup_rootfs_alpine.sh $arch"
 
 trap - EXIT
 unmount

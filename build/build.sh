@@ -91,8 +91,8 @@ sgdisk --zap-all "$dev"
 
 sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev"
 sgdisk -n 2:10240:75775    "$dev"
-sgdisk -n 3:75776:96255 -c 3:"ROOT-A" "$dev"
-sgdisk -n 4:96256:1387183 -c 4:"Aurora" "$dev"
+sgdisk -n 3:75776:126975 -c 3:"ROOT-A" "$dev"
+sgdisk -n 4:126976:1387183 -c 4:"Aurora" "$dev"
 
 sgdisk -t 3:3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC "$dev"
 sgdisk -t 4:8300 "$dev"
@@ -129,16 +129,15 @@ mount $root_a $root_amount
 mount $root_b $root_bmount
 
 echo_c "Copying rootfs to shim" "GEEN_B" 
-cp ../rootfs/. $rootfs -ar
 rm -f $root_bmount/sbin/init
-cp ../rootfs/. $root_bmount -ar
+cp ../rootfs/. $rootfs -ar
 rsync -avH --info=progress2 "$rootfs" "$root_bmount" &>/dev/null
 echo_c "Copying initramfs to shim" "GEEN_B" 
-rsync -avH --info=progress2 "$initramfs" "$root_amount" &>/dev/null
 rm -f $root_amount/bin/init
-cp ../root-a/sbin/init $root_amount/sbin/init
-chmod +x $root_amount/sbin/init
-chmod +x $root_bmount/sbin/init
+cp ../initramfs/. $initramfs -ar
+rsync -avH --info=progress2 "$initramfs" "$root_amount" &>/dev/null
+chmod +x $root_amount/sbin/*
+chmod +x $root_bmount/sbin/*
 echo_c "Unmounting..." "GEEN_B"
 umount $statemount
 umount $statemount -l
