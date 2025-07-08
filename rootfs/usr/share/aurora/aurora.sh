@@ -735,7 +735,7 @@ canwifi() {
     export errormsg="You are not connected to the internet (or Nebula's down)."
   fi
 }
-
+export -f canwifi
 downloadreco() {
 	versions
 	cd $aroot/images/recovery
