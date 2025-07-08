@@ -80,12 +80,7 @@ tempmount="$(mktemp -d)"
 echo_c "Copying Modules..." GEEN_B
 mount -o ro $chromeos $tempmount
 if [ -d $tempmount/lib/modules ]; then
-    cp -ar $tempmount/lib/modules ${rootfs}lib/
-    cp $tempmount/sbin/resize2fs $initramfs/sbin/resize2fs
-    libs=$(readelf -d $tempmount/sbin/resize2fs | grep NEEDED | awk -F'[][]' '{print $2}')
-    for lib in $libs; do
-      find "$tempmount" -name "$lib" -exec cp -aL {} "$initramfs/lib64/" \;      
-    done
+    cp -ar $tempmount/lib/modules ./rootfs/lib/
     umount $tempmount
 else
     echo_c "Please run on a raw shim." RED_B
@@ -95,9 +90,9 @@ fi
 sgdisk --zap-all "$dev"
 
 sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev"
-sgdisk -n 2:10240:75775 "$dev"
-sgdisk -n 3:75776:116735 -c 3:"ROOT-A" "$dev"
-sgdisk -n 4:116736:1387183 -c 4:"Aurora" "$dev"
+sgdisk -n 2:10240:75775    "$dev"
+sgdisk -n 3:75776:96255 -c 3:"ROOT-A" "$dev"
+sgdisk -n 4:96256:1387183 -c 4:"Aurora" "$dev"
 
 sgdisk -t 3:3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC "$dev"
 sgdisk -t 4:8300 "$dev"
@@ -133,17 +128,16 @@ touch $statemount/dev_image/etc/lsb-factory
 mount $root_a $root_amount
 mount $root_b $root_bmount
 
-echo_c "Copying rootfs to shim" "GEEN_B"
+echo_c "Copying rootfs to shim" "GEEN_B" 
 cp ../rootfs/. $rootfs -ar
 rm -f $root_bmount/sbin/init
-rsync -avH --info=progress2 "$rootfs" "$root_bmount" &>/dev/null
 cp ../rootfs/. $root_bmount -ar
+rsync -avH --info=progress2 "$rootfs" "$root_bmount" &>/dev/null
 echo_c "Copying initramfs to shim" "GEEN_B" 
-rsync -avH --info=progress2 "$initramfs" "$root_amount" &>/dev/null
+rsync -avH --info=progress2 "$initramfs" "$root_amount"
 rm -f $root_amount/bin/init
-cp -r ../initramfs/. $root_amount/
-cp -r ../$arch/. $root_amount/
-chmod +x $root_amount/bin/*
+cp ../root-a/sbin/init $root_amount/sbin/init
+chmod +x $root_amount/sbin/init
 chmod +x $root_bmount/sbin/init
 echo_c "Unmounting..." "GEEN_B"
 umount $statemount
