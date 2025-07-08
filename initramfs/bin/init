@@ -6,6 +6,7 @@ if [ -f "/.UNRESIZED" ]; then
     echo "Resizing rootfs..."
     /sbin/resizedafiles
 fi
+sleep 5
 dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' || true)
 if [ -z "$dev_partition" ]; then
     echo "failed to find aurora partition"

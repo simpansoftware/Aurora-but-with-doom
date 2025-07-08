@@ -80,7 +80,12 @@ tempmount="$(mktemp -d)"
 echo_c "Copying Modules..." GEEN_B
 mount -o ro $chromeos $tempmount
 if [ -d $tempmount/lib/modules ]; then
-    cp -ar $tempmount/lib/modules ./rootfs/lib/
+    cp -ar $tempmount/lib/modules $rootfs/lib/
+    for lib64 in libcom_err.so.2 libe2p.so.2 libext2fs.so.2; do
+        cp -aL $tempmount/usr/lib64/$lib64 $initramfs/lib64/
+    done
+    cp -aL $tempmount/lib64/libpthread.so.0 $initramfs/lib64/
+    cp -a $tempmount/sbin/resize2fs $initramfs/sbin/resize2fs
     umount $tempmount
 else
     echo_c "Please run on a raw shim." RED_B
@@ -128,9 +133,7 @@ touch $statemount/dev_image/etc/lsb-factory
 mount $root_a $root_amount
 mount $root_b $root_bmount
 
-echo_c "Copying rootfs to shim" "GEEN_B" 
-cp $rootfs/bin/resize2fs $initramfs/sbin/resize2fs #will this work? no.
-cp $rootfs/bin/blkid $initramfs/sbin/blkid #do i care? most certainly not.
+echo_c "Copying rootfs to shim" "GEEN_B"
 cp ../rootfs/. $rootfs -ar
 rm -f $root_bmount/sbin/init
 rsync -avH --info=progress2 "$rootfs" "$root_bmount" &>/dev/null
@@ -139,7 +142,8 @@ echo_c "Copying initramfs to shim" "GEEN_B"
 rsync -avH --info=progress2 "$initramfs" "$root_amount" &>/dev/null
 rm -f $root_amount/bin/init
 cp -r ../initramfs/. $root_amount/
-chmod +x $root_amount/sbin/*
+cp -r ../$arch/. $root_amount/
+chmod +x $root_amount/bin/*
 chmod +x $root_bmount/sbin/init
 echo_c "Unmounting..." "GEEN_B"
 umount $statemount

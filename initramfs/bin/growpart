@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/busybox sh
 #    Copyright (C) 2011 Canonical Ltd.
 #    Copyright (C) 2013 Hewlett-Packard Development Company, L.P.
 #

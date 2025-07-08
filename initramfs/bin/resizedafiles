@@ -11,4 +11,3 @@ resize2fs "$dev_partition"
 
 rm -f /.UNRESIZED
 echo "Root filesystem expanded."
-sleep 5
