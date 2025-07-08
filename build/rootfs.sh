@@ -94,7 +94,7 @@ else
     [ ! -d "linux-firmware" ] && git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware $rootfs/lib/firmware/
 fi
 
-rm -rf $(find $rootfs/lib/firmware/* -not -name "iwlwifi*.ucode")
+rm -rf $(find $rootfs/lib/firmware/* -not -name "*wifi*")
 
 trap - EXIT
 unmount
