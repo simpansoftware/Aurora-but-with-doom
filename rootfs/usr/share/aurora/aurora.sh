@@ -21,7 +21,7 @@
 trap '' SIGINT
 stty intr ''
 c() {
-    trap - SIGINT && stty intr '^C' && ${@} && trap '' SIGINT && stty intr ''
+    trap - SIGINT && stty intr '^C' && setsid ${@} && trap '' SIGINT && stty intr ''
 }
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -805,7 +805,7 @@ menu_options=(
 )
 
 menu_actions=(
-    "c setsid bash -l </dev/tty || c busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
+    "c bash -l || c busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
     installcros
     shimboot
     wifi
