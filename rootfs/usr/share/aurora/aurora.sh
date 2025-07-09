@@ -25,7 +25,6 @@ trap '' EXIT
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
-
 #################
 ## DEFINITIONS ##
 #################
@@ -316,12 +315,15 @@ echo_center "Starting udevd..."
 /sbin/udevd --daemon || :
 udevadm trigger || :
 udevadm settle || :
-if $(test -e "/usr/share/aurora/.UNRESIZED"); then
-	echo "resizing images partition"; sleep 3
-	bash /usr/share/aurora/resize.sh
-fi
 echo_center "Done."
 tput cnorm
+if [ -e /usr/share/aurora/.UNRESIZED ]; then
+	echo -e "${COLOR_GEEN_B}"
+	echo_center "Resizing..."
+  	echo -e "${COLOR_RESET}"
+	bash /usr/share/aurora/resize.sh
+ 	echo_center "Done."
+fi
 
 ##################
 ## MURKMOD SHIT ##
