@@ -12,7 +12,7 @@ apk add dhcpcd fastfetch figlet util-linux syslog-ng e2fsprogs fish lsblk losetu
 
 cat <<'EOF' >> /etc/profile
 export PS1='\[\033[1;34m\]$(cat /etc/hostname)\[\e[0m\]:\[\033[1;32m\]\w\[\e[0m\]\$ '
-
+stty intr '^C'
 alias ls='ls --color=auto'
 alias dir='dir --color=auto'
 alias grep='grep --color=auto'
