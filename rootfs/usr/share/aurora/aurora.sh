@@ -753,7 +753,13 @@ updateshim() {
     apk add git github-cli
     rm -rf /root/Aurora
     rm -rf /usr/share/aurora/aurora.sh
-    git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora || gh auth login && git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora 
+    if [ -d "/root/Aurora/.git" ]; then
+        git -C "/root/Aurora" pull origin alpine
+    else
+        [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
+        gh auth status &>/dev/null || gh auth login || exit 1
+        git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora
+    fi
     cp -Lar /root/Aurora/rootfs/. /
     cp -Lar /root/Aurora/$(uname -m)/. /
     sync
