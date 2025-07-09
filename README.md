@@ -26,7 +26,7 @@ Coming soon to viewers like you!<br><br>
 - [xmb9](https://discord.com/users/988950574387068968) - Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images
 - [Synaptic](https://discord.com/users/405896057139232778) - Emotional Support
 - [OlyB](https://discord.com/users/476169716998733834) - Help with PID1
-- [Mariah Carey](https://discord.com/users/555864478504189956) - Bugfixing wifi
+- [Mariah Carey](https://discord.com/users/555864478504189956) - Bugfixing wifi, minor contributions to resizing
 - [Simon](https://discord.com/users/1001820177731686500) - Brainstormed how to do wifi, helped with determining wireless interface
 - [Evie](https://discord.com/users/917886650951008276) - Literally nothing
 - [Rainestorme](https://github.com/rainestorme) - Murkmod's version finder
