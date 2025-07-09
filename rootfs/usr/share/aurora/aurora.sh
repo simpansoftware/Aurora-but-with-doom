@@ -316,6 +316,9 @@ echo_center "Starting udevd..."
 /sbin/udevd --daemon || :
 udevadm trigger || :
 udevadm settle || :
+if $(test -e "/usr/share/aurora/.UNRESIZED"); then 
+	bash /usr/share/aurora/resize.sh
+fi
 echo_center "Done."
 tput cnorm
 
