@@ -19,6 +19,8 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 setsid -c test
+trap '' INT
+trap '' SIGINT
 set -m
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -746,8 +748,7 @@ downloadreco() {
 }
 updateshim() {
     apk add github-cli git
-    gh auth login
-    git clone https://github.com/EtherealWorkshop/Aurora /root/Aurora
+    git clone https://github.com/EtherealWorkshop/Aurora /root/Aurora || gh auth login && git clone https://github.com/EtherealWorkshop/Aurora /root/Aurora 
     cp -Lar /root/Aurora/rootfs/. /
     cp -Lar /root/Aurora/$(uname -m)/. /
     sync
@@ -802,7 +803,7 @@ menu_options=(
 )
 
 menu_actions=(
-    "bash -l || busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
+    "setsid bash -c 'trap - INT; trap - SIGINT; trap - EXIT; bash -l' || busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
     installcros
     shimboot
     wifi
