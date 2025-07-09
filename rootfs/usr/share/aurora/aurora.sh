@@ -805,7 +805,7 @@ payloads() {
 }
 
 menu_options=(
-    "Open your mom"
+    "Open Terminal"
     "Install a ChromeOS recovery image"
     "Boot an RMA shim"
     "Connect to WiFi"
