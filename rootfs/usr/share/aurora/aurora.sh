@@ -21,7 +21,7 @@
 trap '' SIGINT
 stty intr ''
 c() {
-    stty intr '^C' && ${@}
+    trap - SIGINT && stty intr '^C' && ${@} && trap '' SIGINT && stty intr ''
 }
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
