@@ -278,7 +278,6 @@ EOF
     echo -e "${COLOR_RESET}"
     echo -e "https://github.com/EtherealWorkshop/Aurora"
     funText
-    errormessage
     echo -e " "
 }
 
@@ -850,6 +849,8 @@ while true; do
     clear
     splash
     stty intr ''
+    errormessage
+    echo -e "\n"
     export errormsg=""
     menu "Select an option (use ↑ ↓ arrows, Enter to select):" "${menu_options[@]}"
     choice=$?
