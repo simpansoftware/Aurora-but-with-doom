@@ -826,11 +826,7 @@ while true; do
     choice=$?
 
     if [[ "${menu_actions[$choice]}" == *"bash -l"* ]]; then
-        setsid bash -c '
-            trap - SIGINT INT TERM
-            stty intr ^C 2>/dev/null || true
-            bash -l || busybox sh -l
-        '
+        script -qfc 'bash -l || busybox sh -l' /dev/null
     else
         (
             trap '' SIGINT INT TERM
@@ -838,6 +834,7 @@ while true; do
             eval "${menu_actions[$choice]}"
         )
     fi
+
 
     export errormsg=""
     sleep 1
