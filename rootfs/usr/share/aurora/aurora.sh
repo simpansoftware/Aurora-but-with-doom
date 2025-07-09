@@ -19,10 +19,6 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 trap '' SIGINT
-stty intr ''
-c() {
-    trap - SIGINT && stty intr '^C' && setsid ${@} && trap '' SIGINT && stty intr ''
-}
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -805,14 +801,14 @@ menu_options=(
 )
 
 menu_actions=(
-    "c bash -l || c busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
+    "bash -l || c busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
     installcros
     shimboot
     wifi
     payloads
     credits
-    "c canwifi updateshim"
-    "clear && fastfetch && c sleep 10"
+    "canwifi updateshim"
+    "clear && fastfetch && sleep 10"
     "reboot -f"
 )
 
