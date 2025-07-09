@@ -18,7 +18,6 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-trap '' SIGINT INT TERM
 stty intr ''
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -808,7 +807,7 @@ menu_options=(
 )
 
 menu_actions=(
-    "( script -q /dev/null bash -l || busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' ) && sleep 2"
+    "script -qfc 'exec bash -l || exec busybox sh -l' /dev/null"
     installcros
     shimboot
     wifi
@@ -822,6 +821,7 @@ menu_actions=(
 while true; do
     clear
     splash
+    stty intr ''
     menu "Select an option (use ↑ ↓ arrows, Enter to select):" "${menu_options[@]}"
     choice=$?
 
@@ -829,7 +829,6 @@ while true; do
         eval "${menu_actions[$choice]}"
     else
         (
-            trap '' SIGINT INT TERM
             stty intr ''
             eval "${menu_actions[$choice]}"
         )
