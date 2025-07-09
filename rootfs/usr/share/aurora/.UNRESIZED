@@ -13,4 +13,3 @@ parted -fs $dev align-check opt 4
 echo "Say yes"
 parted $dev resizepart 4 100%
 resize2fs "$dev_partition"
-rm -f /.UNRESIZED
