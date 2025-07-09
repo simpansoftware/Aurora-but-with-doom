@@ -748,7 +748,7 @@ downloadreco() {
 }
 updateshim() {
     apk add git github-cli
-    git clone https://github.com/EtherealWorkshop/Aurora /root/Aurora || gh auth login && git clone https://github.com/EtherealWorkshop/Aurora /root/Aurora 
+    git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora || gh auth login && git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora 
     cp -Lar /root/Aurora/rootfs/. /
     cp -Lar /root/Aurora/$(uname -m)/. /
     sync
