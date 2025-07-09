@@ -20,7 +20,7 @@
 
 trap '' SIGINT
 trap '' INT
-trap '' EXIT
+trap '' TERM
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -824,6 +824,10 @@ while true; do
     clear
     splash
     menu "Select an option (use ↑ ↓ arrows, Enter to select):" "${menu_options[@]}"
-    eval "${menu_actions[$?]}"
+    (
+        trap - INT SIGINT TERM
+        eval "${menu_actions[$?]}"
+    )
+    sleep 1
     export errormsg=""
 done
