@@ -850,6 +850,7 @@ while true; do
     clear
     splash
     stty intr ''
+    export errormsg=""
     menu "Select an option (use ↑ ↓ arrows, Enter to select):" "${menu_options[@]}"
     choice=$?
 
@@ -861,7 +862,6 @@ while true; do
             eval "${menu_actions[$choice]}"
         )
     fi
-    export errormsg=""
     stty intr ''
     sleep 1
 done
