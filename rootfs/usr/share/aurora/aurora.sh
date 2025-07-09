@@ -808,7 +808,7 @@ menu_options=(
 )
 
 menu_actions=(
-    "bash -l || busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
+    "( script -q /dev/null bash -l || busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' ) && sleep 2"
     installcros
     shimboot
     wifi
@@ -826,7 +826,7 @@ while true; do
     choice=$?
 
     if [[ "${menu_actions[$choice]}" == *"bash -l"* ]]; then
-        script -qfc 'bash -l || busybox sh -l' /dev/null
+        eval "${menu_actions[$choice]}"
     else
         (
             trap '' SIGINT INT TERM
@@ -834,6 +834,7 @@ while true; do
             eval "${menu_actions[$choice]}"
         )
     fi
+
 
 
     export errormsg=""
