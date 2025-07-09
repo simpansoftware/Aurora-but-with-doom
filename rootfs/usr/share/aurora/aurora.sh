@@ -18,9 +18,8 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-trap '' SIGINT
-trap '' INT
-trap '' TERM
+trap '' SIGINT INT TERM
+stty intr ''
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -824,10 +823,22 @@ while true; do
     clear
     splash
     menu "Select an option (use ↑ ↓ arrows, Enter to select):" "${menu_options[@]}"
-    (
-        trap - INT SIGINT TERM
-        eval "${menu_actions[$?]}"
-    )
-    sleep 1
+    choice=$?
+
+    if [[ "${menu_actions[$choice]}" == *"bash -l"* ]]; then
+        setsid bash -c '
+            trap - SIGINT INT TERM
+            stty intr ^C 2>/dev/null || true
+            bash -l || busybox sh -l
+        '
+    else
+        (
+            trap '' SIGINT INT TERM
+            stty intr '' 2>/dev/null || true
+            eval "${menu_actions[$choice]}"
+        )
+    fi
+
     export errormsg=""
+    sleep 1
 done
