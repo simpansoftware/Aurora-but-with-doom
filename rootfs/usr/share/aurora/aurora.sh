@@ -79,11 +79,6 @@ echo_center() {
     printf "%*s%s\n" "$spacing" "" "$text"
 }
 
-errormessage() {
-    if [ -n "$errormsg" ]; then 
-        echo -e "${COLOR_RED_B}Error: ${errormsg}${COLOR_RESET}"
-    fi
-}
 
 menu() {
     local prompt="$1"
@@ -845,6 +840,12 @@ menu_actions=(
     "reboot -f"
 )
 
+errormessage() {
+    if [ -n "$errormsg" ]; then 
+        echo -e "${COLOR_RED_B}Error: ${errormsg}${COLOR_RESET}"
+    fi
+}
+
 while true; do
     clear
     splash
@@ -858,10 +859,8 @@ while true; do
     if [[ "${menu_actions[$choice]}" == *"bash -l"* ]]; then
         eval "${menu_actions[$choice]}"
     else
-        (
-            stty intr ''
-            eval "${menu_actions[$choice]}"
-        )
+        stty intr ''
+        eval "${menu_actions[$choice]}"
     fi
     stty intr ''
     sleep 1
