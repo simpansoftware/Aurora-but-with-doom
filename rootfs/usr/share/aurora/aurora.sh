@@ -808,7 +808,7 @@ menu_options=(
 )
 
 menu_actions=(
-    "( script -q /dev/null bash -l || busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' ) && sleep 2"
+    "script -qfc 'exec bash -l || exec busybox sh -l' /dev/null"
     installcros
     shimboot
     wifi
