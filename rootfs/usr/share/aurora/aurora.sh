@@ -353,7 +353,7 @@ versions() {
 	case "$install_choice" in
 	    0) VERSION="latest" ;;
 	    1) read -p "Enter version: " VERSION ;;
-        *) echo "Invalid choice, exiting." && exit ;;
+        *) echo "Invalid choice, exiting." && return ;;
 	esac
     echo "Fetching recovery image..."
     if [ $VERSION == "latest" ]; then
@@ -402,7 +402,7 @@ versions() {
     fi
     if [ $MATCH_FOUND -eq 0 ]; then
         echo "No recovery image found for your board and target version. Exiting."
-        exit
+        return
     fi
 	export VERSION
 }
@@ -748,7 +748,7 @@ download() {
 	case "$download_choice" in
 	    0) downloadreco ;;
 	    1) downloadshim ;;
-        *) export errormsg="Invalid choice, exiting." && exit ;;
+        *) export errormsg="Invalid choice, exiting." && return ;;
 	esac
 }
 downloadreco() {
@@ -760,7 +760,7 @@ downloadreco() {
 }
 
 downloadshim() {
-    export errormsg="Not yet implemented" && exit
+    export errormsg="Not yet implemented" && return
 	cd $aroot/images/shims
     curl --progress-bar -k "$FINAL_URL" -o $NAME.zip
 	unzip $NAME.zip
@@ -779,7 +779,7 @@ updateshim() {
         git -C "/root/Aurora" pull origin alpine
     else
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
-        gh auth status &>/dev/null || gh auth login || exit 1
+        gh auth status &>/dev/null || gh auth login || return
         git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora
     fi
     if [ ! -e /usr/share/aurora/.UNRESIZED ]; then
