@@ -19,9 +19,6 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 setsid -c test
-trap '' INT
-trap '' SIGINT
-trap '' EXIT
 set -m
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -642,6 +639,7 @@ shimboot() {
 			pivot_root /newroot /newroot/tmp/aurora
             source /usr/share/aurora/shimbootconditionals.sh
 			echo "Starting init"
+            checkkvs
 			exec /sbin/init || {
 				echo "Failed to start init!!!"
 				echo "Bailing out, you are on your own. Good luck."
@@ -663,6 +661,21 @@ if [ "$needswifi" -eq 1 ]; then
         modprobe "$wifi"
     done
     export needswifi=0
+    echo_center "Connecting to wifi"
+    if [ -f "/etc/wpa_supplicant.conf" ]; then
+        wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
+        wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
+        for i in $(seq 1 5); do
+            if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
+                udhcpc -i "$wifidevice" >/dev/null 2>&1
+                break
+            else
+                echo_center "No nearby saved networks found."
+            fi
+            sleep 1
+        done
+    fi
+
 fi
 
 connect() {
@@ -670,15 +683,20 @@ connect() {
     read -p "Enter your network password (leave blank if open network): " psk
 
     conf="/etc/wpa_supplicant.conf"
-    if [ -z "$psk" ]; then
-        cat > "$conf" <<EOF
+    if grep -q "ssid=\"$ssid\"" "$conf" 2>/dev/null; then
+        echo "Network (${ssid}) already configured."
+    else
+        if [ -z "$psk" ]; then
+            cat >> "$conf" <<EOF
+
 network={
     ssid="$ssid"
     key_mgmt=NONE
 }
 EOF
-    else
-        wpa_passphrase "$ssid" "$psk" > "$conf"
+        else
+            wpa_passphrase "$ssid" "$psk" >> "$conf"
+        fi
     fi
     killall wpa_supplicant 2>/dev/null
     killall udhcpc 2>/dev/null
@@ -702,7 +720,9 @@ wifi() {
     else
         connect
     fi
+    sync
 }
+
 
 
 canwifi() {
