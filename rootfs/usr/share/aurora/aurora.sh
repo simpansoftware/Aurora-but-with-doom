@@ -751,7 +751,6 @@ downloadreco() {
 }
 updateshim() {
     apk add git github-cli
-    rm -rf /root/Aurora
     rm -rf /usr/share/aurora/aurora.sh
     if [ -d "/root/Aurora/.git" ]; then
         git -C "/root/Aurora" pull origin alpine
