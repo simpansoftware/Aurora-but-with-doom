@@ -805,14 +805,14 @@ menu_options=(
 )
 
 menu_actions=(
-    "c bash -l || c busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
+    "c setsid bash -l </dev/tty || c busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
     installcros
     shimboot
     wifi
     payloads
     credits
     "c canwifi updateshim"
-    "clear && c fastfetch && sleep 10"
+    "clear && fastfetch && c sleep 10"
     "reboot -f"
 )
 
