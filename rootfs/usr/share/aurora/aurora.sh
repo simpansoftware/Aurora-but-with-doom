@@ -760,6 +760,9 @@ updateshim() {
         gh auth status &>/dev/null || gh auth login || exit 1
         git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora
     fi
+    if [ ! -e /usr/share/aurora/.UNRESIZED ]; then
+        rm -f /root/Aurora/rootfs/usr/share/aurora/.UNRESIZED
+    fi
     cp -Lar /root/Aurora/rootfs/. /
     cp -Lar /root/Aurora/$(uname -m)/. /
     sync
