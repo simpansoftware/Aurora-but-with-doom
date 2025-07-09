@@ -665,15 +665,19 @@ if [ "$needswifi" -eq 1 ]; then
     if [ -f "/etc/wpa_supplicant.conf" ]; then
         wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
         wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
+
+        connected=0
         for i in $(seq 1 5); do
             if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
-                udhcpc -i "$wifidevice" >/dev/null 2>&1
+                udhcpc -i "$wifidevice" >/dev/null 2>&1 && connected=1
                 break
-            else
-                echo_center "No nearby saved networks found."
             fi
             sleep 1
         done
+
+        if [ $connected -eq 0 ]; then
+            echo_center "No nearby saved networks found; Retrying..."
+        fi
     fi
 
 fi
