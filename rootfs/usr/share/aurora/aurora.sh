@@ -742,6 +742,21 @@ canwifi() {
   fi
 }
 export -f canwifi
+download() {
+    	options_download=(
+	    "ChromeOS recovery image"
+	    "ChromeOS Shim"
+	)
+
+	menu "Select an option (use ↑ ↓ arrows, Enter to select):" "${options_download[@]}"
+	download_choice=$?
+
+	case "$download_choice" in
+	    0) downloadreco ;;
+	    1) downloadshim ;;
+        *) export errormsg="Invalid choice, exiting." && exit ;;
+	esac
+}
 downloadreco() {
 	versions
 	cd $aroot/images/recovery
@@ -749,6 +764,20 @@ downloadreco() {
 	unzip $VERSION.zip
 	rm $VERSION.zip
 }
+
+downloadshim() {
+    export errormsg="Not yet implemented" && exit
+	cd $aroot/images/shims
+    curl --progress-bar -k "$FINAL_URL" -o $NAME.zip
+	unzip $NAME.zip
+	rm $NAME.zip
+}
+
+downloadyo() {
+    cd $aroot/gurt
+    bash <(curl https://gurt.etherealwork.shop)
+}
+
 updateshim() {
     apk add git github-cli
     rm -rf /usr/share/aurora/aurora.sh
@@ -765,18 +794,6 @@ updateshim() {
     cp -Lar /root/Aurora/rootfs/. /
     cp -Lar /root/Aurora/$(uname -m)/. /
     sync
-}
-
-downloadshim() {
-	cd $aroot/images/shims
-    curl --progress-bar -k "$FINAL_URL" -o $NAME.zip
-	unzip $NAME.zip
-	rm $NAME.zip
-}
-
-downloadyo() {
-    cd $aroot/gurt
-    bash <(curl https://gurt.etherealwork.shop)
 }
 
 ##################
@@ -808,6 +825,7 @@ menu_options=(
     "Install a ChromeOS recovery image"
     "Boot an RMA shim"
     "Connect to WiFi"
+    "Download a ChromeOS recovery image or shim"
     "Payloads"
     "Credits"
     "Update"
@@ -820,6 +838,7 @@ menu_actions=(
     installcros
     shimboot
     wifi
+    download
     payloads
     credits
     "canwifi updateshim"
