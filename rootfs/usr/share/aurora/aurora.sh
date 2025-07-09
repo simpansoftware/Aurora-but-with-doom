@@ -18,7 +18,11 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-trap '' INT
+trap '' SIGINT
+stty intr ''
+c() {
+    stty intr '^C' && ${@}
+}
 
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -745,6 +749,7 @@ downloadreco() {
 }
 updateshim() {
     apk add git github-cli
+    rm -rf /root/Aurora
     git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora || gh auth login && git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora 
     cp -Lar /root/Aurora/rootfs/. /
     cp -Lar /root/Aurora/$(uname -m)/. /
@@ -800,14 +805,14 @@ menu_options=(
 )
 
 menu_actions=(
-    "bash -l || busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
+    "c bash -l || c busybox sh -l || echo -e '${COLOR_RED_B}No shell is available!${COLOR_RESET}' && sleep 2"
     installcros
     shimboot
     wifi
     payloads
     credits
-    "canwifi updateshim"
-    "clear && fastfetch && sleep 10"
+    "c canwifi updateshim"
+    "clear && c fastfetch && sleep 10"
     "reboot -f"
 )
 
