@@ -830,10 +830,11 @@ while true; do
     else
         (
             trap '' SIGINT INT TERM
-            stty intr '' 2>/dev/null || true
+            stty intr ''
             eval "${menu_actions[$choice]}"
         )
     fi
     export errormsg=""
+    stty intr ''
     sleep 1
 done
