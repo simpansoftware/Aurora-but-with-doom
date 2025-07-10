@@ -412,6 +412,7 @@ versions() {
         return
     fi
 	export VERSION
+    sleep 1000
 }
 
 #########################
