@@ -842,7 +842,9 @@ menu_actions=(
 
 errormessage() {
     if [ -n "$errormsg" ]; then 
-        echo -e "${COLOR_RED_B}Error: ${errormsg}${COLOR_RESET}"
+        echo -e "${COLOR_RED_B}"
+        echo_center "Error: ${errormsg}"
+        echo -e "${COLOR_RESET}"
     fi
 }
 
