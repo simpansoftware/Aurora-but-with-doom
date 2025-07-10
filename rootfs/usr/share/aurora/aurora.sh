@@ -633,31 +633,28 @@ shimboot() {
 ## WIFI ##
 ##########
 
-if [ "$needswifi" -eq 1 ]; then
-    for wifi in iwlwifi iwlmvm ccm 8021q; do
-        modprobe -r "$wifi" || true
-        modprobe "$wifi"
-    done
-    export needswifi=0
-    echo_center "Connecting to wifi"
-    if [ -f "/etc/wpa_supplicant.conf" ]; then
-        wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
-        wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
+for wifi in iwlwifi iwlmvm ccm 8021q; do
+    modprobe -r "$wifi" || true
+    modprobe "$wifi"
+done
+export needswifi=0
+echo_center "Connecting to wifi"
+if [ -f "/etc/wpa_supplicant.conf" ]; then
+    wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
+    wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
 
-        connected=0
-        for i in $(seq 1 5); do
-            if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
-                udhcpc -i "$wifidevice" >/dev/null 2>&1 && connected=1
-                break
-            fi
-            sleep 1
-        done
-
-        if [ $connected -eq 0 ]; then
-            echo_center "No nearby saved networks found; Retrying..."
+    connected=0
+    for i in $(seq 1 5); do
+        if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
+            udhcpc -i "$wifidevice" >/dev/null 2>&1 && connected=1
+            break
         fi
-    fi
+        sleep 1
+    done
 
+    if [ $connected -eq 0 ]; then
+        echo_center "No nearby saved networks found; Retrying..."
+    fi
 fi
 
 connect() {
