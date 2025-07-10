@@ -468,19 +468,15 @@ installcros() {
         reco_actions+=("reco=Exit")
 
         while true; do
-            clear
-            splash
             menu "Choose the recovery image you want to boot:" "${reco_options[@]}"
             eval "${reco_actions[$?]}"
             break
         done
-
 	fi
 
 	if [[ $reco == "Exit" ]]; then
         read -p "Press Enter to continue..."
-		clear
-		splash 1
+        return
 	else
 		mkdir -p $recoroot
 		echo -e "Searching for ROOT-A on reco image..."
@@ -535,8 +531,6 @@ shimboot() {
         shim_actions+=("return")
 
         while true; do
-            clear
-            splash
             menu "Choose the shim you want to boot:" "${shim_options[@]}"
             eval "${shim_actions[$?]}"
             break
@@ -792,9 +786,7 @@ payloads() {
     choice=$?
     payload_name="${options_payload[$choice]}"
     if [[ $payload_name == "Exit" ]]; then
-        read -p "Press Enter to continue..."
-        clear
-        splash 0
+        return
     else
         for payload_path in "${payloadchoose[@]}"; do
             if [[ "$(basename "$payload_path")" == "$payload_name" ]]; then
@@ -803,8 +795,7 @@ payloads() {
             fi
         done
         read -p "Press Enter to continue..."
-        clear
-        splash 0
+        return
     fi
 }
 
