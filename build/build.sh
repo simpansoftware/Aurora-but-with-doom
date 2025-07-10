@@ -100,12 +100,14 @@ sgdisk -t 4:8300 "$dev"
 
 sgdisk -p "$dev"
 
-skpart="$(cgpt find -l KERN-A $shimdev | head -n 1)"
-skpartnum="$(echo $skpart | sed "s|${shimdev}p||")"
-skguid="$(sgdisk -i $skpartnum "$shimdev")"
+
 
 kernelpartition="${dev}p2"
 
+
+skpart="$(cgpt find -l KERN-A $shimdev | head -n 1)"
+skpartnum="$(echo $skpart | sed "s|${shimdev}p||")"
+skguid="$(sgdisk -i $skpartnum "$shimdev")"
 dd if=$skpart of=$kernelpartition
 
 

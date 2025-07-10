@@ -729,11 +729,11 @@ download() {
 }
 downloadreco() {
 	versions
-    FINAL_FILENAME=$(echo $FINAL_URL | awk -F/ '{print $NF}' | sed 's/.zip//')
     curl --fail --progress-bar -k "$FINAL_URL" -o "$aroot/images/recovery/$chromeVersion.zip" || {
         echo "Failed to download ChromeOS recovery image."
         return
     }
+    FINAL_FILENAME=$(unzip -Z1 "$aroot/images/recovery/$chromeVersion.zip")
     file "$aroot/images/recovery/$chromeVersion.zip" | grep -iq "zip" || {
         echo "ChromeOS recovery archive corrupted."
         return
@@ -743,7 +743,7 @@ downloadreco() {
         return
     }
 	rm $aroot/images/recovery/$chromeVersion.zip
-    mv $aroot/images/recovery/$FINAL_FILENAME.bin $aroot/images/recovery/$chromeVersion.bin
+    mv $aroot/images/recovery/$FINAL_FILENAME $aroot/images/recovery/$chromeVersion.bin
 }
 downloadshim() {
     export errormsg="Not yet implemented" && return
