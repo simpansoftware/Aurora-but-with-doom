@@ -358,7 +358,7 @@ versions() {
     echo "Fetching recovery image..."
     if [ $chromeVersion == "latest" ]; then
         builds="https://chromiumdash.appspot.com/cros/fetch_serving_builds?deviceCategory=Chrome%20OS"
-        chromeVersion=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.servingStable.chromeVersion" | awk -F. 'print $1')
+        chromeVersion=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.servingStable.chromeVersion" | awk -F. '{gsub(/"/,"",$1); print $1}')
         FINAL_URL=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.pushRecoveries.[\"$chromeVersion\"]")
         if [ ! -n $FINAL_URL ]; then
         echo "Falling back to the most recent version found."
