@@ -358,7 +358,7 @@ versions() {
     echo "Fetching recovery image..."
     if [ $VERSION == "latest" ]; then
         builds=$(curl -ks https://chromiumdash.appspot.com/cros/fetch_serving_builds?deviceCategory=Chrome%20OS)
-        hwid=$(jq "(.builds.$board_name[] | keys)[0]" <<<"$builds")
+        hwid=$(jq -r ".builds[\"$board_name\"][0] | keys[0]" <<<"$builds")
         hwid=${hwid:1:-1}
         milestones=$(jq ".builds.$board_name[].$hwid.pushRecoveries | keys | .[]" <<<"$builds")
         export VERSION=$(echo "$milestones" | tail -n 1 | tr -d '"')
