@@ -364,6 +364,7 @@ versions() {
         echo "Falling back to the most recent version found."
         FINAL_URL=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.pushRecoveries | to_entries | sort_by(.key | tonumber) | .[-1].value")
         fi
+        export chromeVersion
         export FINAL_URL
     else
         export url="https://raw.githubusercontent.com/rainestorme/chrome100-json/main/boards/$board_name.json"
@@ -758,9 +759,9 @@ download() {
 downloadreco() {
 	versions
 	cd $aroot/images/recovery
-    curl --progress-bar -k "$FINAL_URL" -o $VERSION.zip
-	unzip $VERSION.zip
-	rm $VERSION.zip
+    curl --progress-bar -k "$FINAL_URL" -o $chromeVersion.zip
+	unzip $chromeVersion.zip
+	rm $chromeVersion.zip
 }
 
 downloadshim() {
