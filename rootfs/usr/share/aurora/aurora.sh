@@ -711,7 +711,7 @@ canwifi() {
   if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase
     "$@"
   else
-    export errormsg="You are not connected to the internet (or Nebula's down)."
+    export errormsg="Not connected to the internet"
   fi
 }
 export -f canwifi
