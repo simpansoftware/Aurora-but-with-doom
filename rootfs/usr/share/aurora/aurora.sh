@@ -66,7 +66,7 @@ echo_c() {
     local color_variable="$2"
     local color="${!color_variable}"
     echo -e "${color}${text}${COLOR_RESET}"
-}
+} # haha 69
 echo_center() {
     local text="$1"
     local width=$(tput cols)
@@ -733,8 +733,18 @@ download() {
 downloadreco() {
 	versions
     FINAL_FILENAME=$(echo $FINAL_URL | awk -F/ '{print $NF}')
-    curl --progress-bar -k "$FINAL_URL" -o $aroot/images/recovery/$chromeVersion.zip
-	unzip $aroot/images/recovery/$chromeVersion.zip
+    curl --fail --progress-bar -k "$FINAL_URL" -o "$aroot/images/recovery/$chromeVersion.zip" || {
+        echo "Failed to download ChromeOS recovery image."
+        return
+    }
+    file "$aroot/images/recovery/$chromeVersion.zip" | grep -iq "zip" || {
+        echo "ChromeOS recovery archive corrupted."
+        return
+    }
+    unzip "$aroot/images/recovery/$chromeVersion.zip" || {
+        echo "Failed to unzip ChromeOS recovery archive."
+        return
+    }
 	rm $aroot/images/recovery/$chromeVersion.zip
     mv $aroot/images/recovery/$FINAL_FILENAME.bin $aroot/images/recovery/$chromeVersion.bin
 }
