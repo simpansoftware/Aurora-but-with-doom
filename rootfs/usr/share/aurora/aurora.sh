@@ -791,6 +791,7 @@ payloads() {
         for payload_path in "${payloadchoose[@]}"; do
             if [[ "$(basename "$payload_path")" == "$payload_name" ]]; then
                 source "$payload_path"
+                stty intr ''
                 break
             fi
         done
