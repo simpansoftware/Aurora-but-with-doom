@@ -5,6 +5,5 @@ dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
 
 parted -fs $dev align-check opt 4
 growpart $dev 4
-set -x
 e2fsck -fy $dev_partition
 resize2fs -p $dev_partition
