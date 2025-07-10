@@ -315,13 +315,6 @@ udevadm trigger || :
 udevadm settle || :
 echo_center "Done."
 tput cnorm
-if [ -e /usr/share/aurora/.UNRESIZED ]; then
-    echo -e "${COLOR_GEEN_B}"
-    echo_center "Resizing..."
-    echo -e "${COLOR_RESET}"
-    bash /usr/share/aurora/.UNRESIZED && rm -f /usr/share/aurora/.UNRESIZED
-    echo_center "Done."
-fi
 
 ##################
 ## MURKMOD SHIT ##
