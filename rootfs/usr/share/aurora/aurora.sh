@@ -169,24 +169,6 @@ get_largest_cros_blockdev() {
 	echo -e "$largest"
 }
 
-credits() {
-    echo -e "${COLOR_MAGENTA_B}Credits"
-    echo -e "${COLOR_PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Got Wifi"
-    echo -e "${COLOR_GEEN_B}xmb9${COLOR_RESET}: Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images"
-    echo -e "${COLOR_YELLOW_B}Synaptic${COLOR_RESET}: Emotional Support"
-    echo -e "${COLOR_CYAN_B}Simon${COLOR_RESET}: Brainstormed how to do wifi, helped with dhcpcd"
-    echo -e "${COLOR_BLUE_B}kraeb${COLOR_RESET}: QoL improvements and initial idea"
-    echo -e "${COLOR_RED_B}Mariah Carey${COLOR_RESET}: Bugtesting wifi"
-    echo -e "${COLOR_MAGNETA_B}AC3${COLOR_RESET}: Literally nothing"
-    echo -e "${COLOR_GEEN_B}Rainestorme${COLOR_RESET}: Murkmod's version finder"
-    echo -e " "
-    read -p "Press Enter to return to the main menu..."
-	clear
-	splash
-}
-
-
-
 funText() {
 	splashText=(
         "The lower tape fade meme is still massive."
@@ -799,25 +781,30 @@ updateshim() {
 ##################
 
 payloads() {
-    payloadchoose=($aroot/payloads/*)
-	options_payload=("${payloadchoose[@]}" "Exit")
+    payloadchoose=("$aroot/payloads"/*)
+    filenames=($(for f in "${payloadchoose[@]}"; do basename "$f"; done))
+    options_payload=("${filenames[@]}" "Exit")
 
-	menu "Choose payload to run:" "${options_payload[@]}"
-	choice=$?
-
-	payload="${options_payload[$choice]}"
-
-	if [[ $payload == "Exit" ]]; then
-	    read -p "Press Enter to continue..."
-	    clear
-	    splash 0
-	else
-	    source "$payload"
-	    read -p "Press Enter to continue..."
-	    clear
-	    splash 0
-	fi
+    menu "Choose payload to run:" "${options_payload[@]}"
+    choice=$?
+    payload_name="${options_payload[$choice]}"
+    if [[ $payload_name == "Exit" ]]; then
+        read -p "Press Enter to continue..."
+        clear
+        splash 0
+    else
+        for payload_path in "${payloadchoose[@]}"; do
+            if [[ "$(basename "$payload_path")" == "$payload_name" ]]; then
+                source "$payload_path"
+                break
+            fi
+        done
+        read -p "Press Enter to continue..."
+        clear
+        splash 0
+    fi
 }
+
 
 menu_options=(
     "Open Terminal"
@@ -826,9 +813,7 @@ menu_options=(
     "Connect to WiFi"
     "Download a ChromeOS recovery image or shim"
     "Payloads"
-    "Credits"
     "Update"
-    "System Info"
     "Exit and Reboot"
 )
 
@@ -839,9 +824,7 @@ menu_actions=(
     wifi
     download
     payloads
-    credits
     "canwifi updateshim"
-    "clear && fastfetch && sleep 10"
     "reboot -f"
 )
 
