@@ -1,3 +1,2 @@
 #!/bin/bash
-stty intr '^C'
-clear && fastfetch && sleep 10
+clear && fastfetch
