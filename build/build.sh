@@ -81,6 +81,7 @@ echo_c "Copying Modules..." GEEN_B
 mount -o ro $chromeos $tempmount
 if [ -d $tempmount/lib/modules ]; then
     cp -ar $tempmount/lib/modules ./rootfs/lib/
+    cp -ar $tempmount/etc/lsb-release ./rootfs/etc/lsb-release
     umount $tempmount
 else
     echo_c "Please run on a raw shim." RED_B
