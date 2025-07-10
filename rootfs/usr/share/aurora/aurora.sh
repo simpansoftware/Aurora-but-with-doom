@@ -816,7 +816,7 @@ menu_actions=(
     installcros
     shimboot
     wifi
-    download
+    "canwifi download"
     payloads
     "canwifi updateshim"
     "reboot -f"
