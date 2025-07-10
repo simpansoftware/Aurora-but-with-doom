@@ -79,6 +79,13 @@ echo_center() {
     printf "%*s%s\n" "$spacing" "" "$text"
 }
 
+echo_menu() {
+    local text="$1"
+    local length=${#text}
+    local spacing=$(( (42 - length) / 2 ))
+    spacing=$((spacing < 0 ? 0 : spacing))
+    printf "%*s%s\n" "$spacing" "" "$text"
+}
 
 menu() {
     local prompt="$1"
@@ -843,7 +850,7 @@ menu_actions=(
 errormessage() {
     if [ -n "$errormsg" ]; then 
         echo -e "${COLOR_RED_B}"
-        echo_center "Error: ${errormsg}"
+        echo_menu "Error: ${errormsg}"
         echo -e "${COLOR_RESET}"
     fi
 }
