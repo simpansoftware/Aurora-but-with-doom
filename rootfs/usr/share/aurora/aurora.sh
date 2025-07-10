@@ -828,6 +828,7 @@ errormessage() {
         echo_menu "Error: ${errormsg}"
         echo -en "${COLOR_RESET}"
     fi
+    echo ""
 }
 
 while true; do
