@@ -732,7 +732,7 @@ download() {
 }
 downloadreco() {
 	versions
-    FINAL_FILENAME=$(echo $FINAL_URL | awk -F/ '{print $NF}')
+    FINAL_FILENAME=$(echo $FINAL_URL | awk -F/ '{print $NF}' | sed 's/.zip//')
     curl --fail --progress-bar -k "$FINAL_URL" -o "$aroot/images/recovery/$chromeVersion.zip" || {
         echo "Failed to download ChromeOS recovery image."
         return
@@ -741,7 +741,7 @@ downloadreco() {
         echo "ChromeOS recovery archive corrupted."
         return
     }
-    unzip "$aroot/images/recovery/$chromeVersion.zip" || {
+    unzip "$aroot/images/recovery/$chromeVersion.zip" -d "$aroot/images/recovery/" || {
         echo "Failed to unzip ChromeOS recovery archive."
         return
     }
