@@ -358,51 +358,57 @@ versions() {
     echo "Fetching recovery image..."
     if [ $chromeVersion == "latest" ]; then
         builds="https://chromiumdash.appspot.com/cros/fetch_serving_builds?deviceCategory=Chrome%20OS"
-        chromeVersionPlatform=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.servingStable.version")
-        chromeVersion=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.servingStable.chromeVersion")
-    fi
-    export url="https://raw.githubusercontent.com/rainestorme/chrome100-json/main/boards/$board_name.json"
-    export json=$(curl -ks "$url")
-    chrome_versions=$(echo "$json" | jq -r '.pageProps.images[].chrome')
-    echo "Found $(echo "$chrome_versions" | wc -l) versions of ChromeOS for your board on Chrome100."
-    echo "Searching for a match..."
-    MATCH_FOUND=0
-    for cros_version in $chrome_versions; do
-        chromeVersionPlatform=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .platform')
-        channel=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .channel')
-        mp_token=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .mp_token')
-        mp_key=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .mp_key')
-        last_modified=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .last_modified')
-        if [[ $cros_version == $chromeVersion* ]]; then
-            echo "Found a $chromeVersion match on platform $chromeVersionPlatform from $last_modified."
-            MATCH_FOUND=1
-            FINAL_URL="https://dl.google.com/dl/edgedl/chromeos/recovery/chromeos_${chromeVersionPlatform}_${board_name}_recovery_${channel}_${mp_token}-v${mp_key}.bin.zip"
-            break
+        chromeVersion=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.servingStable.chromeVersion" | awk -F. 'print $1')
+        FINAL_URL=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.pushRecoveries.[\"$chromeVersion\"]")
+        if [ ! -n $FINAL_URL ]; then
+        echo "Falling back to the most recent version found."
+        FINAL_URL=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.pushRecoveries | to_entries | sort_by(.key | tonumber) | .[-1].value")
         fi
-    done
-    if [ $MATCH_FOUND -eq 0 ]; then
-        echo "No match found on Chrome100. Falling back to ChromiumDash."
-        export builds=$(curl -ks https://chromiumdash.appspot.com/cros/fetch_serving_builds?deviceCategory=Chrome%20OS)
-        export hwid=$(jq "(.builds.$board_name[] | keys)[0]" <<<"$builds")
-        export hwid=${hwid:1:-1}
-        milestones=$(jq ".builds.$board_name[].$hwid.pushRecoveries | keys | .[]" <<<"$builds")
+        export FINAL_URL
+    else
+        export url="https://raw.githubusercontent.com/rainestorme/chrome100-json/main/boards/$board_name.json"
+        export json=$(curl -ks "$url")
+        chrome_versions=$(echo "$json" | jq -r '.pageProps.images[].chrome')
+        echo "Found $(echo "$chrome_versions" | wc -l) versions of ChromeOS for your board on Chrome100."
         echo "Searching for a match..."
-        for milestone in $milestones; do
-            milestone=$(echo "$milestone" | tr -d '"')
-            if [[ $milestone == $chromeVersion* ]]; then
+        MATCH_FOUND=0
+        for cros_version in $chrome_versions; do
+            chromeVersionPlatform=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .platform')
+            channel=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .channel')
+            mp_token=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .mp_token')
+            mp_key=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .mp_key')
+            last_modified=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .last_modified')
+            if [[ $cros_version == $chromeVersion* ]]; then
+                echo "Found a $chromeVersion match on platform $chromeVersionPlatform from $last_modified."
                 MATCH_FOUND=1
-                FINAL_URL=$(jq -r ".builds.$board_name[].$hwid.pushRecoveries[\"$milestone\"]" <<<"$builds")
-                echo "Found a match!"
+                FINAL_URL="https://dl.google.com/dl/edgedl/chromeos/recovery/chromeos_${chromeVersionPlatform}_${board_name}_recovery_${channel}_${mp_token}-v${mp_key}.bin.zip"
+                export FINAL_URL
                 break
             fi
         done
+        if [ $MATCH_FOUND -eq 0 ]; then
+            echo "No match found on Chrome100. Falling back to ChromiumDash."
+            export builds=$(curl -ks https://chromiumdash.appspot.com/cros/fetch_serving_builds?deviceCategory=Chrome%20OS)
+            export hwid=$(jq "(.builds.$board_name[] | keys)[0]" <<<"$builds")
+            export hwid=${hwid:1:-1}
+            milestones=$(jq ".builds.$board_name[].$hwid.pushRecoveries | keys | .[]" <<<"$builds")
+            echo "Searching for a match..."
+            for milestone in $milestones; do
+                milestone=$(echo "$milestone" | tr -d '"')
+                if [[ $milestone == $chromeVersion* ]]; then
+                    MATCH_FOUND=1
+                    FINAL_URL=$(jq -r ".builds.$board_name[].$hwid.pushRecoveries[\"$milestone\"]" <<<"$builds")
+                    export FINAL_URL
+                    echo "Found a match!"
+                    break
+                fi
+            done
+        fi
+        if [ $MATCH_FOUND -eq 0 ]; then
+            echo "No recovery image found for your board and target version. Exiting."
+            return
+        fi
     fi
-    if [ $MATCH_FOUND -eq 0 ]; then
-        echo "No recovery image found for your board and target version. Exiting."
-        return
-    fi
-	export chromeVersion
-    sleep 1000
 }
 
 #########################
