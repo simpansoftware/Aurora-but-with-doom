@@ -826,9 +826,8 @@ errormessage() {
     if [ -n "$errormsg" ]; then 
         echo -en "${COLOR_RED_B}"
         echo_menu "Error: ${errormsg}"
-        echo -en "${COLOR_RESET}"
     fi
-    echo ""
+    echo -e "${COLOR_RESET}"
 }
 
 while true; do
