@@ -327,6 +327,22 @@ fi
 ## MURKMOD SHIT ##
 ##################
 
+lsbval() {
+  local key="$1"
+  local lsbfile="${2:-/etc/lsb-release}"
+
+  if ! echo "${key}" | grep -Eq '^[a-zA-Z0-9_]+$'; then
+    return 1
+  fi
+
+  sed -E -n -e \
+    "/^[[:space:]]*${key}[[:space:]]*=/{
+      s:^[^=]+=[[:space:]]*::
+      s:[[:space:]]+$::
+      p
+    }" "${lsbfile}"
+}
+
 versions() {
     clear
     local release_board=$(lsbval CHROMEOS_RELEASE_BOARD)
