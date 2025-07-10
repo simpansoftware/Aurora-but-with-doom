@@ -357,7 +357,7 @@ versions() {
 	esac
     echo "Fetching recovery image..."
     if [ $chromeVersion == "latest" ]; then
-        builds=$(https://chromiumdash.appspot.com/cros/fetch_serving_builds?deviceCategory=Chrome%20OS)
+        builds="https://chromiumdash.appspot.com/cros/fetch_serving_builds?deviceCategory=Chrome%20OS"
         chromeVersionPlatform=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.servingStable.version")
         chromeVersion=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.servingStable.chromeVersion")
     fi
@@ -380,6 +380,23 @@ versions() {
             break
         fi
     done
+    if [ $MATCH_FOUND -eq 0 ]; then
+        echo "No match found on Chrome100. Falling back to ChromiumDash."
+        export builds=$(curl -ks https://chromiumdash.appspot.com/cros/fetch_serving_builds?deviceCategory=Chrome%20OS)
+        export hwid=$(jq "(.builds.$board_name[] | keys)[0]" <<<"$builds")
+        export hwid=${hwid:1:-1}
+        milestones=$(jq ".builds.$board_name[].$hwid.pushRecoveries | keys | .[]" <<<"$builds")
+        echo "Searching for a match..."
+        for milestone in $milestones; do
+            milestone=$(echo "$milestone" | tr -d '"')
+            if [[ $milestone == $chromeVersion* ]]; then
+                MATCH_FOUND=1
+                FINAL_URL=$(jq -r ".builds.$board_name[].$hwid.pushRecoveries[\"$milestone\"]" <<<"$builds")
+                echo "Found a match!"
+                break
+            fi
+        done
+    fi
     if [ $MATCH_FOUND -eq 0 ]; then
         echo "No recovery image found for your board and target version. Exiting."
         return
