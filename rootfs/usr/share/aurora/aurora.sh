@@ -757,12 +757,12 @@ download() {
 }
 downloadreco() {
 	versions
-	cd $aroot/images/recovery
-    curl --progress-bar -k "$FINAL_URL" -o $chromeVersion.zip
-	unzip $chromeVersion.zip
-	rm $chromeVersion.zip
+    FINAL_FILENAME=$(echo $FINAL_URL | awk -F/ '{print $NF}')
+    curl --progress-bar -k "$FINAL_URL" -o $aroot/images/recovery/$chromeVersion.zip
+	unzip $aroot/images/recovery/$chromeVersion.zip
+	rm $aroot/images/recovery/$chromeVersion.zip
+    mv $aroot/images/recovery/$FINAL_FILENAME.bin $aroot/images/recovery/$chromeVersion.bin
 }
-
 downloadshim() {
     export errormsg="Not yet implemented" && return
 	cd $aroot/images/shims
