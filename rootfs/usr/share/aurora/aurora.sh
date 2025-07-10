@@ -364,10 +364,10 @@ versions() {
 	esac
     echo "Fetching recovery image..."
     if [ $VERSION == "latest" ]; then
-        export builds=$(curl -ks https://chromiumdash.appspot.com/cros/fetch_serving_builds?deviceCategory=Chrome%20OS)
-        export hwid=$(jq "(.builds.$board_name[] | keys)[0]" <<<"$builds")
-        export hwid=${hwid:1:-1}
-        export milestones=$(jq ".builds.$board_name[].$hwid.pushRecoveries | keys | .[]" <<<"$builds")
+        builds=$(curl -ks https://chromiumdash.appspot.com/cros/fetch_serving_builds?deviceCategory=Chrome%20OS)
+        hwid=$(jq "(.builds.$board_name[] | keys)[0]" <<<"$builds")
+        hwid=${hwid:1:-1}
+        milestones=$(jq ".builds.$board_name[].$hwid.pushRecoveries | keys | .[]" <<<"$builds")
         export VERSION=$(echo "$milestones" | tail -n 1 | tr -d '"')
         echo "Latest version is $VERSION"
     fi
