@@ -781,9 +781,12 @@ updateshim() {
 ##################
 
 payloads() {
-    payloadchoose=("$aroot/payloads"/*)
-    filenames=($(for f in "${payloadchoose[@]}"; do basename "$f"; done))
-    options_payload=("${filenames[@]}" "Exit")
+    mapfile -t payloadchoose < <(find "$aroot/payloads" -maxdepth 1 -type f)
+    options_payload=()
+    for f in "${payloadchoose[@]}"; do
+        options_payload+=("$(basename "$f")")
+    done
+    options_payload+=("Exit")
 
     menu "Choose payload to run:" "${options_payload[@]}"
     choice=$?
@@ -804,6 +807,7 @@ payloads() {
         splash 0
     fi
 }
+
 
 
 menu_options=(
