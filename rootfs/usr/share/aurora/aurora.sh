@@ -27,9 +27,6 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 #################
 
 export aroot="/usr/share/aurora"
-recochoose=($aroot/images/recovery/*)
-shimchoose=($aroot/images/shims/*)
-payloadchoose=($aroot/payloads/*)
 export releaseBuild=1
 export shimroot="/shimroot"
 export recoroot="/recoroot"
@@ -479,6 +476,7 @@ installcros() {
         read -p "Press Enter to return to the main menu..."
 		return
 	else
+        recochoose=($aroot/images/recovery/*)
         reco_options=("${recochoose[@]}" "Exit")
 
         reco_actions=()
@@ -545,6 +543,7 @@ shimboot() {
         read -p "Press Enter to return to the main menu..."
 		return
 	else
+        shimchoose=($aroot/images/shims/*)
         shim_options=("${shimchoose[@]}" "Exit")
 
         shim_actions=()
@@ -800,6 +799,7 @@ updateshim() {
 ##################
 
 payloads() {
+    payloadchoose=($aroot/payloads/*)
 	options_payload=("${payloadchoose[@]}" "Exit")
 
 	menu "Choose payload to run:" "${options_payload[@]}"
