@@ -294,6 +294,7 @@ udevadm settle || :
 echo_center "Done."
 tput cnorm
 
+chmod +x /usr/share/aurora/aurora.sh
 for tty in 1 2 3; do
     sudo setsid bash -c "
     while true; do
