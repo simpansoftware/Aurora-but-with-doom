@@ -294,6 +294,15 @@ udevadm settle || :
 echo_center "Done."
 tput cnorm
 
+for tty in 1 2 3; do
+    sudo setsid bash -c "
+    while true; do
+        script -qfc '/usr/share/aurora/aurora.sh' /dev/null < /dev/pts/$tty > /dev/pts/$tty 2>&1
+        sleep 1
+    done
+    " &
+done
+
 ##################
 ## MURKMOD SHIT ##
 ##################
@@ -806,28 +815,49 @@ payloads() {
 }
 
 
+if [ "$$" -ne 1 ]; then
+    menu_options=(
+        "Open Terminal"
+        "Install a ChromeOS recovery image"
+        "Connect to WiFi"
+        "Download a ChromeOS recovery image or shim"
+        "Payloads"
+        "Update"
+        "Exit and Reboot"
+    )
 
-menu_options=(
-    "Open Terminal"
-    "Install a ChromeOS recovery image"
-    "Boot an RMA shim"
-    "Connect to WiFi"
-    "Download a ChromeOS recovery image or shim"
-    "Payloads"
-    "Update"
-    "Exit and Reboot"
-)
+    menu_actions=(
+        "script -qfc 'exec bash -l || exec busybox sh -l' /dev/null"
+        installcros
+        wifi
+        "canwifi download"
+        payloads
+        "canwifi updateshim"
+        "reboot -f"
+    )
+else
+    menu_options=(
+        "Open Terminal"
+        "Install a ChromeOS recovery image"
+        "Boot an RMA shim"
+        "Connect to WiFi"
+        "Download a ChromeOS recovery image or shim"
+        "Payloads"
+        "Update"
+        "Exit and Reboot"
+    )
 
-menu_actions=(
-    "script -qfc 'exec bash -l || exec busybox sh -l' /dev/null"
-    installcros
-    shimboot
-    wifi
-    "canwifi download"
-    payloads
-    "canwifi updateshim"
-    "reboot -f"
-)
+    menu_actions=(
+        "script -qfc 'exec bash -l || exec busybox sh -l' /dev/null"
+        installcros
+        shimboot
+        wifi
+        "canwifi download"
+        payloads
+        "canwifi updateshim"
+        "reboot -f"
+    )
+fi
 
 errormessage() {
     if [ -n "$errormsg" ]; then 
