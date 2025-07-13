@@ -562,7 +562,7 @@ shimboot() {
 		loop=$(losetup -fP --show $shim)
 		export loop
 
-		loop_root="$(cgpt find -l ROOT-A $loop || cgpt find -t rootfs $loop | head -n 1)"
+		loop_root="$(cgpt find -l ROOT-A $loop | head -n 1)" || loop_root="$(cgpt find -t rootfs $loop)"
 
 		if mount "${loop_root}" $shimroot; then
 			echo -e "ROOT-A found successfully and mounted."
