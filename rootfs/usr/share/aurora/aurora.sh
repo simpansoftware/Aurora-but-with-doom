@@ -650,8 +650,8 @@ shimboot() {
 ##########
 
 for wifi in iwlwifi iwlmvm ccm 8021q; do
-    modprobe -r "$wifi" || true
-    modprobe "$wifi"
+    modprobe -r "$wifi" 2>/dev/null || true
+    modprobe "$wifi" 2>/dev/null
 done
 export needswifi=0
 echo_center "Connecting to wifi"
