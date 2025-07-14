@@ -432,7 +432,8 @@ export_args $(cat /proc/cmdline | sed -e 's/"[^"]*"/DROPPED/g') 1> /dev/null
 
 copy_lsb() {
     echo "Copying lsb..."
-
+    STATEFUL_MNT="/mnt/stateful_partition"
+    mount $(lsblk -pro NAME,LABEL | grep " STATE" | awk '{print $1}') $STATEFUL_MNT -o ro # im a -pro gamer guys
     local lsb_file="dev_image/etc/lsb-factory"
     local src_path="${STATEFUL_MNT}/${lsb_file}"
     local dest_path="/newroot/etc/lsb-factory"
