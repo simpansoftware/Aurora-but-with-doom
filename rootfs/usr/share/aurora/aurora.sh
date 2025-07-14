@@ -576,7 +576,6 @@ shimboot() {
 			fail "${err1}${err2}${err3}"
 		fi
 		export skipshimboot=0
-        source /usr/share/aurora/shimbootconditionals.sh
 		if ! stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)"; then
 			echo -e "${COLOR_YELLOW_B}Finding stateful via partition label \"STATE\" failed (try 1...)${COLOR_RESET}"
 			if ! stateful="$(cgpt find -l SH1MMER ${loop} | head -n 1 | grep --color=never /dev/)"; then
