@@ -631,7 +631,7 @@ shimboot() {
 
 			mkdir -p /newroot/tmp/aurora
 			pivot_root /newroot /newroot/tmp/aurora
-            source /usr/share/aurora/shimbootconditionals.sh
+            sleep 10
 			echo "Starting init"
             checkkvs
 			exec /sbin/init || {
