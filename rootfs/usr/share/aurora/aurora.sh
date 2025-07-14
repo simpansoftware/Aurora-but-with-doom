@@ -630,6 +630,8 @@ shimboot() {
 			clear
 
 			mkdir -p /newroot/tmp/aurora
+            echo "hi"
+            sleep 10
 			pivot_root /newroot /newroot/tmp/aurora
             sleep 10
 			echo "Starting init"
