@@ -432,11 +432,8 @@ export_args $(cat /proc/cmdline | sed -e 's/"[^"]*"/DROPPED/g') 1> /dev/null
 
 copy_lsb() {
     echo "Copying lsb..."
-    STATEFUL_MNT="/mnt/stateful_partition"
-    mkdir -p $STATEFUL_MNT
-    mount $(lsblk -pro NAME,LABEL | grep " STATE" | awk '{print $1}') $STATEFUL_MNT -o ro # im a -pro gamer guys
     local lsb_file="dev_image/etc/lsb-factory"
-    local src_path="${STATEFUL_MNT}/${lsb_file}"
+    local src_path="/stateful/${lsb_file}"
     local dest_path="/newroot/etc/lsb-factory"
 
     mkdir -p "$(dirname "${dest_path}")"
@@ -561,7 +558,7 @@ shimboot() {
 	else
 		mkdir -p $shimroot
 		echo -e "Searching for ROOT-A on shim..."
-		loop=$(losetup -fP --show $shim)
+		loop=$(losetup -Pf --show $shim)
 		export loop
 
 		loop_root="$(cgpt find -l ROOT-A $loop | head -n 1)" || loop_root="$(cgpt find -t rootfs $loop | head -n 1)"
@@ -602,7 +599,7 @@ shimboot() {
 			mkdir -p /newroot
 
 			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Could not allocate 1GB of TMPFS to the newroot mountpoint."
-			mount $stateful /stateful || fail "Failed to mount stateful partition!"
+			mount $stateful /stateful -o ro || fail "Failed to mount stateful partition!"
 
 			copy_lsb
             sleep 5
