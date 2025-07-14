@@ -635,7 +635,6 @@ shimboot() {
 			pivot_root /newroot /newroot/tmp/aurora
             sleep 10
 			echo "Starting init"
-            checkkvs
 			exec /sbin/init || {
 				echo "Failed to start init!!!"
 				echo "Bailing out, you are on your own. Good luck."
