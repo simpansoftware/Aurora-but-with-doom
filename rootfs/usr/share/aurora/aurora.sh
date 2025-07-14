@@ -434,7 +434,7 @@ copy_lsb() {
     echo "Copying lsb..."
     local lsb_file="dev_image/etc/lsb-factory"
     local src_path="/stateful/${lsb_file}"
-    local dest_path="/newroot/etc/lsb-factory"
+    local dest_path="/newroot/dev_image/etc/lsb-factory"
 
     mkdir -p "$(dirname "${dest_path}")"
 
