@@ -528,6 +528,21 @@ installcros() {
 	fi
 }
 
+enable_rw_mount() {
+    local rootfs="$1"
+    local offset="${2-0}"
+
+    if ! is_ext2 "$rootfs" $offset; then
+        echo "enable_rw_mount called on non-ext2 filesystem: $rootfs $offset" 1>&2
+        return 1
+    fi
+
+    local ro_compat_offset=$((0x464 + 3))
+    printf '\000' |
+        dd of="$rootfs" seek=$((offset + ro_compat_offset)) \
+            conv=notrunc count=1 bs=1 2>/dev/null
+}
+
 shimboot() {
 	if [[ -z "$(ls -A $aroot/images/shims)" ]]; then
 		echo -e "${COLOR_YELLOW_B}You have no shims downloaded!\nPlease download or build a few images."
@@ -562,7 +577,7 @@ shimboot() {
 		export loop
 
 		loop_root="$(cgpt find -l ROOT-A $loop | head -n 1)" || loop_root="$(cgpt find -t rootfs $loop | head -n 1)"
-
+        enable_rw_mount ${loop_root}
 		if mount "${loop_root}" $shimroot; then
 			echo -e "ROOT-A found successfully and mounted."
 		else
