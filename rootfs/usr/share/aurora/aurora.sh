@@ -441,6 +441,9 @@ copy_lsb() {
     if [ -f "${src_path}" ]; then
         echo "Found ${src_path}"
         cp "${src_path}" "${dest_path}" || fail "failed with $?"
+		if $(cgpt find -l SH1MMER ${loop} | head -n 1 | grep --color=never /dev/); then
+            echo "STATEFUL_DEV=${loop}p1" >> "${dest_path}"
+        fi
         echo "REAL_USB_DEV=${loop}p3" >> "${dest_path}"
         echo "KERN_ARG_KERN_GUID=$(echo "${KERN_ARG_KERN_GUID}" | tr '[:lower:]' '[:upper:]')" >> "${dest_path}"
         echo "Copied lsb-factory to ${dest_path}"
@@ -626,7 +629,7 @@ shimboot() {
 		if (( $skipshimboot == 0 )); then
 			mkdir -p /stateful
 			mkdir -p /newroot
-
+            
 			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Could not allocate 1GB of TMPFS to the newroot mountpoint."
 			mount $stateful /stateful -o ro || fail "Failed to mount stateful partition!"
 
@@ -657,7 +660,12 @@ shimboot() {
 			clear
 
 			mkdir -p /newroot/tmp/aurora
+            chmod +x /usr/share/shims/*
 			pivot_root /newroot /newroot/tmp/aurora
+            if [ -f /usr/sbin/factory_bootstrap.sh ]; then
+                rm -f /sbin/init
+                cp /tmp/aurora/usr/share/shims/sh1mmerinit /sbin/init
+            fi
 			echo "Starting init"
 			exec /sbin/init || {
 				echo "Failed to start init!!!"
