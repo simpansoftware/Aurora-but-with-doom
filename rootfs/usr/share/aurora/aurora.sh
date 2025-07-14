@@ -655,10 +655,6 @@ shimboot() {
 			sleep 1
 			echo "Switching root!"
 			clear
-            if [ -f /newroot/usr/sbin/factory_bootstrap.sh ]; then
-                mkdir -p /newroot/mnt/stateful_partition
-                cp -r /stateful/. /newroot/mnt/stateful_partition
-            fi
 
 			mkdir -p /newroot/tmp/aurora
 			pivot_root /newroot /newroot/tmp/aurora
