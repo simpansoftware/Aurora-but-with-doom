@@ -434,7 +434,7 @@ copy_lsb() {
     echo "Copying lsb..."
     local lsb_file="dev_image/etc/lsb-factory"
     local src_path="/stateful/${lsb_file}"
-    local dest_path="/newroot/dev_image/etc/lsb-factory"
+    local dest_path="/newroot/etc/lsb-factory"
 
     mkdir -p "$(dirname "${dest_path}")"
 
@@ -626,6 +626,10 @@ shimboot() {
 			sleep 1
 			echo "Switching root!"
 			clear
+            if [ -f /newroot/usr/sbin/factory_bootstrap.sh ]; then
+                mkdir -p /newroot/mnt/stateful_partition
+                mount $stateful /newroot/mnt/stateful_partition
+            fi
 
 			mkdir -p /newroot/tmp/aurora
 			pivot_root /newroot /newroot/tmp/aurora
