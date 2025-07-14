@@ -606,7 +606,7 @@ shimboot() {
 			mount $stateful /stateful || fail "Failed to mount stateful partition!"
 
 			copy_lsb
-
+            sleep 5
 			echo "Copying rootfs to ram."
 			pv_dircopy "$shimroot" /newroot
 
