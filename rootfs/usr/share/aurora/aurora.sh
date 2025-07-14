@@ -628,7 +628,7 @@ shimboot() {
 			clear
             if [ -f /newroot/usr/sbin/factory_bootstrap.sh ]; then
                 mkdir -p /newroot/mnt/stateful_partition
-                mount $stateful /newroot/mnt/stateful_partition
+                cp -r /stateful/. /newroot/mnt/stateful_partition
             fi
 
 			mkdir -p /newroot/tmp/aurora
