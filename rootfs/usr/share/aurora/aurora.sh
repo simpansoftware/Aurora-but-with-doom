@@ -635,7 +635,8 @@ shimboot() {
                 cp /usr/share/shims/init_sh1mmer.sh /
                 mkdir -p /tmp/shimbootstatemount
                 mount $stateful /tmp/shimbootstatemount
-                cat /usr/share/shims/init_sh1mmer.sh /tmp/shimbootstatemount/bootstrap/noarch/init_sh1mmer.sh
+                cat /usr/share/shims/init_sh1mmer.sh > /tmp/shimbootstatemount/bootstrap/noarch/init_sh1mmer.sh
+                umount $stateful
             fi
         fi
 
