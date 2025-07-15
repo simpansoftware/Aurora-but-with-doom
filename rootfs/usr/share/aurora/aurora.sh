@@ -441,7 +441,7 @@ copy_lsb() {
     if [ -f "${src_path}" ]; then
         echo "Found ${src_path}"
         cp "${src_path}" "${dest_path}" || fail "failed with $?"
-		if $(cgpt find -l SH1MMER ${loop} | head -n 1 | grep --color=never /dev/); then
+        if cgpt find -l SH1MMER "${loop}" | head -n 1 | grep --color=never -q /dev/; then
             echo "STATEFUL_DEV=${loop}p1" >> "${dest_path}"
         fi
         echo "REAL_USB_DEV=${loop}p3" >> "${dest_path}"
@@ -661,11 +661,11 @@ shimboot() {
 
 			mkdir -p /newroot/tmp/aurora
             chmod +x /usr/share/shims/*
-			pivot_root /newroot /newroot/tmp/aurora
-            if [ -f /usr/sbin/factory_bootstrap.sh ]; then
-                rm -f /sbin/init
-                cp /tmp/aurora/usr/share/shims/sh1mmerinit /sbin/init
+            if cgpt find -l SH1MMER "${loop}" | head -n 1 | grep --color=never -q /dev/; then
+                rm -f /newroot/sbin/init
+                cp /usr/share/shims/sh1mmerinit /newroot/sbin/init
             fi
+			pivot_root /newroot /newroot/tmp/aurora
 			echo "Starting init"
 			exec /sbin/init || {
 				echo "Failed to start init!!!"
