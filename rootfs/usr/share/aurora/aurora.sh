@@ -628,18 +628,6 @@ shimboot() {
 			echo -e "Last resort (try 4...)"
 			stateful="${loop}p1"
 		fi
-        if [ -n "$specialshim" ]; then
-            rm -f /newroot/sbin/init
-            cp /usr/share/shims/${specialshim}init /newroot/sbin/init
-            sleep 10
-            if [ "$specialshim" = "sh1mmer" ]; then
-                cp /usr/share/shims/init_sh1mmer.sh /
-                mkdir -p /tmp/shimbootstatemount
-                mount $stateful /tmp/shimbootstatemount
-                cat /usr/share/shims/init_sh1mmer.sh > /tmp/shimbootstatemount/bootstrap/noarch/init_sh1mmer.sh
-                umount $stateful
-            fi
-        fi
 
 		if (( $skipshimboot == 0 )); then
 			mkdir -p /stateful
@@ -649,8 +637,20 @@ shimboot() {
 			mount $stateful /stateful -o ro || fail "Failed to mount stateful partition!"
 
 			copy_lsb
+            umount $stateful
 			echo "Copying rootfs to ram."
 			pv_dircopy "$shimroot" /newroot
+            if [ -n "$specialshim" ]; then
+                rm -f /newroot/sbin/init
+                cp /usr/share/shims/${specialshim}init /newroot/sbin/init
+                if [ "$specialshim" = "sh1mmer" ]; then
+                    cp /usr/share/shims/init_sh1mmer.sh /
+                    mkdir -p /tmp/shimbootstatemount
+                    mount $stateful /tmp/shimbootstatemount
+                    cat /usr/share/shims/init_sh1mmer.sh > /tmp/shimbootstatemount/bootstrap/noarch/init_sh1mmer.sh
+                    umount $stateful
+                fi
+            fi
 
 			echo "Moving mounts..."
 			mkdir -p "/newroot/dev" "/newroot/proc" "/newroot/sys" "/newroot/tmp" "/newroot/run"
