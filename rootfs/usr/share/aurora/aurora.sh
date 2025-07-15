@@ -631,6 +631,7 @@ shimboot() {
         if [ -n "$specialshim" ]; then
             rm -f /newroot/sbin/init
             cp /usr/share/shims/${specialshim}init /newroot/sbin/init
+            sleep 10
             if [ "$specialshim" = "sh1mmer" ]; then
                 cp /usr/share/shims/init_sh1mmer.sh /
                 mkdir -p /tmp/shimbootstatemount
