@@ -441,7 +441,7 @@ copy_lsb() {
     if [ -f "${src_path}" ]; then
         echo "Found ${src_path}"
         cp "${src_path}" "${dest_path}" || fail "failed with $?"
-        if [ "$specialshim" = sh1mmer]; then
+        if [ "$specialshim" = sh1mmer ]; then
             echo "STATEFUL_DEV=${loop}p1" >> "${dest_path}"
         fi
         echo "REAL_USB_DEV=${loop}p3" >> "${dest_path}"
