@@ -193,11 +193,11 @@ move_mounts() {
 
 move_mounts
 mkdir -p $NEWROOT_MNT/tmp/oldroot
-mkdir -p $NEWROOT_MNT/tmp/aurora
-mkdir -p $NEWROOT_MNT/tmp/shimroot
-mount -n -o move $NEWROOT_MNT/tmp/oldroot/tmp/aurora $NEWROOT_MNT/tmp/aurora
-mount -n -o move $NEWROOT_MNT/tmp/oldroot/tmp/aurora/shimroot $NEWROOT_MNT/tmp/shimroot
 pivot_root $NEWROOT_MNT $NEWROOT_MNT/tmp/oldroot
+mkdir -p /tmp/aurora
+mkdir -p /tmp/shimroot
+mount -n -o move $(findmnt /tmp/oldroot/tmp/aurora -o SOURCE | tail -n1) /tmp/aurora
+mount -n -o move $(findmnt /tmp/oldroot/tmp/aurora/shimroot -o SOURCE | tail -n1) /tmp/shimroot
 exec /usr/sbin/sh1mmer_main.sh
 EOF
 chmod +x /bin/sh1mmer_switch_root
