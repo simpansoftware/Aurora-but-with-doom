@@ -634,6 +634,7 @@ shimboot() {
 			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Could not allocate 1GB of TMPFS to the newroot mountpoint."
 			mount $stateful /stateful || fail "Failed to mount stateful partition!"
             if [ -f /stateful/root/noarch/usr/sbin/sh1mmer_main.sh ]; then
+                sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' /stateful/root/noarch/usr/sbin/sh1mmer_main.sh
                 sed -i '
 /^echo "exec switch_root"$/c\
 mkdir -p "$NEWROOT_MNT/tmp/oldroot"
