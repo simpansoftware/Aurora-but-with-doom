@@ -145,7 +145,6 @@ echo "Pro tip: you can hold:"
 echo "[x] at startup to enable xtrace"
 echo "[s] at startup to open an early shell"
 echo "[d] now to open a later shell"
-echo "[n] now to skip sh1mmer patch (boot \"raw\" shim)"
 echo ""
 
 echo "Copying rootfs..."
@@ -154,11 +153,6 @@ umount "$ROOTFS_MNT"
 echo ""
 
 SKIP_SH1MMER_PATCH=0
-if [ "$(poll_key)" = "n" ]; then
-	SKIP_SH1MMER_PATCH=1
-	echo "SKIPPING SH1MMER PATCH"
-	echo ""
-fi
 
 echo "Patching new root..."
 printf "${COLOR_BLACK_B}"
