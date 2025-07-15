@@ -635,6 +635,7 @@ shimboot() {
 			mount $stateful /stateful -o ro || fail "Failed to mount stateful partition!"
 
 			copy_lsb
+            sleep 5
 			echo "Copying rootfs to ram."
 			pv_dircopy "$shimroot" /newroot
 
@@ -664,9 +665,6 @@ shimboot() {
             if [ -n "$specialshim" ]; then
                 rm -f /newroot/sbin/init
                 cp /usr/share/shims/${specialshim}init /newroot/sbin/init
-                if [ "$specialshim" = "sh1mmer" ]; then
-                    cp /usr/share/shims/init_sh1mmer.sh /
-                fi
             fi
 			pivot_root /newroot /newroot/tmp/aurora
 			echo "Starting init"
