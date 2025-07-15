@@ -27,6 +27,8 @@ busybox --install /bootstrap
 [ -b "$STATEFUL_DEV" ] || fail "Could not determine stateful partition of USB device."
 
 mkdir -p "$STATEFUL_MNT"
+umount "$STATEFUL_DEV"
+umount "$STATEFUL_DEV" -l
 mount "$STATEFUL_DEV" "$STATEFUL_MNT" || fail "Failed to mount $STATEFUL_DEV"
 
 rm -rf /init || :
