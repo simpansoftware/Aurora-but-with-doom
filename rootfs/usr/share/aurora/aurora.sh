@@ -441,7 +441,8 @@ copy_lsb() {
     if [ -f "${src_path}" ]; then
         echo "Found ${src_path}"
         cp "${src_path}" "${dest_path}" || fail "failed with $?"
-        if [ "$specialshim" = sh1mmer ]; then
+        if cgpt find -l SH1MMER "${loop}" | head -n 1 | grep --color=never -q /dev/; then
+            export specialshim="sh1mmer"
             echo "STATEFUL_DEV=${loop}p1" >> "${dest_path}"
         fi
         echo "REAL_USB_DEV=${loop}p3" >> "${dest_path}"
@@ -604,9 +605,6 @@ shimboot() {
 			err3="              and if it looks fine, report it to the GitHub repo!\n"
 			fail "${err1}${err2}${err3}"
 		fi
-        if cgpt find -l SH1MMER "${loop}" | head -n 1 | grep --color=never -q /dev/; then
-            export specialshim="sh1mmer"
-        fi
 		export skipshimboot=0
 		if ! stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)"; then
 			echo -e "${COLOR_YELLOW_B}Finding stateful via partition label \"STATE\" failed (try 1...)${COLOR_RESET}"
@@ -637,20 +635,8 @@ shimboot() {
 			mount $stateful /stateful -o ro || fail "Failed to mount stateful partition!"
 
 			copy_lsb
-            umount $stateful
 			echo "Copying rootfs to ram."
 			pv_dircopy "$shimroot" /newroot
-            if [ -n "$specialshim" ]; then
-                rm -f /newroot/sbin/init
-                cp /usr/share/shims/${specialshim}init /newroot/sbin/init
-                if [ "$specialshim" = "sh1mmer" ]; then
-                    cp /usr/share/shims/init_sh1mmer.sh /
-                    mkdir -p /tmp/shimbootstatemount
-                    mount $stateful /tmp/shimbootstatemount
-                    cat /usr/share/shims/init_sh1mmer.sh > /tmp/shimbootstatemount/bootstrap/noarch/init_sh1mmer.sh
-                    umount $stateful
-                fi
-            fi
 
 			echo "Moving mounts..."
 			mkdir -p "/newroot/dev" "/newroot/proc" "/newroot/sys" "/newroot/tmp" "/newroot/run"
@@ -675,6 +661,13 @@ shimboot() {
 
 			mkdir -p /newroot/tmp/aurora
             chmod +x /usr/share/shims/*
+            if [ -n "$specialshim" ]; then
+                rm -f /newroot/sbin/init
+                cp /usr/share/shims/${specialshim}init /newroot/sbin/init
+                if [ "$specialshim" = "sh1mmer" ]; then
+                    cp /usr/share/shims/init_sh1mmer.sh /
+                fi
+            fi
 			pivot_root /newroot /newroot/tmp/aurora
 			echo "Starting init"
 			exec /sbin/init || {
