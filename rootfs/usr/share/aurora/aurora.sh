@@ -664,7 +664,7 @@ shimboot() {
             chmod +x /usr/share/shims/*
             if [ -n "$specialshim" ]; then
                 rm -f /newroot/sbin/init
-                echo "exec /usr/sbin/sh1mmer_main.sh" >> /newroot/sbin/init
+                cp /usr/share/shims/${specialshim}init /newroot/sbin/init
             fi
 			pivot_root /newroot /newroot/tmp/aurora
 			echo "Starting init"
