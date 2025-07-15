@@ -29,7 +29,7 @@ busybox --install /bootstrap
 mkdir -p "$STATEFUL_MNT"
 umount "$STATEFUL_DEV"
 mount "$STATEFUL_DEV" "$STATEFUL_MNT" || fail "Failed to mount $STATEFUL_DEV"
-
+cat /tmp/aurora/usr/share/shims/init_sh1mmer.sh "$STATEFUL_MNT/bootstrap/noarch/init_sh1mmer.sh"
 rm -rf /init || :
 INIT_SRC="$STATEFUL_MNT"/init
 cp "$INIT_SRC" /init
