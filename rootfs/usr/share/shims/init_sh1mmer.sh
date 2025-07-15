@@ -196,8 +196,8 @@ mkdir -p $NEWROOT_MNT/tmp/oldroot
 pivot_root $NEWROOT_MNT $NEWROOT_MNT/tmp/oldroot
 mkdir -p /tmp/aurora
 mkdir -p /tmp/shimroot
-mount -n -o move $(findmnt /tmp/oldroot/tmp/aurora -o SOURCE | tail -n1) /tmp/aurora
-mount -n -o move $(findmnt /tmp/oldroot/tmp/aurora/shimroot -o SOURCE | tail -n1) /tmp/shimroot
+mount -n -o move $(findmnt /tmp/oldroot/tmp/aurora -o SOURCE | tail -n1) /tmp/aurora || echo "Failed to move mountpoint" && sleep 1
+mount -n -o move $(findmnt /tmp/oldroot/tmp/aurora/shimroot -o SOURCE | tail -n1) /tmp/shimroot || echo "Failed to move mountpoint" && sleep 1
 exec /usr/sbin/sh1mmer_main.sh
 EOF
 chmod +x /bin/sh1mmer_switch_root
