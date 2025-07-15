@@ -207,5 +207,4 @@ chmod +x /bin/sh1mmer_switch_root
 enable_input
 exec sh1mmer_switch_root || :
 
-# should never reach here
 fail "Failed to exec switch_root."
