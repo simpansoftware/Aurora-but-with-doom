@@ -635,14 +635,9 @@ shimboot() {
 			mount $stateful /stateful || fail "Failed to mount stateful partition!"
             if [ -f /stateful/root/noarch/usr/sbin/sh1mmer_main.sh ]; then
                 sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' /stateful/root/noarch/usr/sbin/sh1mmer_main.sh && echo "Successfully patched sh1mmer_main.sh."
-                sed -i \
-  -e '/^echo "exec switch_root"$/c\
-mkdir -p "$NEWROOT_MNT/tmp/oldroot"' \
-  -e '/^echo "this shouldn'\''t take more than a few seconds"$/c\
-pivot_root "$NEWROOT_MNT" "$NEWROOT_MNT/tmp/oldroot"' \
-  -e '/^exec switch_root "\$NEWROOT_MNT" \/sbin\/init -v --default-console output \|\| :$/c\
-exec /usr/sbin/sh1mmer_main.sh' \
-  /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
+                cp /usr/share/shims/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
+                chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
+                chmod +x /stateful/root/noarch/usr/sbin/sh1mmer_main.sh
             fi
 
 			copy_lsb
