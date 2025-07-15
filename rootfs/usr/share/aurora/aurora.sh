@@ -441,8 +441,7 @@ copy_lsb() {
     if [ -f "${src_path}" ]; then
         echo "Found ${src_path}"
         cp "${src_path}" "${dest_path}" || fail "failed with $?"
-        if cgpt find -l SH1MMER "${loop}" | head -n 1 | grep --color=never -q /dev/; then
-            export specialshim="sh1mmer"
+        if [ "$specialshim" = sh1mmer]; then
             echo "STATEFUL_DEV=${loop}p1" >> "${dest_path}"
         fi
         echo "REAL_USB_DEV=${loop}p3" >> "${dest_path}"
@@ -605,6 +604,9 @@ shimboot() {
 			err3="              and if it looks fine, report it to the GitHub repo!\n"
 			fail "${err1}${err2}${err3}"
 		fi
+        if cgpt find -l SH1MMER "${loop}" | head -n 1 | grep --color=never -q /dev/; then
+            export specialshim="sh1mmer"
+        fi
 		export skipshimboot=0
 		if ! stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)"; then
 			echo -e "${COLOR_YELLOW_B}Finding stateful via partition label \"STATE\" failed (try 1...)${COLOR_RESET}"
@@ -626,6 +628,16 @@ shimboot() {
 			echo -e "Last resort (try 4...)"
 			stateful="${loop}p1"
 		fi
+        if [ -n "$specialshim" ]; then
+            rm -f /newroot/sbin/init
+            cp /usr/share/shims/${specialshim}init /newroot/sbin/init
+            if [ "$specialshim" = "sh1mmer" ]; then
+                cp /usr/share/shims/init_sh1mmer.sh /
+                mkdir -p /tmp/shimbootstatemount
+                mount $stateful /tmp/shimbootstatemount
+                cat /usr/share/shims/init_sh1mmer.sh /tmp/shimbootstatemount/bootstrap/noarch/init_sh1mmer.sh
+            fi
+        fi
 
 		if (( $skipshimboot == 0 )); then
 			mkdir -p /stateful
@@ -661,13 +673,6 @@ shimboot() {
 
 			mkdir -p /newroot/tmp/aurora
             chmod +x /usr/share/shims/*
-            if [ -n "$specialshim" ]; then
-                rm -f /newroot/sbin/init
-                cp /usr/share/shims/${specialshim}init /newroot/sbin/init
-                if [ "$specialshim" = "sh1mmer" ]; then
-                    cp /usr/share/shims/init_sh1mmer.sh /
-                fi
-            fi
 			pivot_root /newroot /newroot/tmp/aurora
 			echo "Starting init"
 			exec /sbin/init || {
