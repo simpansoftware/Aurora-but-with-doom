@@ -1,0 +1,64 @@
+#!/bin/bash
+#This is the automated buildscript for Aurora
+if [[ "$(basename "$(pwd)")" =~ ^(build|website|lib)$ ]]; then
+    echo "Please run in the base directory. (Aurora/)"
+    exit 1
+fi
+if [ "$EUID" -ne 0 ]; then
+    echo "Please run as root."
+    exit 1
+fi
+if [ -z "$1" ]; then
+    echo "Usage: sudo bash Aurora /path/to/rawshim.bin [cpu_architecture(x86_64 or aarch64)]"
+    exit 1
+fi
+if [ -z "$2" ]; then
+    read -p "CPU Architecture Unspecified. Default to x86_64? (Y/n): " cpuarch
+    case "$cpuarch" in
+        n|N)
+            read -p "Enter CPU Architecture (x86_64/aarch64): " arch
+            export arch
+            ;;
+        *)
+            arch="x86_64"
+            export arch
+            ;;
+    esac
+else
+    arch="$2"
+    export arch
+fi
+
+checkarch() {
+    if [[ "$arch" != "aarch64" && "$arch" != "x86_64" ]]; then
+        echo -e "Invalid CPU Architecture"
+        read -p "Enter CPU Architecture (x86_64/aarch64): " arch
+        export arch
+        checkarch
+    fi
+}
+checkarch
+
+source ./build/utils/functions.sh
+
+shim="$1"
+
+echo_c "Architecture: ($arch)" BLUE_B
+echo_c "Shim: ($shim)" "BLUE_B"
+cd ./build/
+echo_c "Creating Rootfs and Initramfs" "BLUE_B"
+bash ./rootfs.sh $shim $arch
+echo_c "Building the Shim" "BLUE_B"
+bash ./build.sh $shim $arch
+
+echo -e "${MAGENTA_B}Credits"
+echo -e "${PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Got Wifi"
+echo -e "${GEEN_B}xmb9${COLOR_RESET}: Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images"
+echo -e "${RED_B}Mariah Carey${COLOR_RESET}: Bugfixing and bugtesting"
+echo -e "${YELLOW_B}Synaptic${COLOR_RESET}: Emotional Support"
+echo -e "${CYAN_B}Simon${COLOR_RESET}: Brainstormed how to do wifi, helped with dhcpcd"
+echo -e "${BLUE_B}kraeb${COLOR_RESET}: QoL improvements and initial idea"
+echo -e "${MAGENTA_B}AC3${COLOR_RESET}: Literally nothing"
+echo -e "Rainestorme: Murkmod's version finder"
+echo -e " "
+echo_c "Done! The final shim is located at \"../${finalshim}\"" "GEEN_B"

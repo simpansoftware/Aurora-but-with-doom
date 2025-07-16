@@ -42,8 +42,6 @@ checkarch
 shim="$1"
 
 source ./utils/functions.sh
-echo_c "Architecture: ($arch)" BLUE_B
-echo_c "Shim: ($1)" "BLUE_B"
 
 
 initramfs=$(realpath -m "./initramfs")

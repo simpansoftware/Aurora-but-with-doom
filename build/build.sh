@@ -52,8 +52,9 @@ checkarch() {
     fi
 }
 checkarch
+source ./utils/functions.sh
 shim=$1
-aurorashim="./$(basename "${shim%.*}")-aurora.bin"
+aurorashim="../$(basename "${shim%.*}")-aurora.bin"
 if [ -z $shim ]; then
     echo_c "Please specify a valid rawshim file." RED_B
 fi
@@ -68,13 +69,23 @@ mkdir -p "$initramfs"
 rm -f $aurorashim
 truncate -s 694200K "$aurorashim" # haha 69
 
-source ./utils/functions.sh
-echo_c "Shim: ($1)" "BLUE_B"
-echo_c "Architecture: ($arch)" "BLUE_B"
-
 shimdev="$(losetup -Pf --show $shim)"
 dev="$(losetup -Pf --show $aurorashim)"
+lsbval() {
+  local key="$1"
+  local lsbfile="${2:-./rootfs/etc/lsb-release}"
 
+  if ! echo "${key}" | grep -Eq '^[a-zA-Z0-9_]+$'; then
+    return 1
+  fi
+
+  sed -E -n -e \
+    "/^[[:space:]]*${key}[[:space:]]*=/{
+      s:^[^=]+=[[:space:]]*::
+      s:[[:space:]]+$::
+      p
+    }" "${lsbfile}"
+}
 chromeos="$(cgpt find -l ROOT-A $shimdev | head -n 1)"
 tempmount="$(mktemp -d)"
 echo_c "Copying Modules..." GEEN_B
@@ -82,6 +93,7 @@ mount -o ro $chromeos $tempmount
 if [ -d $tempmount/lib/modules ]; then
     cp -ar $tempmount/lib/modules ./rootfs/lib/
     cp -ar $tempmount/etc/lsb-release ./rootfs/etc/lsb-release
+    export boardname=$(lsbval CHROMEOS_RELEASE_BOARD)
     umount $tempmount
 else
     echo_c "Please run on a raw shim." RED_B
@@ -99,8 +111,6 @@ sgdisk -t 3:3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC "$dev"
 sgdisk -t 4:8300 "$dev"
 
 sgdisk -p "$dev"
-
-
 
 kernelpartition="${dev}p2"
 
@@ -149,14 +159,5 @@ umount $root_amount -l
 umount $root_bmount
 umount $root_bmount -l
 losetup -D
-echo -e "${MAGENTA_B}Credits"
-echo -e "${PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Got Wifi"
-echo -e "${GEEN_B}xmb9${COLOR_RESET}: Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images"
-echo -e "${RED_B}Mariah Carey${COLOR_RESET}: Bugfixing and bugtesting"
-echo -e "${YELLOW_B}Synaptic${COLOR_RESET}: Emotional Support"
-echo -e "${CYAN_B}Simon${COLOR_RESET}: Brainstormed how to do wifi, helped with dhcpcd"
-echo -e "${BLUE_B}kraeb${COLOR_RESET}: QoL improvements and initial idea"
-echo -e "${MAGENTA_B}AC3${COLOR_RESET}: Literally nothing"
-echo -e "${GEEN_B}Rainestorme${COLOR_RESET}: Murkmod's version finder"
-echo -e " "
-echo_c "Done!" "GEEN_B"
+mv $aurorashim ../${boardname}-aurora.bin
+export finalshim="${boardname}-aurora.bin"
