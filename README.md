@@ -18,7 +18,7 @@ Run the next command with a **raw** shim and the architecture of the chromebook 
 sudo bash Aurora /path/to/shim.bin [cpu_architecture(x86_64 or aarch64)]
 ```
 
-Flash the resulting board-aurora.bin to your flash drive, then plug it into your chromebook to expand the partition.<br>
+Flash the resulting board-aurora.bin to your flash drive, then plug it into your chromebook to expand the partition.<br><br>
 You can then either download recovery images or shims in the shim, or put them on the shim via mounting the 4th partition of the device on another linux machine and copying them into `/usr/share/aurora/images` on the mounted drive.
 # FAQ (Frequently Asked Questions)
 <br><b>I wanna use Shimboot. How can I?</b>
