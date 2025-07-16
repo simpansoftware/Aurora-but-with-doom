@@ -20,13 +20,13 @@ sudo bash Aurora /path/to/shim.bin [cpu_architecture(x86_64 or aarch64)]
 
 # Booting Shims
 
-1. Here's a list of shims that are built in to not boot:
+- Here's a list of shims that are built in to not boot:
   1. Raw shims  -  You don't need to boot a raw shim. The raw shim option in SH1MMER has also been removed when booted in Aurora.
   2. Priism and IRS - Aurora is quite literally a merger of these two.
   3. Aurora(?) - I'll try to make it work for the funny
-2. Here's a list of shims that we've tested and they work:
+- Here's a list of shims that we've tested and they work:
   1. SH1MMER
-3. Here's a list of shims we're gonna make work and test:
+- Here's a list of shims we're gonna make work and test:
   1. KVS
   2. Shimboot
   3. Any future shims that are made
