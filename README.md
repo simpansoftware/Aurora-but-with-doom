@@ -32,7 +32,6 @@ You can then either download recovery images or shims in the shim, or put them o
   1. KVS
   2. Shimboot
   3. Any future shims that are made
-<br>
 
 # FAQ (Frequently Asked Questions)
 <br><b>I wanna use Shimboot. How can I?</b>
