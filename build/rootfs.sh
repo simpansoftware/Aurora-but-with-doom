@@ -1,48 +1,23 @@
 #!/bin/bash
 
-if [[ "$(basename "$(pwd)")" != "build" ]]; then
-    echo "Please run in the build directory. (Aurora/build/)"
-    exit 1
-fi
-if [ "$EUID" -ne 0 ]; then
-    echo "Please run as root."
-    exit 1
-fi
-if [ -z "$1" ]; then
-    echo "Usage: sudo bash rootfs.sh /path/to/rawshim.bin [cpu_architecture(x86_64 or aarch64)]"
-    exit 1
-fi
-if [ -z "$2" ]; then
-    read -p "CPU Architecture Unspecified. Default to x86_64? (Y/n): " cpuarch
-    case "$cpuarch" in
-        n|N)
-            read -p "Enter CPU Architecture (x86_64/aarch64): " arch
-            export arch
-            ;;
-        *)
-            arch="x86_64"
-            export arch
-            ;;
-    esac
-else
-    arch="$2"
-    export arch
-fi
+# Copyright 2025 Ethereal Workshop. All rights reserved.
+# Use of this source code is governed by the BSD 3-Clause license
+# that can be found in the LICENSE.md file.
 
-checkarch() {
-    if [[ "$arch" != "aarch64" && "$arch" != "x86_64" ]]; then
-        echo -e "Invalid CPU Architecture"
-        read -p "Enter CPU Architecture (x86_64/aarch64): " arch
-        export arch
-        checkarch
-    fi
-}
-checkarch
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 shim="$1"
 
 source ./utils/functions.sh
-
 
 initramfs=$(realpath -m "./initramfs")
 rootfs=$(realpath -m "./rootfs")

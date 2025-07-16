@@ -15,45 +15,10 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-if [[ "$(basename "$(pwd)")" != "build" ]]; then
-    echo "Please run in the build directory. (Aurora/build/)"
-    exit 1
-fi
-if [ "$EUID" -ne 0 ]; then
-    echo "Please run as root."
-    exit 1
-fi
-if [ -z "$1" ]; then
-    echo "Usage: sudo bash build.sh /path/to/rawshim.bin [cpu_architecture(x86_64 or aarch64)]"
-    exit 1
-fi
-if [ -z "$2" ]; then
-    read -p "CPU Architecture Unspecified. Default to x86_64? (Y/n): " cpuarch
-    case "$cpuarch" in
-        n|N)
-            read -p "Enter CPU Architecture (x86_64/aarch64): " arch
-            export arch
-            ;;
-        *)
-            arch="x86_64"
-            export arch
-            ;;
-    esac
-else
-    arch="$2"
-    export arch
-fi
-checkarch() {
-    if [[ "$arch" != "aarch64" && "$arch" != "x86_64" ]]; then
-        echo -e "Invalid CPU Architecture"
-        read -p "Enter CPU Architecture (x86_64/aarch64): " arch
-        export arch
-        checkarch
-    fi
-}
-checkarch
-source ./utils/functions.sh
 shim=$1
+
+source ./utils/functions.sh
+
 aurorashim="../$(basename "${shim%.*}")-aurora.bin"
 if [ -z $shim ]; then
     echo_c "Please specify a valid rawshim file." RED_B

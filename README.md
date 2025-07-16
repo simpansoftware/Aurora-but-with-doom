@@ -8,8 +8,12 @@ Booting other shims :white_check_mark:<br>
 Wifi :white_check_mark:<br>
 Synaptic :x:<br>
 
-# Downloads
-:trollface: no.
+# Building
+```bash
+git clone https://github.com/EtherealWorkshop/Aurora.git
+cd Aurora
+sudo bash Aurora /path/to/shim.bin [cpu_architecture(x86_64 or aarch64)]
+```
 
 # FAQ (Frequently Asked Questions)
 <br><b>I wanna use Shimboot. How can I?</b>
