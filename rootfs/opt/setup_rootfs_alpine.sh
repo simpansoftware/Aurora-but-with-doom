@@ -16,6 +16,7 @@ stty sane && stty erase '^H'
 alias ls='ls --color=auto'
 alias dir='dir --color=auto'
 alias grep='grep --color=auto'
+alias reboot='reboot -f'
 alias toilet="figlet" # those who know
 cat /etc/motd
 EOF

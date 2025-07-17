@@ -18,8 +18,9 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-stty intr ''
-
+stty intr '^C'
+export tty="/dev/tty"
+[ -e /dev/pts/0 ] && export tty="/dev/pts/0"
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 #################
@@ -31,16 +32,16 @@ export releaseBuild=1
 export shimroot="/shimroot"
 export recoroot="/recoroot"
 export COLOR_RESET="\033[0m"
-export COLOR_BLACK_B="\033[1;30m"
-export COLOR_RED_B="\033[1;31m"
-export COLOR_GEEN="\033[0;32m"
-export COLOR_GEEN_B="\033[1;32m"
-export COLOR_YELLOW="\033[0;33m"
-export COLOR_YELLOW_B="\033[1;33m"
-export COLOR_BLUE_B="\033[1;34m"
-export COLOR_MAGENTA_B="\033[1;35m"
-export COLOR_PINK_B="\x1b[1;38;2;235;170;238m"
-export COLOR_CYAN_B="\033[1;36m"
+export BLACK_B="\033[1;30m"
+export RED_B="\033[1;31m"
+export GEEN="\033[0;32m"
+export GEEN_B="\033[1;32m"
+export YELLOW="\033[0;33m"
+export YELLOW_B="\033[1;33m"
+export BLUE_B="\033[1;34m"
+export MAGENTA_B="\033[1;35m"
+export PINK_B="\x1b[1;38;2;235;170;238m"
+export CYAN_B="\033[1;36m"
 export PS1='\[\033[1;34m\]$(cat /etc/hostname):\[\e[0m\]\[\033[1;32m\]\w/\[\e[0m\] # '
 
 alias ls='ls --color=auto'
@@ -53,35 +54,60 @@ declare -A VERSION
 
 VERSION["BRANCH"]="dev-alpine"
 VERSION["NUMBER"]="3.0"
-VERSION["BUILDDATE"]="[2025-06-20]"
+VERSION["BUILDDATE"]="[2025-07-16]"
 VERSION["RELNAME"]="Rhymes with Grug"
 VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]} - \"${VERSION["RELNAME"]}\""
 
 ####################
 ## BASE FUNCTIONS ##
 ####################
-
 echo_c() {
     local text="$1"
     local color_variable="$2"
     local color="${!color_variable}"
     echo -e "${color}${text}${COLOR_RESET}"
 } # haha 69
-echo_center() {
-    local text="$1"
+
+center() {
     local width=$(tput cols)
-    local length=${#text}
-    local spacing=$(( (width - length) / 2 ))
-    spacing=$((spacing < 0 ? 0 : spacing))
-    printf "%*s%s\n" "$spacing" "" "$text"
+    local offset="${1:-0}"
+
+    while IFS= read -r line || [[ -n $line ]]; do
+        local plain=$(echo -e "$line" | sed -E 's/\x1b\[[0-9;]*[mK]//g')
+        local len=${#plain}
+        local pad=$(( (width - len) / 2 + offset ))
+        (( pad < 0 )) && pad=0
+        printf "%*s%s\n" "$pad" "" "$line"
+    done
+}
+
+read_center() {
+    local prompt="$1"
+    local readvar="$2"
+    local offset="${3:-0}"
+    local width=$(tput cols)
+
+    local plain=$(echo -e "$prompt" | sed -E 's/\x1b\[[0-9;]*[mK]//g')
+    local len=${#plain}
+    local pad=$(( (width - len) / 2 + offset ))
+    (( pad < 0 )) && pad=0
+
+    printf "%*s%s" "$pad" "" "$prompt"
+    if [[ -n "$readvar" ]]; then
+        read -r "$readvar"
+    else
+        read -r
+    fi
 }
 
 echo_menu() {
     local text="$1"
-    local length=${#text}
-    local spacing=$(( (42 - length) / 2 ))
-    spacing=$((spacing < 0 ? 0 : spacing))
-    printf "%*s%s\n" "$spacing" "" "$text"
+    while IFS= read -r line; do
+        local length=${#line}
+        local spacing=$(( (42 - length) / 2 ))
+        spacing=$((spacing < 0 ? 0 : spacing))
+        printf "%*s%s\n" "$spacing" "" "$line"
+    done <<< "$text"
 }
 
 menu() {
@@ -91,35 +117,33 @@ menu() {
     local selected=0
     local count=${#options[@]}
     tput civis
-    echo "$prompt"
+    echo "$prompt" | center
     for i in "${!options[@]}"; do
         if [[ $i -eq $selected ]]; then
-            tput smul
-            echo " > ${options[i]}"
-            tput rmul
+            echo "> ${options[i]} <" | center
         else
-            echo "   ${options[i]}"
+            echo "${options[i]}" | center
         fi
     done
     while true; do
         tput cuu $count
         for i in "${!options[@]}"; do
+            tput el
             if [[ $i -eq $selected ]]; then
-                tput smul
-                echo " > ${options[i]}"
-                tput rmul
+                echo "> ${options[i]} <" | center
             else
-                echo "   ${options[i]}"
+                echo "${options[i]}" | center
             fi
         done
 
         IFS= read -rsn1 key
         if [[ $key == $'\x1b' ]]; then
-            read -rsn2 key
+            read -rsn2 -t 0.01 key_rest
+            key+="$key_rest"
         fi
         case $key in
-            '[A') ((selected--)) ;;
-            '[B') ((selected++)) ;;
+            $'\x1b[A') ((selected--)) ;;
+            $'\x1b[B') ((selected++)) ;;
             '') break ;;
         esac
 
@@ -131,20 +155,27 @@ menu() {
 }
 
 fail() {
-	printf "Aurora panic: ${COLOR_RED_B}%b${COLOR_RESET}\n" "$*" >&2 || :
-	printf "panic: We are hanging here..."
+    export errormsg="$1"
 	sync
+    cd /
+    umount -a
 	losetup -D
-	hang
+    for arg in "$@"; do
+        if [ "$arg" = "--fatal" ]; then
+            echo_c "A fatal error occured. Please Reboot" RED_B | center
+            hang
+        fi
+    done
+    return 1
 }
 
 hang() {
 	tput civis
 	stty -echo
 	sleep 1h
-	echo "You really still haven't turned off your device?"
+	echo "You really still haven't turned off your device?" | center
 	sleep 1d
-	echo "I give up. Bye."
+	echo "I give up. Bye" | center
 	sleep 5
 	reboot -f
 }
@@ -173,54 +204,55 @@ funText() {
 	splashText=(
         "The lower tape fade meme is still massive."
         "It most likely existed in the first place." 
-        "              HACKED BY GEEN              " 
-        "    \"how do i type a backslash\" -simon  " 
-        "  MURDER DRONES SEASON 2 IS REAL I SWEAR  "
-        "          JCJENSON in SPAAAAAAC3          "
-        "   Well-made Quality Assured Durability   " 
-        "        \"purr :3 mrrow\" - Synaptic      " 
-        "          who else but quagmire?\n         he's quagmire, quagmire,\n        you never really know what\n            he's gonna do next\n          he's quagmire, quagmire,\n       giggitygiggitygiggitygiggity\n             let's have [...]"
-        "             rhymes with grug             "
-        "             rhymes with grug             "
-        "        now with free thigh highs!        "
-        "                    :3                    "
-        " cr50 hammer? i think you meant \"no PoC\"."
-        "            public nuisance???\n        is that a hannah reference"
-        "  can you overdose on pepperjack cheese?  "
+        "HACKED BY GEEN" 
+        "\"how do i type a backslash\" -simon" 
+        "MURDER DRONES SEASON 2 IS REAL I SWEAR"
+        "JCJENSON in SPAAAAAAC3"
+        "Well-made Quality Assured Durability" 
+        "\"purr :3 mrrow\" - Synaptic" 
+        "who else but quagmire?\nhe's quagmire, quagmire,\nyou never really know what\nhe's gonna do next\nhe's quagmire, quagmire,\ngiggitygiggitygiggitygiggity\nlet's have [...]"
+        "rhymes with grug"
+        "rhymes with grug"
+        "now with free thigh highs!"
+        ":3"
+        "cr50 hammer? i think you meant \"no PoC\"."
+        "public nuisance???\nis that a hannah reference"
+        "can you overdose on pepperjack cheese?"
         "make me staff lil bro i'm overqualified..."
-        "                 :cheese;                 "
-        "       toilet command best command!       "
-        "          Sign in to Letterloop:\n                Hi friend,\nClick here to sign in with this magic link\n             -Letterloop Team"
-        "            Also try Terraria!            "
-        "       Terraria: Also try Minecraft       "
-        "        HOW MANY HOLES IN A POLO??        "
-        "             It's rewind time             "
-        "     Ain't no party like a Putt Party     "
-        "             Maxington hole 3             "
-        "             what's a nugget?             "
-        "  I'm gonna install a door on your face.  "
-        "         Anne Frank in a Furnace.         "
-        "           Use protection, Kids           "
-        "  Can Uzi use absolute solver on my dih?  "
-        "        \"hi crazy ant\" - crazy ant      "
-        "              \"\"Soap\"\" Manor          "
-        "   I'm gonna shove a cravat up your ass   "
-        "       You barely sentient toaster.       "
-        "           beautiful sophie art           "
-        "             Synaptic Network             "
-        "        he could be in this very room!\n             he could be you!\n             he could be me!!"
-        "   Nothing built can last forever -ivor   "
-        "           Your footjob is weak           "
-        "      idk why age matters - shrey719      "
-        "                 gurt: yo                 "
-        " I am the Lorax and I speak for the trees "
+        ":cheese;"
+        "toilet command best command!"
+        "Sign in to Letterloop:\nHi friend,\nClick here to sign in with this magic link\n-Letterloop Team"
+        "Also try Terraria!"
+        "Terraria: Also try Minecraft"
+        "HOW MANY HOLES IN A POLO??"
+        "It's rewind time"
+        "Ain't no party like a Putt Party"
+        "Maxington hole 3"
+        "what's a nugget?"
+        "I'm gonna install a door on your face."
+        "Anne Frank in a Furnace."
+        "Use protection, Kids"
+        "Can Uzi use absolute solver on my dih?"
+        "\"hi crazy ant\" - crazy ant"
+        "\"\"Soap\"\" Manor"
+        "I'm gonna shove a cravat up your ass"
+        "You barely sentient toaster."
+        "beautiful sophie art"
+        "Synaptic Network"
+        "he could be in this very room!\nhe could be you!\nhe could be me!!"
+        "Nothing built can last forever -ivor"
+        "Your footjob is weak"
+        "idk why age matters - shrey719"
+        "gurt: yo"
+        "I am the Lorax and I speak for the trees"
         "Vaporeon is that a EndlessVortex reference"
-        "              CHICKEN JOCKEY              "
-        "               stellaword12               "
-        "             PLEASE INSERT DI             "
+        "CHICKEN JOCKEY"
+        "stellaword12"
+        "PLEASE INSERT DI"
         "the higher glue appear trend is now large."
-        "    one cannot simply walk into mordor\n- some dumbass who didn't walk into mordor"
-        "     i don't want a lot for christmas\n      there is just one thing i need"
+        "one cannot simply walk into mordor\n- some dumbass who didn't walk into mordor"
+        "i don't want a lot for christmas\nthere is just one thing i need"
+        "we should put particles.js in a shim"
         ) #              cen-><-ter" 
 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
@@ -234,8 +266,8 @@ splash() {
 	local build=${VERSION["BUILDDATE"]}
 	local version_pad=$(( (width - ${#verstring}) / 2 ))
     local build_pad=$(( (width - ${#build}) / 2 ))
-    echo -e "$COLOR_BLUE_B"
-    cat <<EOF
+    echo -e "$BLUE_B"
+    cat <<'EOF' | center
 ╒════════════════════════════════════════╕
 │ .    . .    '    +   *       o    .    │
 │+  '.                    '   .-.     +  │
@@ -254,11 +286,11 @@ splash() {
 ╘════════════════════════════════════════╛
 
 EOF
-    echo -e "$(printf "%*s%s" $version_pad "" "$verstring")"
-    echo -e "$(printf "%*s%s" $build_pad "" "$build")"
-    echo -e "${COLOR_RESET}"
-    echo -e "https://github.com/EtherealWorkshop/Aurora"
-    funText
+    echo -e "$verstring" | center
+    echo -e "$build" | center
+    echo -e "${COLOR_RESET}" | center
+    echo -e "https://github.com/EtherealWorkshop/Aurora" | center
+    funText | center
 }
 
 #############
@@ -269,8 +301,8 @@ EOF
 if [ "$$" -eq 1 ]; then
     clear
     tput civis
-    echo -e "$COLOR_BLUE_B"
-    cat <<EOF | while IFS= read -r line; do echo_center "$line"; done
+    echo -e "$BLUE_B"
+    cat <<'EOF' | center
 ╒════════════════════════════════════════╕
 │ .    . .    '    +   *       o    .    │
 │+  '.                    '   .-.     +  │
@@ -290,11 +322,11 @@ if [ "$$" -eq 1 ]; then
 EOF
     echo -e "${COLOR_RESET}"
 
-    echo_center "Starting udevd..."
-    /sbin/udevd --daemon || :
-    udevadm trigger || :
-    udevadm settle || :
-    echo_center "Done."
+    echo "Starting udevd" | center
+    /sbin/udevd --daemon | center || :
+    udevadm trigger | center || :
+    udevadm settle | center || :
+    echo_c "Done" "GEEN_B" | center
     tput cnorm
 
     chmod +x /usr/share/aurora/aurora.sh
@@ -329,31 +361,31 @@ lsbval() {
 }
 
 versions() {
-    clear
-    local release_board=$(lsbval CHROMEOS_RELEASE_BOARD)
+    echo ""
+    local release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
     local board_name=${release_board%%-*}
 	export board_name
-    echo "What version of ChromeOS do you want to download?"
+    echo "What ChromeOS version do you want to download?" | center
 	options_install=(
 	    "Latest Version"
 	    "Custom Version"
 	)
 
-	menu "Select an option (use ↑ ↓ arrows, Enter to select):" "${options_install[@]}"
+	menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${options_install[@]}"
 	install_choice=$?
 
 	case "$install_choice" in
 	    0) chromeVersion="latest" ;;
-	    1) read -p "Enter version: " chromeVersion ;;
-        *) echo "Invalid choice, exiting." && return ;;
+	    1) read_center "Enter Version: " chromeVersion -1 ;;
+        *) fail "Invalid choice (somehow?????)" ;;
 	esac
-    echo "Fetching recovery image..."
+    echo "Fetching recovery image..." | center
     if [ $chromeVersion == "latest" ]; then
         builds="https://chromiumdash.appspot.com/cros/fetch_serving_builds?deviceCategory=Chrome%20OS"
         chromeVersion=$(curl -s $builds | jq -r ".builds.${board_name}.models | to_entries[0].value.servingStable.chromeVersion" | awk -F. '{print $1}')
         FINAL_URL=$(curl -s $builds | jq -r ".builds.${board_name}.models | to_entries[0].value.pushRecoveries[\"$chromeVersion\"]")
         if [ ! -n $FINAL_URL ]; then
-            echo "Falling back to the most recent version found."
+            echo "Falling back to the most recent version found." | center
             FINAL_URL=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.pushRecoveries | to_entries | sort_by(.key | tonumber) | .[-1].value")
         fi
         export chromeVersion
@@ -362,8 +394,8 @@ versions() {
         export url="https://raw.githubusercontent.com/rainestorme/chrome100-json/main/boards/$board_name.json"
         export json=$(curl -ks "$url")
         chrome_versions=$(echo "$json" | jq -r '.pageProps.images[].chrome')
-        echo "Found $(echo "$chrome_versions" | wc -l) versions of ChromeOS for your board on Chrome100."
-        echo "Searching for a match..."
+        echo "Found $(echo "$chrome_versions" | wc -l) versions of ChromeOS for your board on Chrome100." | center
+        echo "Searching for a match..." | center
         MATCH_FOUND=0
         for cros_version in $chrome_versions; do
             chromeVersionPlatform=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .platform')
@@ -372,7 +404,7 @@ versions() {
             mp_key=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .mp_key')
             last_modified=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .last_modified')
             if [[ $cros_version == $chromeVersion* ]]; then
-                echo "Found a $chromeVersion match on platform $chromeVersionPlatform from $last_modified."
+                echo "Found a $chromeVersion match on platform $chromeVersionPlatform from $last_modified." | center
                 MATCH_FOUND=1
                 FINAL_URL="https://dl.google.com/dl/edgedl/chromeos/recovery/chromeos_${chromeVersionPlatform}_${board_name}_recovery_${channel}_${mp_token}-v${mp_key}.bin.zip"
                 export FINAL_URL
@@ -392,13 +424,13 @@ versions() {
                     MATCH_FOUND=1
                     FINAL_URL=$(jq -r ".builds.$board_name[].$hwid.pushRecoveries[\"$milestone\"]" <<<"$builds")
                     export FINAL_URL
-                    echo "Found a match!"
+                    echo "Found a match!" | center
                     break
                 fi
             done
         fi
         if [ $MATCH_FOUND -eq 0 ]; then
-            echo "No recovery image found for your board and target version. Exiting."
+            echo "No recovery image found for your board and target version. Exiting" | center
             return
         fi
     fi
@@ -409,7 +441,7 @@ versions() {
 #########################
 
 detect_aurora_in_shimboot_function() {
-	echo "dD0oIkhlYXJzYXkhIiAiSSByZWZ1c2UuIiAiSSBzaGFsbCBkbyBubyBzdWNoIHRoaW5nISIgIkxpa2UuLi4gd2h5Pz8/IiAiSSBjZXJ0YWlubHkgd2lsbCBub3QhIiAiQXJlIHlvdSBqdXN0IGhlcmUgdG8gZGlsbHlkYWRkbGU/IiAiWW91IHJlYWxseSBoYXZlIG5vdGhpbmcgYmV0dGVyIHRvIGRvLCBkb24ndCB5b3U/IikKcz0ke3RbJFJBTkRPTSAlICR7I3RbQF19XX0KZWNobyAtZSAiICIKZWNobyAtZSAiJHMi" | base64 -d | bash
+	echo "dD0oIkhlYXJzYXkhIiAiSSByZWZ1c2UuIiAiSSBzaGFsbCBkbyBubyBzdWNoIHRoaW5nISIgIkxpa2UuLi4gd2h5Pz8/IiAiSSBjZXJ0YWlubHkgd2lsbCBub3QhIiAiQXJlIHlvdSBqdXN0IGhlcmUgdG8gZGlsbHlkYWRkbGU/IiAiWW91IHJlYWxseSBoYXZlIG5vdGhpbmcgYmV0dGVyIHRvIGRvLCBkb24ndCB5b3U/IikKcz0ke3RbJFJBTkRPTSAlICR7I3RbQF19XX0KZWNobyAtZSAiICIKZWNobyAtZSAiJHMi" | base64 -d | bash | center
 }
 
 export_args() {
@@ -417,7 +449,7 @@ export_args() {
   local key=
   local val=
   local acceptable_set='[A-Za-z0-9]_'
-  echo "Exporting kernel arguments..."
+  echo "Exporting kernel argument..." | center
   for arg in "$@"; do
     key=$(echo "${arg%%=*}" | busybox tr 'a-z' 'A-Z' | \
                    busybox tr -dc "$acceptable_set" '_')
@@ -431,15 +463,14 @@ export_args() {
 export_args $(cat /proc/cmdline | sed -e 's/"[^"]*"/DROPPED/g') 1> /dev/null
 
 copy_lsb() {
-    echo "Copying lsb..."
-    local lsb_file="dev_image/etc/lsb-factory"
-    local src_path="/stateful/${lsb_file}"
+    echo "Copying lsb..." | center
+    local src_path="/stateful/dev_image/etc/lsb-factory"
     local dest_path="/newroot/etc/lsb-factory"
 
     mkdir -p "$(dirname "${dest_path}")"
 
     if [ -f "${src_path}" ]; then
-        echo "Found ${src_path}"
+        echo "Found ${src_path}." | center
         cp "${src_path}" "${dest_path}" || fail "failed with $?"
         if cgpt find -l SH1MMER "${loop}" | head -n 1 | grep --color=never -q /dev/; then
             export specialshim="sh1mmer"
@@ -447,10 +478,9 @@ copy_lsb() {
         fi
         echo "REAL_USB_DEV=${loop}p3" >> "${dest_path}"
         echo "KERN_ARG_KERN_GUID=$(echo "${KERN_ARG_KERN_GUID}" | tr '[:lower:]' '[:upper:]')" >> "${dest_path}"
-        echo "Copied lsb-factory to ${dest_path}"
+        echo "Copied lsb-factory to ${dest_path}" | center
     else
-        echo "Missing ${src_path}!"
-        return 1
+        fail "Missing ${src_path}!"
     fi
 }
 
@@ -468,10 +498,12 @@ pv_dircopy() {
 ############
 
 installcros() {
-	if [[ -z "$(ls -A $aroot/images/recovery)" ]]; then
-		echo -e "${COLOR_YELLOW_B}You have no recovery images downloaded!\nPlease download a few images."
-		echo -e "Alternatively, these are available on websites such as chrome100.dev, or cros.tech. Put them into /usr/share/aurora/images/recovery"
-        read -p "Press Enter to return to the main menu..."
+	if [[ -z "$(ls -A $aroot/images/recovery 2>/dev/null)" ]]; then
+        echo -ne "${YELLOW_B}"
+		echo "You have no recovery images downloaded! Please download a few images" | center
+		echo "Alternatively, these are available on websites such as chrome100.dev or cros.tech. Put them into /usr/share/aurora/images/recovery" | center
+        read_center "Press Enter to return to the main menu"
+        echo -ne "${COLOR_RESET}"
 		return
 	else
         recochoose=($aroot/images/recovery/*)
@@ -484,36 +516,32 @@ installcros() {
         reco_actions+=("reco=Exit")
 
         while true; do
-            menu "Choose the recovery image you want to boot:" "${reco_options[@]}"
+            menu "Choose the recovery image you want to boot" "${reco_options[@]}"
             eval "${reco_actions[$?]}"
             break
         done
 	fi
 
 	if [[ $reco == "Exit" ]]; then
-        read -p "Press Enter to continue..."
+        read_center "Press Enter to continue..."
         return
 	else
 		mkdir -p $recoroot
-		echo -e "Searching for ROOT-A on reco image..."
+		echo -e "Searching for ROOT-A on reco image"
 		loop=$(losetup -fP --show $reco)
 		loop_root="$(cgpt find -l ROOT-A $loop | head -n 1)"
 		if mount -r "${loop_root}" $recoroot ; then
-			echo -e "ROOT-A found successfully and mounted."
+			echo -e "ROOT-A found successfully and mounted." | center
 		else
- 			result=$?
-			err1="Mount process failed! Exit code was ${result}.\n"
-			err2="              This may be a bug! Please check your recovery image,\n"
-			err3="              and if it looks fine, report it to the GitHub repo!\n"
-			fail "${err1}${err2}${err3}"
+			fail "Failed to mount ROOT-A"
 		fi
 		local cros_dev="$(get_largest_cros_blockdev)"
   		if [ -z "$cros_dev" ]; then
-			echo -e "${COLOR_YELLOW_B}No ChromeOS drive was found on the device! Please make sure ChromeOS is installed before using Aurora. Continuing anyway...${COLOR_RESET}"
+			echo -e "${YELLOW_B}No ChromeOS drive was found on the device! Please make sure ChromeOS is installed before using Aurora. Continuing anyway${COLOR_RESET}" | center
 		fi
-		stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)" || fail "Failed to find stateful partition on ${loop}!"
+		stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)" || fail "Failed to find stateful on ${loop}!"
 		mkdir /mnt/stateful_partition
-		mount $stateful /mnt/stateful_partition || fail "Failed to mount stateful partition!"
+		mount $stateful /mnt/stateful_partition || fail "Failed to mount stateful!"
 		MOUNTS="/proc /dev /sys /tmp /run /var /mnt/stateful_partition"
 		cd $recoroot
 		d=
@@ -523,12 +551,12 @@ installcros() {
 		done
 		chroot ./ /usr/sbin/chromeos-install --payload_image="${loop}" --yes || fail "Failed during chroot!"
   		local cros_dev="$(get_largest_cros_blockdev)"
-		cgpt add -i 2 $cros_dev -P 15 -T 15 -S 1 -R 1 || echo -e "${COLOR_YELLOW_B}Failed to set kernel priority! Continuing anyway.${COLOR_RESET}"
-		echo -e "${COLOR_GREEN}\n"
-		read -p "Recovery finished. Press any key to reboot."
-		reboot
+		cgpt add -i 2 $cros_dev -P 15 -T 15 -S 1 -R 1 || echo -e "${YELLOW_B}Failed to set kernel priority! Continuing anyway${COLOR_RESET}"
+		echo -e "${GEEN_B}Recovery finished. Press any key to reboot."
+        read -p ""
+		reboot -f
 		sleep 3
-		echo -e "\n${COLOR_RED_B}Reboot failed. Hanging..."
+        fail "Reboot failed." --fatal
 	fi
 }
 
@@ -563,9 +591,10 @@ enable_rw_mount() {
 
 shimboot() {
 	if [[ -z "$(ls -A $aroot/images/shims)" ]]; then
-		echo -e "${COLOR_YELLOW_B}You have no shims downloaded!\nPlease download or build a few images."
-		echo -e "Alternatively, these are available on websites such as mirror.akane.network or dl.fanqyxl.net. Put them into /usr/share/aurora/images/shims"
-        read -p "Press Enter to return to the main menu..."
+        echo -e "${YELLOW_B}You have no shims downloaded!\nPlease download or build a few images." | center
+		echo "Alternatively, these are available on websites such as mirror.akane.network or dl.fanqyxl.net. Put them into /usr/share/aurora/images/shims" | center
+        read_center "Press Enter to return to the main menu..."
+        echo -e "${COLOR_RESET}"
 		return
 	else
         shimchoose=($aroot/images/shims/*)
@@ -586,30 +615,26 @@ shimboot() {
 	fi
 
 	if [[ $shim == "Exit" ]]; then
-        read -p "Press Enter to continue..."
-		clear
+        read_center "Press Enter to continue"
+		return
 	else
 		mkdir -p $shimroot
-		echo -e "Searching for ROOT-A on shim..."
+		echo -e "Searching for ROOT-A on shim" | center
 		loop=$(losetup -Pf --show $shim)
 		export loop
 
 		loop_root="$(cgpt find -l ROOT-A $loop | head -n 1)" || loop_root="$(cgpt find -t rootfs $loop | head -n 1)"
         enable_rw_mount ${loop_root}
 		if mount "${loop_root}" $shimroot; then
-			echo -e "ROOT-A found successfully and mounted."
+			echo -e "ROOT-A found successfully and mounted." | center
 		else
-			result=$?
-			err1="Mount process failed! Exit code was ${result}.\n"
-			err2="              This may be a bug! Please check your shim,\n"
-			err3="              and if it looks fine, report it to the GitHub repo!\n"
-			fail "${err1}${err2}${err3}"
+            fail "Failed to mount ROOT-A"
 		fi
 		export skipshimboot=0
 		if ! stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)"; then
-			echo -e "${COLOR_YELLOW_B}Finding stateful via partition label \"STATE\" failed (try 1...)${COLOR_RESET}"
+			echo -e "${YELLOW_B}Finding stateful via partition label \"STATE\" failed (try 1...)${COLOR_RESET}" | center
 			if ! stateful="$(cgpt find -l SH1MMER ${loop} | head -n 1 | grep --color=never /dev/)"; then
-				echo -e "${COLOR_YELLOW_B}Finding stateful via partition label \"SH1MMER\" failed (try 2...)${COLOR_RESET}"
+				echo -e "${YELLOW_B}Finding stateful via partition label \"SH1MMER\" failed (try 2...)${COLOR_RESET}" | center
 
 				for dev in "$loop"*; do
 					[[ -b "$dev" ]] || continue
@@ -622,8 +647,8 @@ shimboot() {
 			fi
 		fi
 		if [[ -z "${stateful// }" ]]; then
-			echo -e "${COLOR_RED_B}Finding stateful via partition type \"Linux data\" failed! (try 3...)${COLOR_RESET}"
-			echo -e "Last resort (try 4...)"
+			echo -e "${RED_B}Finding stateful via partition type \"Linux data\" failed (try 3...)${COLOR_RESET}" | center
+			echo -e "Last resort (try 4...)" | center
 			stateful="${loop}p1"
 		fi
 
@@ -631,8 +656,8 @@ shimboot() {
 			mkdir -p /stateful
 			mkdir -p /newroot
             
-			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Could not allocate 1GB of TMPFS to the newroot mountpoint."
-			mount $stateful /stateful || fail "Failed to mount stateful partition!"
+			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
+			mount $stateful /stateful || fail "Failed to mount stateful!"
             sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
             if [ -f $sh1mmerfile ]; then
                 sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
@@ -643,10 +668,10 @@ shimboot() {
             fi
 
 			copy_lsb
-			echo "Copying rootfs to ram."
+			echo "Copying rootfs to ram..." | center
 			pv_dircopy "$shimroot" /newroot
 
-			echo "Moving mounts..."
+			echo "Moving mounts..." | center
 			mkdir -p "/newroot/dev" "/newroot/proc" "/newroot/sys" "/newroot/tmp" "/newroot/run"
 			mount -t tmpfs -o mode=1777 none /newroot/tmp
 			mount -t tmpfs -o mode=0555 run /newroot/run
@@ -661,10 +686,9 @@ shimboot() {
 				umount -l "$mnt"
 			done
 
-			echo "Done."
-			echo "About to switch root. If your screen goes black and the device reboots, it may be a bug. Please make a GitHub issue if you're sure your shim isn't corrupted."
-			sleep 1
-			echo "Switching root!"
+			echo "Done" | center
+			echo "About to switch root. If your screen goes black and the device reboots, please make a GitHub issue if you're sure your shim isn't corrupted" | center
+			echo "Switching root" | center
 			clear
 
 			mkdir -p /newroot/tmp/aurora
@@ -674,12 +698,12 @@ shimboot() {
                 cp /usr/share/shims/${specialshim}init /newroot/sbin/init
             fi
 			pivot_root /newroot /newroot/tmp/aurora
-			echo "Starting init"
+			echo "Successfully switched root. Starting init..." | center
 			exec /sbin/init || {
-				echo "Failed to start init!!!"
-				echo "Bailing out, you are on your own. Good luck."
-				echo "This shell has PID 1. Exit = panic."
-				/tmp/aurora/bin/uname -a
+				echo "Failed to start init" | center
+				echo "Bailing out, you are on your own. Good luck." | center
+				echo "This shell has PID 1. Exit = panic" | center
+				echo $(/tmp/aurora/bin/uname -a) | center
 				exec /tmp/aurora/bin/sh
 			}
 		fi
@@ -695,7 +719,7 @@ for wifi in iwlwifi iwlmvm ccm 8021q; do
     modprobe "$wifi" 2>/dev/null
 done
 export needswifi=0
-echo_center "Connecting to wifi"
+echo "Connecting to wifi" | center
 if [ -f "/etc/wpa_supplicant.conf" ]; then
     wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
     wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
@@ -710,17 +734,18 @@ if [ -f "/etc/wpa_supplicant.conf" ]; then
     done
 
     if [ $connected -eq 0 ]; then
-        echo_center "No nearby saved networks found; Retrying..."
+        echo "No nearby saved networks found; Retrying..." | center
     fi
 fi
 
 connect() {
-    read -p "Enter your network SSID: " ssid
-    read -p "Enter your network password (leave blank if open network): " psk
-
+    echo "Enter your network SSID" | center
+    read -p "" ssid
+    echo "Enter your network password (leave blank if none)" | center
+    read -p "" psk
     conf="/etc/wpa_supplicant.conf"
     if grep -q "ssid=\"$ssid\"" "$conf" 2>/dev/null; then
-        echo "Network (${ssid}) already configured."
+        echo "Network (${ssid}) already configured." | center
     else
         if [ -z "$psk" ]; then
             cat >> "$conf" <<EOF
@@ -746,9 +771,10 @@ EOF
 wifi() {
     wifidevice=$(ip link | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
 
-    if iw dev "$wifidevice" link | grep -q 'Connected'; then
-        echo "Currently connected to a network."
-        read -p "Connect to a different network? (y/N): " connectornah
+    if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
+        echo "Currently connected to a network." | center
+        echo "Connect to a different network? (y/N): " | center
+        read -p "" connectornah
         case $connectornah in
             y|Y|yes|Yes) connect ;;
             *) ;;
@@ -765,7 +791,7 @@ canwifi() {
   if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase
     "$@"
   else
-    export errormsg="Not connected to the internet"
+    fail "Not connected to the internet"
   fi
 }
 export -f canwifi
@@ -775,13 +801,13 @@ download() {
 	    "ChromeOS Shim"
 	)
 
-	menu "Select an option (use ↑ ↓ arrows, Enter to select):" "${options_download[@]}"
+	menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${options_download[@]}"
 	download_choice=$?
 
 	case "$download_choice" in
 	    0) downloadreco ;;
 	    1) downloadshim ;;
-        *) export errormsg="Invalid choice, exiting." && return ;;
+        *) fail "Invalid choice (somehow?????)" ;;
 	esac
 }
 downloadreco() {
@@ -803,7 +829,7 @@ downloadreco() {
     mv $aroot/images/recovery/$FINAL_FILENAME $aroot/images/recovery/$chromeVersion.bin
 }
 downloadshim() {
-    export errormsg="Not yet implemented" && return
+    fail "Not yet implemented" && return
 	cd $aroot/images/shims
     curl --progress-bar -k "$FINAL_URL" -o $NAME.zip
 	unzip $NAME.zip
@@ -838,7 +864,7 @@ updateshim() {
 ##################
 
 payloads() {
-    mapfile -t payloadchoose < <(find "$aroot/payloads" -maxdepth 1 -type f)
+    mapfile -t payloadchoose < <(find "$aroot/payloads" -maxdepth 1 -type 2>/dev/null)
     options_payload=()
     for f in "${payloadchoose[@]}"; do
         options_payload+=("$(basename "$f")")
@@ -857,7 +883,7 @@ payloads() {
                 break
             fi
         done
-        read -p "Press Enter to continue..."
+        read_center "Press Enter to continue..."
         return
     fi
 }
@@ -865,43 +891,43 @@ payloads() {
 
 if [ "$$" -ne 1 ]; then
     menu_options=(
-        "Open Terminal"
-        "Install a ChromeOS recovery image"
-        "Connect to WiFi"
-        "Download a ChromeOS recovery image or shim"
-        "Payloads"
-        "Update"
-        "Exit and Reboot"
+        "1. Open Terminal"
+        "2. Install a ChromeOS recovery image"
+        "3. Connect to WiFi"
+        "4. Download a ChromeOS recovery image/shim"
+        "5. Payloads Menu"
+        "6. Update shim"
+        "7. Exit and Reboot"
     )
 
     menu_actions=(
         "script -qfc 'exec bash -l || exec busybox sh -l' /dev/null"
-        installcros
-        wifi
+        "installcros"
+        "wifi"
         "canwifi download"
-        payloads
+        "payloads"
         "canwifi updateshim"
         "reboot -f"
     )
 else
     menu_options=(
-        "Open Terminal"
-        "Install a ChromeOS recovery image"
-        "Boot an RMA shim"
-        "Connect to WiFi"
-        "Download a ChromeOS recovery image or shim"
-        "Payloads"
-        "Update"
-        "Exit and Reboot"
+        "1. Open Terminal"
+        "2. Install a ChromeOS recovery image"
+        "3. Boot a Shim"
+        "4. Connect to WiFi"
+        "5. Download a ChromeOS recovery image/shim"
+        "6. Payloads Menu"
+        "7. Update shim"
+        "8. Exit and Reboot"
     )
 
     menu_actions=(
         "script -qfc 'exec bash -l || exec busybox sh -l' /dev/null"
-        installcros
-        shimboot
-        wifi
+        "installcros"
+        "shimboot"
+        "wifi"
         "canwifi download"
-        payloads
+        "payloads"
         "canwifi updateshim"
         "reboot -f"
     )
@@ -909,8 +935,8 @@ fi
 
 errormessage() {
     if [ -n "$errormsg" ]; then 
-        echo -en "${COLOR_RED_B}"
-        echo_menu "Error: ${errormsg}"
+        echo -en "${RED_B}"
+        echo "Error: ${errormsg}" | center
     fi
     echo -e "${COLOR_RESET}"
 }
@@ -918,18 +944,18 @@ errormessage() {
 while true; do
     clear
     splash
-    stty intr ''
+    stty intr '^C'
     errormessage
     export errormsg=""
-    menu "Select an option (use ↑ ↓ arrows, Enter to select):" "${menu_options[@]}"
+    menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${menu_options[@]}"
     choice=$?
-
+    echo ""
     if [[ "${menu_actions[$choice]}" == *"bash -l"* ]]; then
         eval "${menu_actions[$choice]}"
     else
-        stty intr ''
+        stty intr '^C'
         eval "${menu_actions[$choice]}"
     fi
-    stty intr ''
+    stty intr '^C'
     sleep 1
 done
