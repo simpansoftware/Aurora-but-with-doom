@@ -18,7 +18,7 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-stty intr ''
+stty intr '^C'
 export tty="/dev/tty"
 [ -e /dev/pts/0 ] && export tty="/dev/pts/0"
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -82,21 +82,73 @@ center() {
 }
 
 read_center() {
+    local dynamic=0
+    if [[ "$1" == "-d" ]]; then
+        dynamic=1
+        shift
+    fi
+
     local prompt="$1"
     local readvar="$2"
     local offset="${3:-0}"
     local width=$(tput cols)
 
     local plain=$(echo -e "$prompt" | sed -E 's/\x1b\[[0-9;]*[mK]//g')
-    local len=${#plain}
-    local pad=$(( (width - len) / 2 + offset ))
+    local plen=${#plain}
+    local pad=$(( (width - plen) / 2 + offset ))
     (( pad < 0 )) && pad=0
 
-    printf "%*s%s" "$pad" "" "$prompt"
-    if [[ -n "$readvar" ]]; then
-        read -r "$readvar"
+    if (( ! dynamic )); then
+        printf "%*s%s" "$pad" "" "$prompt"
+        if [[ -n "$readvar" ]]; then
+            read -r "$readvar"
+        else
+            read -r
+        fi
     else
-        read -r
+        printf "%*s%s" "$pad" "" "$prompt"
+
+        local input=""
+        local char=""
+        local ilen=0
+        local nowrap=1
+
+        while IFS= read -rsn1 char; do
+            if [[ $char == $'\n' ]]; then
+                break
+             elif [[ $char == $'\x1b' ]]; then
+                read -rsn2 discard
+                continue
+            elif [[ $char == $'\x7f' ]]; then
+                if [[ -n $input ]]; then
+                    input="${input::-1}"
+                    ((ilen--))
+                    tput cub $((width))
+                    tput el
+                    printf "%*s%s%s" "$pad" "" "$prompt" "$input"
+                fi
+            else
+                input+="$char"
+                ((ilen++))
+
+                if (( nowrap && (plen + ilen >= width) )); then
+                    nowrap=0
+                    echo -n "$char"
+                elif (( nowrap )); then
+                    tput cub "$(tput cols)"
+                    tput el
+                    local pad=$(( (width - plen - ilen) / 2 + offset ))
+                    (( pad < 0 )) && pad=0
+                    printf "%*s%s%s" "$pad" "" "$prompt" "$input"
+                else
+                    echo -n "$char"
+                fi
+            fi
+        done
+        echo ""
+        if [[ -n "$readvar" ]]; then
+            printf -v "$readvar" '%s' "$input"
+        fi
     fi
 }
 
@@ -363,8 +415,7 @@ lsbval() {
 versions() {
     echo ""
     local release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
-    local board_name=${release_board%%-*}
-	export board_name
+    export board_name=${release_board%%-*}
     echo "What ChromeOS version do you want to download?" | center
 	options_install=(
 	    "Latest Version"
@@ -376,7 +427,7 @@ versions() {
 
 	case "$install_choice" in
 	    0) chromeVersion="latest" ;;
-	    1) read_center "Enter Version: " chromeVersion -1 ;;
+	    1) read_center -d "Enter Version: " chromeVersion ;;
         *) fail "Invalid choice (somehow?????)" ;;
 	esac
     echo "Fetching recovery image..." | center
@@ -813,27 +864,53 @@ download() {
 downloadreco() {
 	versions
     curl --fail --progress-bar -k "$FINAL_URL" -o "$aroot/images/recovery/$chromeVersion.zip" || {
-        echo "Failed to download ChromeOS recovery image."
-        return
+        fail "Failed to download ChromeOS recovery image."
     }
     FINAL_FILENAME=$(unzip -Z1 "$aroot/images/recovery/$chromeVersion.zip")
     file "$aroot/images/recovery/$chromeVersion.zip" | grep -iq "zip" || {
-        echo "ChromeOS recovery archive corrupted."
-        return
+        fail "ChromeOS recovery archive corrupted."
     }
     unzip "$aroot/images/recovery/$chromeVersion.zip" -d "$aroot/images/recovery/" || {
-        echo "Failed to unzip ChromeOS recovery archive."
-        return
+        fail "Failed to unzip ChromeOS recovery archive."
     }
 	rm $aroot/images/recovery/$chromeVersion.zip
     mv $aroot/images/recovery/$FINAL_FILENAME $aroot/images/recovery/$chromeVersion.bin
 }
 downloadshim() {
-    fail "Not yet implemented" && return
-	cd $aroot/images/shims
-    curl --progress-bar -k "$FINAL_URL" -o $NAME.zip
-	unzip $NAME.zip
-	rm $NAME.zip
+    local release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
+    export board_name=${release_board%%-*}
+    	options_download=(
+	    "SH1MMER Legacy - dl.fanqyxl.net mirror"
+        "Custom Shim from URL - netshare later update? perchance..."
+	)
+
+	menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${options_download[@]}"
+	download_choice=$?
+
+	case "$download_choice" in
+	    0) export FINALSHIM_URL="" ;;
+	    1) read_center -d "Enter Shim URL: " FINALSHIM_URL ;;
+        *) fail "Invalid choice (somehow?????)" ;;
+	esac
+    shimtype=$(echo $FINALSHIM_URL | awk -F. '{print $NF}')
+    if [ -n "$shimtype" ]; then
+        fail "Invalid Shim URL"
+    fi
+    shimfile=$(echo $FINALSHIM_URL | awk -F/ '{print $NF}')
+    shimname=$(echo $shimfile | sed "s/.${shimtype}//")
+    curl --fail --progress-bar -k "$FINALSHIM_URL" -o "$aroot/images/shims/$shimfile" || {
+        fail "Failed to download shim."
+    }
+    if [ "$shimtype" = "zip" ]; then
+        FINALSHIM_FILENAME=$(unzip -Z1 "$aroot/images/shims/$shimfile")
+        file "$aroot/images/shims/$shimfile" | grep -iq "zip" || {
+            fail "Shim archive corrupted."
+        }
+        unzip "$aroot/images/shims/$shimfile" -d "$aroot/images/shims/" || {
+            fail "Failed to unzip shim archive."
+        }
+    	rm $aroot/images/shims/$shimfile
+    fi
 }
 
 downloadyo() {
@@ -944,7 +1021,7 @@ errormessage() {
 while true; do
     clear
     splash
-    stty intr ''
+    stty intr '^C'
     errormessage
     export errormsg=""
     menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${menu_options[@]}"
@@ -953,9 +1030,9 @@ while true; do
     if [[ "${menu_actions[$choice]}" == *"bash -l"* ]]; then
         eval "${menu_actions[$choice]}"
     else
-        stty intr ''
+        stty intr '^C'
         eval "${menu_actions[$choice]}"
     fi
-    stty intr ''
+    stty intr '^C'
     sleep 1
 done
