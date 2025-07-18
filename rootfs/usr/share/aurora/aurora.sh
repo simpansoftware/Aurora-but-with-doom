@@ -901,11 +901,11 @@ if [ "$$" -ne 1 ]; then
     )
 
     menu_actions=(
-        "script -qfc 'exec bash -l || exec busybox sh -l' /dev/null"
-        "installcros"
-        "wifi"
-        "canwifi download"
-        "payloads"
+        "clear && script -qfc 'exec bash -l || exec busybox sh -l' /dev/null"
+        "clear && installcros"
+        "clear && wifi"
+        "canwifi clear && download"
+        "clear && payloads"
         "canwifi updateshim"
         "reboot -f"
     )
@@ -922,12 +922,12 @@ else
     )
 
     menu_actions=(
-        "script -qfc 'exec bash -l || exec busybox sh -l' /dev/null"
-        "installcros"
-        "shimboot"
-        "wifi"
-        "canwifi download"
-        "payloads"
+        "clear && script -qfc 'exec bash -l || exec busybox sh -l' /dev/null"
+        "clear && installcros"
+        "clear && shimboot"
+        "clear && wifi"
+        "canwifi clear && download"
+        "clear && payloads"
         "canwifi updateshim"
         "reboot -f"
     )
