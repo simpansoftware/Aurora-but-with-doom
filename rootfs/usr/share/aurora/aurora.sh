@@ -18,7 +18,7 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-stty intr '^C'
+stty intr ''
 export tty="/dev/tty"
 [ -e /dev/pts/0 ] && export tty="/dev/pts/0"
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -1021,7 +1021,7 @@ errormessage() {
 while true; do
     clear
     splash
-    stty intr '^C'
+    stty intr ''
     errormessage
     export errormsg=""
     menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${menu_options[@]}"
@@ -1030,9 +1030,9 @@ while true; do
     if [[ "${menu_actions[$choice]}" == *"bash -l"* ]]; then
         eval "${menu_actions[$choice]}"
     else
-        stty intr '^C'
+        stty intr ''
         eval "${menu_actions[$choice]}"
     fi
-    stty intr '^C'
+    stty intr ''
     sleep 1
 done
