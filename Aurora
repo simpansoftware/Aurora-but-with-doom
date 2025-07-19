@@ -79,4 +79,3 @@ echo -e "${MAGENTA_B}AC3${COLOR_RESET}: Literally nothing"
 echo -e "Rainestorme: Murkmod's version finder"
 echo -e " "
 echo_c "Done!" "GEEN_B"
-
