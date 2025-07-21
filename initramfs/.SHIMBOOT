@@ -22,21 +22,8 @@ shimbootsizer() {
         exit 1
     fi
 
-    size=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block size:/ {print $3}')
-    blocks=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block count:/ {print $3}')
-
-    if [ -z "$size" ] || [ -z "$blocks" ]; then
-        echo "Cannot find block information."
-        exit 1
-    fi
-
-    newsize=$(( (shimbootsize * 1024 * 1024 * 1024) / size ))
-    if (( newsize <= 0 )); then
-        echo "Invalid size."
-        exit 1
-    fi
     e2fsck -f "$aurorapartition"
-    resize2fs "$aurorapartition" "$newsize"
+    resize2fs "$aurorapartition" "${shimbootsize}G"
 }
 
 
