@@ -23,7 +23,8 @@ setup_environment() {
 main() {
   setup_environment
   detect_tty
-  sleep 1
+  echo "exec bootstrap.sh < \"\$TTY1\" >> \"\$TTY1\""
+  bash
   exec bootstrap.sh < "$TTY1" >> "$TTY1" 2>&1 || sleep 1d
 }
 

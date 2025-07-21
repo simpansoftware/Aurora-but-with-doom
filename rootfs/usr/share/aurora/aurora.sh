@@ -807,12 +807,12 @@ shimboot() {
                 cp /usr/share/shims/shimbootstrap.sh /newroot/bin/bootstrap.sh
             fi
 			pivot_root /newroot /newroot/tmp/aurora
-			echo "Successfully switched root. Starting init..." | center
+			echo "Successfully switched root. Starting init..."
 			exec /sbin/init || {
-				echo "Failed to start init" | center
-				echo "Bailing out, you are on your own. Good luck." | center
-				echo "This shell has PID 1. Exit = panic" | center
-				echo $(/tmp/aurora/bin/uname -a) | center
+				echo "Failed to start init"
+				echo "Bailing out, you are on your own. Good luck."
+				echo "This shell has PID 1. Exit = panic"
+				echo $(/tmp/aurora/bin/uname -a)
 				exec /tmp/aurora/bin/sh
 			}
 		fi
