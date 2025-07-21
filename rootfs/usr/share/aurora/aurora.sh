@@ -736,7 +736,7 @@ shimboot() {
 			mkdir -p -m 0755 /newroot/run/lock
 
             if mountpoint -q /dev/pts; then
-                mount --move /dev/pts /newroot/dev/pts || fail "Failed to move /dev/pts"
+                mount --move /dev/pts /newroot/dev/pts || fail "Failed to move /dev/pts" --fatal
             fi
 
             mounts=("/dev" "/proc" "/sys")
