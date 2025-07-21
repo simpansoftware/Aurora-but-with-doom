@@ -24,7 +24,6 @@ main() {
   setup_environment
   detect_tty
   echo "exec bootstrap.sh < \"\$TTY1\" >> \"\$TTY1\""
-  sh
   exec bootstrap.sh < "$TTY1" >> "$TTY1" 2>&1 || sleep 1d
 }
 
