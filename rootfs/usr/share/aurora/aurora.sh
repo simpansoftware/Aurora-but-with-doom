@@ -694,8 +694,6 @@ shimboot() {
 			echo "Copying rootfs to ram..." | center
 			pv_dircopy "$shimroot" /newroot
 
-			
-
             mkdir -p /newroot/dev/pts /newroot/proc /newroot/sys /newroot/tmp /newroot/run
             mount -t tmpfs -o mode=1777 none /newroot/tmp
             mount -t tmpfs -o mode=0555 run /newroot/run
