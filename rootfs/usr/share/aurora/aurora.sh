@@ -739,6 +739,12 @@ shimboot() {
 			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
 			mount $stateful /stateful || fail "Failed to mount stateful!"
             sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
+
+			copy_lsb
+            sleep 5
+			echo "Copying rootfs to ram..." | center
+			pv_dircopy "$shimroot" /newroot
+            
 			if lsblk -o PARTLABEL $loop | grep "SH1MMER"; then
                 sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
                 for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
@@ -755,17 +761,12 @@ shimboot() {
                 if echo $shimbootsize | grep -i "k"; then
                     fail "No."
                 fi
-                cp /usr/share/shims/shimbootstrap.sh /stateful/bin/bootstrap.sh
+                cp /usr/share/shims/shimbootstrap.sh /newroot/bin/bootstrap.sh
                 umount -a
                 truncate -s +${shimbootsize} $shim
                 losetup -D
                 losetup -Pf $shim
             fi
-
-			copy_lsb
-            sleep 5
-			echo "Copying rootfs to ram..." | center
-			pv_dircopy "$shimroot" /newroot
 
 			mkdir -p "/newroot/dev" "/newroot/proc" "/newroot/sys" "/newroot/tmp" "/newroot/run"
 			mount -t tmpfs -o mode=1777 none /newroot/tmp
