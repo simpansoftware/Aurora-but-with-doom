@@ -31,8 +31,14 @@ shimbootsizer() {
     yes | parted "$device" resizepart 4 "${newsize}GB"
     e2fsck -f "$aurorapartition"
     resize2fs "$aurorapartition" "${newsize}G"
-    sleep
-    bash
+    fdisk "$device" <<EOF
+n
+5
+
+
+5
+w
+EOF
 }
 
 read -p "Make/Expand space for shimboot partition? (y/N): " aurorapartitioner
