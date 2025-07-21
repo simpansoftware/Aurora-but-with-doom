@@ -955,6 +955,7 @@ updateshim() {
     mkdir -p /tmp/initramfs
     mount ${device}3 /tmp/initramfs
     cp -Lar /root/Aurora/initramfs/. /tmp/initramfs/
+    chmod -R +x /tmp/initramfs/.
     sync
     umount /tmp/initramfs
 }
