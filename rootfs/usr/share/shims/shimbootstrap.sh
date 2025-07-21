@@ -377,6 +377,7 @@ boot_chromeos() {
   pivot_root /newroot /newroot/tmp/bootloader
 
   echo "starting init"
+  sh
   /sbin/modprobe zram
   exec_init
 }
