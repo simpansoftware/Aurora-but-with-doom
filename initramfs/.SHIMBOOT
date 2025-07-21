@@ -5,7 +5,9 @@ shimbootsizer() {
     device=$(echo "$aurorapartition" | sed 's/[0-9]\+$//')
 
     echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time."
+    mount $aurorapartition /mnt
     freespace=$(df -h "$aurorapartition" | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
+    umount $aurorapartition
     echo -e "$freespace of free space"
     read -p "Enter size to allocate (in GB): " shimbootsize
     shimbootsize=$(echo "$shimbootsize" | sed 's/[^0-9.]//g')
