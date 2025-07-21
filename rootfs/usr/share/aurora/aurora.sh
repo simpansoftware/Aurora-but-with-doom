@@ -683,6 +683,7 @@ shimboot() {
             if [ -n "$shimbootlooppartition" && -n "$shimbootpartition" ]; then
                 export specialshim="shimboot"
                 if [ -n "$shimbootpartition" ]; then
+                    mkfs.ext4 -L $(lsblk -no PARTLABEL $shimbootlooppartition) "$shimbootpartition"
                     dd if=$shimbootlooppartition of=$shimbootpartition status=progress
                 fi
             fi
