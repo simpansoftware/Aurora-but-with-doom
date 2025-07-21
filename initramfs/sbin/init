@@ -13,7 +13,8 @@ export tty="/dev/tty"
 [ -e /dev/pts/0 ] && export tty="/dev/pts/0"
 chmod +x /.UNRESIZED
 bash /.UNRESIZED
-bash <${tty} >>${tty}
+chmod +x /.SHIMBOOT
+bash /.SHIMBOOT <${tty} >>${tty}
 dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
 
 echo "Mounting device..."
