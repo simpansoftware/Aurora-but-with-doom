@@ -580,12 +580,12 @@ installcros() {
         echo -ne "${COLOR_RESET}"
 		return
 	else
-        recochoose=($aroot/images/recovery/*)
+        mapfile -t recochoose < <(find "$aroot/images/recovery" -type f)
         reco_options=("${recochoose[@]}" "Exit")
 
         reco_actions=()
-                for reco_opt in "${recochoose[@]}"; do
-            reco_actions+=("reco=\$reco_opt")
+        for reco_opt in "${recochoose[@]}"; do
+            reco_actions+=("reco=\"${reco_opt}\"")
         done
         reco_actions+=("reco=Exit")
 
@@ -671,12 +671,12 @@ shimboot() {
         echo -e "${COLOR_RESET}"
 		return
 	else
-        shimchoose=($aroot/images/shims/*)
+        mapfile -t shimchoose < <(find "$aroot/images/shims" -type f)
         shim_options=("${shimchoose[@]}" "Exit")
 
         shim_actions=()
-                for shim_opt in "${shimchoose[@]}"; do
-            shim_actions+=("shim=\$shim_opt")
+        for shim_opt in "${shimchoose[@]}"; do
+            shim_actions+=("shim=\"${shim_opt}\"")
         done
         shim_actions+=("return")
 
@@ -685,7 +685,6 @@ shimboot() {
             eval "${shim_actions[$?]}"
             break
         done
-
 	fi
 
 	if [[ $shim == "Exit" ]]; then
