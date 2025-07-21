@@ -27,18 +27,10 @@ shimbootsizer() {
     fullsize=$(( (blocksize * blockcount) / 1024 / 1024 / 1024 ))
 
     newsize=$(echo "$shimbootsize" | awk -v total="$fullsize" '{ if ($1 > total) print total; else print $1 }')
-
-    yes | parted "$device" resizepart 4 "${newsize}GB"
     e2fsck -f "$aurorapartition"
     resize2fs "$aurorapartition" "${newsize}G"
-    fdisk "$device" <<EOF
-n
-5
-
-
-5
-w
-EOF
+    parted "$device" resizepart 4 "${newsize}GB"
+    resize2fs "$aurorapartition"
 }
 
 read -p "Make/Expand space for shimboot partition? (y/N): " aurorapartitioner
