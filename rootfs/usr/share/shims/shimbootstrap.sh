@@ -61,7 +61,6 @@ find_rootfs_partitions() {
   done
 }
 
-
 find_chromeos_partitions() {
   local roota_partitions="$(cgpt find -l ROOT-A)"
   local rootb_partitions="$(cgpt find -l ROOT-B)"
@@ -141,6 +140,7 @@ print_selector() {
   else
     echo "no bootable partitions found. please see the shimboot documentation to mark a partition as bootable."
   fi
+  echo "UNLESS you have another flash drive or know what you're doing, only boot loop0p* devices." # hehehe hehehe mwah hah hahhhhh
   echo "q) reboot"
   echo "s) enter a shell"
   echo "l) view license"
