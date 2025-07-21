@@ -3,36 +3,30 @@
 shimbootsizer() {
     aurorapartition=$(lsblk -pro NAME,PARTLABEL | grep -i Aurora | awk '{print $1}')
     if [ -z "$aurorapartition" ]; then
-        echo "Aurora partition not found."
         exit 1
     fi
 
     device=$(echo "$aurorapartition" | sed 's/[0-9]\+$//')
 
-    echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time."
     mount "$aurorapartition" /mnt
     freespace=$(df -h "$aurorapartition" | tail -n1 | awk '{print $4}')
     umount /mnt
-    echo -e "$freespace of free space"
 
     read -p "Enter size to allocate (in GB): " shimbootsize
     shimbootsize=$(echo "$shimbootsize" | sed 's/[^0-9.]//g')
 
     if [ -z "$shimbootsize" ]; then
-        echo "Invalid input."
         exit 1
     fi
 
     if [[ "$freespace" == *G ]]; then
         freespace=${freespace%G}
     else
-        echo "Partition not large enough."
         exit 1
     fi
     newsize=$(echo "$freespace - $shimbootsize" | bc)
 
     if (( $(echo "$newsize <= 0" | bc -l) )); then
-        echo "Invalid Size."
         exit 1
     fi
 
@@ -42,11 +36,11 @@ shimbootsizer() {
     shrink=$(echo "$shimbootsize * 1073741824" | bc)
     newbytes=$(echo "$oldbytes - $shrink" | bc)
     newblocks=$(echo "$newbytes / $blocksize" | bc)
+    sectorsize=$(blockdev --getss "$device")
+    newsectors=$(echo "$newbytes / $sectorsize" | bc)
     e2fsck -f "$aurorapartition"
     resize2fs "$aurorapartition" "$newblocks"
-
-    newsize=$(echo "$newbytes / 1000000000" | bc)
-    parted "$device" resizepart 4 "${newsize}GB"
+    parted "$device" unit s resizepart 4 "$newsectors"
     partprobe "$device"
     e2fsck -f "$aurorapartition" || exit 1
 }
