@@ -38,6 +38,7 @@ Aurora was made entirely on WSL. Building will not be an issue.<br>
 Here's how to access the Aurora USB inside of WSL, though.
 In powershell, run
 ```bash
+winget install --interactive --exact dorssel.usbipd-win
 ```
 Close Powershell, and reopen it as administrator (reopen it no matter what)
 ```bash
