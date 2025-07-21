@@ -768,7 +768,6 @@ shimboot() {
                 fi
                 mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
 			    mount $stateful /stateful || fail "Failed to mount stateful!"
-                bash
             fi
 
 			copy_lsb
