@@ -46,8 +46,6 @@ get_part_dev() {
 
 find_rootfs_partitions() {
   for dev in /dev/*; do
-    [[ "$dev" == /dev/loop* ]] && continue
-
     if [ -b "$dev" ] && cgpt show "$dev" >/dev/null 2>&1; then
       for i in $(seq 1 128); do
         label=$(cgpt show -i "$i" -l "$dev" 2>/dev/null)
