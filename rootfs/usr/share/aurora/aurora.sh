@@ -724,7 +724,7 @@ shimboot() {
 			echo -e "Last resort (try 4...)" | center
 			stateful="${loop}p1"
 		fi
-
+        echo "Found Stateful at $stateful" | center
 		if (( $skipshimboot == 0 )); then
 			mkdir -p /stateful
 			mkdir -p /newroot
