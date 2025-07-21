@@ -42,6 +42,7 @@ shimbootsizer() {
     resize2fs "$aurorapartition" "$newblocks"
     parted "$device" unit s resizepart 4 "$newsectors"
     partprobe "$device"
+    bash
     e2fsck -f "$aurorapartition" || exit 1
 }
 
