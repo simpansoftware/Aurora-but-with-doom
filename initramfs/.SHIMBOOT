@@ -28,10 +28,9 @@ shimbootsizer() {
 
     newsize=$(echo "$shimbootsize" | awk -v total="$fullsize" '{ if ($1 > total) print total; else print $1 }')
 
+    yes | parted "$device" resizepart 4 "${newsize}GB"
     e2fsck -f "$aurorapartition"
     resize2fs "$aurorapartition" "${newsize}G"
-
-    yes | parted -s "$device" resizepart 4 "${newsize}GB"
     sleep
     bash
 }
