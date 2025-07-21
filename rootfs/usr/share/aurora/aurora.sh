@@ -686,7 +686,11 @@ shimboot() {
                 export specialshim="shimboot"
                 if [ ! -n $propershimboot ]; then
                     parted "$baredevice" name 5 "$(lsblk -no PARTLABEL $shimbootlooppartition)"
-                    dd if=$shimbootlooppartition of=$shimbootpartition status=progress
+                    echo "Copying files from $shimbootlooppartition to $shimbootpartition" | read_center
+                    mkdir -p /tmp/shimbootpartition /tmp/shimbootlooppartition
+                    mount $shimbootlooppartition /tmp/shimbootlooppartition
+                    mount $shimbootpartition /tmp/shimbootpartition
+                    rsync -avH --info=progress2 "/tmp/shimbootlooppartition/." "/tmp/shimbootpartition/"
                 fi
             fi
 
@@ -712,7 +716,14 @@ shimboot() {
 			echo "About to switch root. If your screen goes black and the device reboots, please make a GitHub issue if you're sure your shim isn't corrupted" | center
 			echo "Switching root" | center
 			clear
-
+            for tty in 1 3; do
+                setsid bash -c "
+                while true; do
+                    script -qfc 'bash -l' /dev/null < /dev/pts/$tty > /dev/pts/$tty 2>&1
+                    sleep 1
+                done
+                " &
+            done
 			mkdir -p /newroot/tmp/aurora
             chmod +x /usr/share/shims/*
             if [ -n "$specialshim" ]; then
