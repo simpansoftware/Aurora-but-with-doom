@@ -37,7 +37,7 @@ shimbootsizer() {
     newbytes=$(echo "$oldbytes - $shrink" | bc)
     newblocks=$(echo "$newbytes / $blocksize" | bc)
     sectorsize=$(blockdev --getss "$device")
-    newsectors=$(echo "$newbytes / $sectorsize" | bc)
+    newsectors=$(echo "($newbytes + $sectorsize - 1) / $sectorsize" | bc)
     e2fsck -f "$aurorapartition"
     resize2fs "$aurorapartition" "$newblocks"
     parted "$device" unit s resizepart 4 "$newsectors"
