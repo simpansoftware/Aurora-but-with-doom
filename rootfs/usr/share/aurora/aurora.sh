@@ -101,9 +101,9 @@ read_center() {
     if (( ! dynamic )); then
         printf "%*s%s" "$pad" "" "$prompt"
         if [[ -n "$readvar" ]]; then
-			read -r "$readvar"
+            read -r "$readvar"
         else
-			read -r
+            read -r
         fi
     else
         printf "%*s%s" "$pad" "" "$prompt"
@@ -114,40 +114,40 @@ read_center() {
         local nowrap=1
 
         while IFS= read -rsn1 char; do
-			if [[ $char == $'\n' ]]; then
-			    break
-			 elif [[ $char == $'\x1b' ]]; then
-			    read -rsn2 discard
-			    continue
-			elif [[ $char == $'\x7f' ]]; then
-			    if [[ -n $input ]]; then
-			        input="${input::-1}"
-			        ((ilen--))
-			        tput cub $((width))
-			        tput el
-			        printf "%*s%s%s" "$pad" "" "$prompt" "$input"
-			    fi
-			else
-			    input+="$char"
-			    ((ilen++))
+            if [[ $char == $'\n' ]]; then
+                break
+             elif [[ $char == $'\x1b' ]]; then
+                read -rsn2 discard
+                continue
+            elif [[ $char == $'\x7f' ]]; then
+                if [[ -n $input ]]; then
+                    input="${input::-1}"
+                    ((ilen--))
+                    tput cub $((width))
+                    tput el
+                    printf "%*s%s%s" "$pad" "" "$prompt" "$input"
+                fi
+            else
+                input+="$char"
+                ((ilen++))
 
-			    if (( nowrap && (plen + ilen >= width) )); then
-			        nowrap=0
-			        echo -n "$char"
-			    elif (( nowrap )); then
-			        tput cub "$(tput cols)"
-			        tput el
-			        local pad=$(( (width - plen - ilen) / 2 + offset ))
-			        (( pad < 0 )) && pad=0
-			        printf "%*s%s%s" "$pad" "" "$prompt" "$input"
-			    else
-			        echo -n "$char"
-			    fi
-			fi
+                if (( nowrap && (plen + ilen >= width) )); then
+                    nowrap=0
+                    echo -n "$char"
+                elif (( nowrap )); then
+                    tput cub "$(tput cols)"
+                    tput el
+                    local pad=$(( (width - plen - ilen) / 2 + offset ))
+                    (( pad < 0 )) && pad=0
+                    printf "%*s%s%s" "$pad" "" "$prompt" "$input"
+                else
+                    echo -n "$char"
+                fi
+            fi
         done
         echo ""
         if [[ -n "$readvar" ]]; then
-			printf -v "$readvar" '%s' "$input"
+            printf -v "$readvar" '%s' "$input"
         fi
     fi
 }
@@ -195,31 +195,31 @@ menu() {
     echo "$prompt" | center
     for i in "${!options[@]}"; do
         if [[ $i -eq $selected ]]; then
-			echo "> ${options[i]} <" | center
+            echo "> ${options[i]} <" | center
         else
-			echo "${options[i]}" | center
+            echo "${options[i]}" | center
         fi
     done
     while true; do
         tput cuu $count
         for i in "${!options[@]}"; do
-			tput el
-			if [[ $i -eq $selected ]]; then
-			    echo "> ${options[i]} <" | center
-			else
-			    echo "${options[i]}" | center
-			fi
+            tput el
+            if [[ $i -eq $selected ]]; then
+                echo "> ${options[i]} <" | center
+            else
+                echo "${options[i]}" | center
+            fi
         done
 
         IFS= read -rsn1 key
         if [[ $key == $'\x1b' ]]; then
-			read -rsn2 -t 0.01 key_rest
-			key+="$key_rest"
+            read -rsn2 -t 0.01 key_rest
+            key+="$key_rest"
         fi
         case $key in
-			$'\x1b[A') ((selected--)) ;;
-			$'\x1b[B') ((selected++)) ;;
-			'') break ;;
+            $'\x1b[A') ((selected--)) ;;
+            $'\x1b[B') ((selected++)) ;;
+            '') break ;;
         esac
 
         ((selected < 0)) && selected=$((count - 1))
@@ -237,8 +237,8 @@ fail() {
 	losetup -D
     for arg in "$@"; do
         if [ "$arg" = "--fatal" ]; then
-			echo_c "A fatal error occured. Please Reboot" RED_B | center
-			hang
+            echo_c "A fatal error occured. Please Reboot" RED_B | center
+            hang
         fi
     done
     splash
@@ -329,7 +329,7 @@ funText() {
         "i don't want a lot for christmas\nthere is just one thing i need"
         "we should put particles.js in a shim"
         "vermont isn't real"
-        ) #			  cen-><-ter" 
+        ) #              cen-><-ter" 
 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
 	echo -e " "
@@ -346,17 +346,17 @@ splash() {
     cat <<'EOF' | center
 ╒════════════════════════════════════════╕
 │ .    . .    '    +   *       o    .    │
-│+  '.			        '   .-.     +  │
+│+  '.                    '   .-.     +  │
 │          +      .    +   .   ) )     ''│
-│			       '  .      '-´  *.    │
+│                   '  .      '-´  *.    │
 │     .    \      .     .  .  +          │
 │         .-o-'       '    .o        o   │
-│  *        \      *			+'       │
-│			    '       '			   │
+│  *        \      *            +'       │
+│                '       '               │
 │        .*       .       o   o      .   │
-│			  o     . *.			    │
+│              o     . *.                │
 │ 'o*           .        .'    .         │
-│			  ┏┓   '. O           *     │
+│              ┏┓   '. O           *     │
 │     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
 │     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
 ╘════════════════════════════════════════╛
@@ -381,17 +381,17 @@ if [ "$$" -eq 1 ]; then
     cat <<'EOF' | center
 ╒════════════════════════════════════════╕
 │ .    . .    '    +   *       o    .    │
-│+  '.			        '   .-.     +  │
+│+  '.                    '   .-.     +  │
 │          +      .    +   .   ) )     ''│
-│			       '  .      '-´  *.    │
+│                   '  .      '-´  *.    │
 │     .    \      .     .  .  +          │
 │         .-o-'       '    .o        o   │
-│  *        \      *			+'       │
-│			    '       '			   │
+│  *        \      *            +'       │
+│                '       '               │
 │        .*       .       o   o      .   │
-│			  o     . *.			    │
+│              o     . *.                │
 │ 'o*           .        .'    .         │
-│			  ┏┓   '. O           *     │
+│              ┏┓   '. O           *     │
 │     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
 │     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
 ╘════════════════════════════════════════╛
@@ -409,8 +409,8 @@ EOF
     for tty in 1 3; do
         setsid bash -c "
         while true; do
-			script -qfc '/usr/share/aurora/aurora.sh' /dev/null < /dev/pts/$tty > /dev/pts/$tty 2>&1
-			sleep 1
+            script -qfc '/usr/share/aurora/aurora.sh' /dev/null < /dev/pts/$tty > /dev/pts/$tty 2>&1
+            sleep 1
         done
         " &
     done
@@ -460,8 +460,8 @@ versions() {
         chromeVersion=$(curl -s $builds | jq -r ".builds.${board_name}.models | to_entries[0].value.servingStable.chromeVersion" | awk -F. '{print $1}')
         FINAL_URL=$(curl -s $builds | jq -r ".builds.${board_name}.models | to_entries[0].value.pushRecoveries[\"$chromeVersion\"]")
         if [ ! -n $FINAL_URL ]; then
-			echo "Falling back to the most recent version found." | center
-			FINAL_URL=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.pushRecoveries | to_entries | sort_by(.key | tonumber) | .[-1].value")
+            echo "Falling back to the most recent version found." | center
+            FINAL_URL=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.pushRecoveries | to_entries | sort_by(.key | tonumber) | .[-1].value")
         fi
         export chromeVersion
         export FINAL_URL
@@ -473,40 +473,40 @@ versions() {
         echo "Searching for a match..." | center
         MATCH_FOUND=0
         for cros_version in $chrome_versions; do
-			chromeVersionPlatform=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .platform')
-			channel=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .channel')
-			mp_token=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .mp_token')
-			mp_key=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .mp_key')
-			last_modified=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .last_modified')
-			if [[ $cros_version == $chromeVersion* ]]; then
-			    echo "Found a $chromeVersion match on platform $chromeVersionPlatform from $last_modified." | center
-			    MATCH_FOUND=1
-			    FINAL_URL="https://dl.google.com/dl/edgedl/chromeos/recovery/chromeos_${chromeVersionPlatform}_${board_name}_recovery_${channel}_${mp_token}-v${mp_key}.bin.zip"
-			    export FINAL_URL
-			    break
-			fi
+            chromeVersionPlatform=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .platform')
+            channel=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .channel')
+            mp_token=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .mp_token')
+            mp_key=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .mp_key')
+            last_modified=$(echo "$json" | jq -r --arg version "$cros_version" '.pageProps.images[] | select(.chrome == $version) | .last_modified')
+            if [[ $cros_version == $chromeVersion* ]]; then
+                echo "Found a $chromeVersion match on platform $chromeVersionPlatform from $last_modified." | center
+                MATCH_FOUND=1
+                FINAL_URL="https://dl.google.com/dl/edgedl/chromeos/recovery/chromeos_${chromeVersionPlatform}_${board_name}_recovery_${channel}_${mp_token}-v${mp_key}.bin.zip"
+                export FINAL_URL
+                break
+            fi
         done
         if [ $MATCH_FOUND -eq 0 ]; then
-			echo "No match found on Chrome100. Falling back to ChromiumDash."
-			export builds=$(curl -ks https://chromiumdash.appspot.com/cros/fetch_serving_builds?deviceCategory=Chrome%20OS)
-			export hwid=$(jq "(.builds.$board_name[] | keys)[0]" <<<"$builds")
-			export hwid=${hwid:1:-1}
-			milestones=$(jq ".builds.$board_name[].$hwid.pushRecoveries | keys | .[]" <<<"$builds")
-			echo "Searching for a match..."
-			for milestone in $milestones; do
-			    milestone=$(echo "$milestone" | tr -d '"')
-			    if [[ $milestone == $chromeVersion* ]]; then
-			        MATCH_FOUND=1
-			        FINAL_URL=$(jq -r ".builds.$board_name[].$hwid.pushRecoveries[\"$milestone\"]" <<<"$builds")
-			        export FINAL_URL
-			        echo "Found a match!" | center
-			        break
-			    fi
-			done
+            echo "No match found on Chrome100. Falling back to ChromiumDash."
+            export builds=$(curl -ks https://chromiumdash.appspot.com/cros/fetch_serving_builds?deviceCategory=Chrome%20OS)
+            export hwid=$(jq "(.builds.$board_name[] | keys)[0]" <<<"$builds")
+            export hwid=${hwid:1:-1}
+            milestones=$(jq ".builds.$board_name[].$hwid.pushRecoveries | keys | .[]" <<<"$builds")
+            echo "Searching for a match..."
+            for milestone in $milestones; do
+                milestone=$(echo "$milestone" | tr -d '"')
+                if [[ $milestone == $chromeVersion* ]]; then
+                    MATCH_FOUND=1
+                    FINAL_URL=$(jq -r ".builds.$board_name[].$hwid.pushRecoveries[\"$milestone\"]" <<<"$builds")
+                    export FINAL_URL
+                    echo "Found a match!" | center
+                    break
+                fi
+            done
         fi
         if [ $MATCH_FOUND -eq 0 ]; then
-			echo "No recovery image found for your board and target version. Exiting" | center
-			return
+            echo "No recovery image found for your board and target version. Exiting" | center
+            return
         fi
     fi
 }
@@ -527,7 +527,7 @@ export_args() {
   echo "Exporting kernel argument..." | center
   for arg in "$@"; do
     key=$(echo "${arg%%=*}" | busybox tr 'a-z' 'A-Z' | \
-			       busybox tr -dc "$acceptable_set" '_')
+                   busybox tr -dc "$acceptable_set" '_')
     val="${arg#*=}"
     export "KERN_ARG_$key"="$val"
     echo -n " KERN_ARG_$key=$val,"
@@ -546,16 +546,16 @@ copy_lsb() {
 
     if [ -f "${src_path}" ]; then
         echo "Found ${src_path}." | center
-        cp "${src_path}" "${dest_path}" || fail "failed with $?" && return 1
+        cp "${src_path}" "${dest_path}" || fail "failed with $?"
         if cgpt find -l SH1MMER "${loop}" | head -n 1 | grep --color=never -q /dev/; then
-			export specialshim="sh1mmer"
-			echo "STATEFUL_DEV=${loop}p1" >> "${dest_path}"
+            export specialshim="sh1mmer"
+            echo "STATEFUL_DEV=${loop}p1" >> "${dest_path}"
         fi
         echo "REAL_USB_DEV=${loop}p3" >> "${dest_path}"
         echo "KERN_ARG_KERN_GUID=$(echo "${KERN_ARG_KERN_GUID}" | tr '[:lower:]' '[:upper:]')" >> "${dest_path}"
         echo "Copied lsb-factory to ${dest_path}" | center
     else
-        fail "Missing ${src_path}!" && return 1
+        fail "Missing ${src_path}!"
     fi
 }
 
@@ -586,14 +586,14 @@ installcros() {
 
         reco_actions=()
         for reco_opt in "${recochoose[@]}"; do
-			reco_actions+=("reco=\"${reco_opt}\"")
+            reco_actions+=("reco=\"${reco_opt}\"")
         done
         reco_actions+=("reco=Exit")
 
         while true; do
-			menu "Choose the recovery image you want to boot" "${reco_options[@]}"
-			eval "${reco_actions[$?]}"
-			break
+            menu "Choose the recovery image you want to boot" "${reco_options[@]}"
+            eval "${reco_actions[$?]}"
+            break
         done
 	fi
 
@@ -608,15 +608,15 @@ installcros() {
 		if mount -r "${loop_root}" $recoroot ; then
 			echo -e "ROOT-A found successfully and mounted." | center
 		else
-			fail "Failed to mount ROOT-A" && return 1
+			fail "Failed to mount ROOT-A"
 		fi
 		local cros_dev="$(get_largest_cros_blockdev)"
   		if [ -z "$cros_dev" ]; then
 			echo -e "${YELLOW_B}No ChromeOS drive was found on the device! Please make sure ChromeOS is installed before using Aurora. Continuing anyway${COLOR_RESET}" | center
 		fi
-		stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)" || fail "Failed to find stateful on ${loop}!" && return 1
+		stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)" || fail "Failed to find stateful on ${loop}!"
 		mkdir /mnt/stateful_partition
-		mount $stateful /mnt/stateful_partition || fail "Failed to mount stateful!" && return 1
+		mount $stateful /mnt/stateful_partition || fail "Failed to mount stateful!"
 		MOUNTS="/proc /dev /sys /tmp /run /var /mnt/stateful_partition"
 		cd $recoroot
 		d=
@@ -624,7 +624,7 @@ installcros() {
 	  		mount -n --bind "${d}" "./${d}"
 	  		mount --make-slave "./${d}"
 		done
-		chroot ./ /usr/sbin/chromeos-install --payload_image="${loop}" --yes || fail "Failed during chroot!" && return 1
+		chroot ./ /usr/sbin/chromeos-install --payload_image="${loop}" --yes || fail "Failed during chroot!"
   		local cros_dev="$(get_largest_cros_blockdev)"
 		cgpt add -i 2 $cros_dev -P 15 -T 15 -S 1 -R 1 || echo -e "${YELLOW_B}Failed to set kernel priority! Continuing anyway${COLOR_RESET}"
 		echo -e "${GEEN_B}Recovery finished. Press any key to reboot."
@@ -661,7 +661,7 @@ enable_rw_mount() {
     local ro_compat_offset=$((0x464 + 3))
     printf '\000' |
         dd of="$rootfs" seek=$((offset + ro_compat_offset)) \
-			conv=notrunc count=1 bs=1 2>/dev/null
+            conv=notrunc count=1 bs=1 2>/dev/null
 }
 
 shimboot() {
@@ -677,14 +677,14 @@ shimboot() {
 
         shim_actions=()
         for shim_opt in "${shimchoose[@]}"; do
-			shim_actions+=("shim=\"${shim_opt}\"")
+            shim_actions+=("shim=\"${shim_opt}\"")
         done
         shim_actions+=("return")
 
         while true; do
-			menu "Choose the shim you want to boot:" "${shim_options[@]}"
-			eval "${shim_actions[$?]}"
-			break
+            menu "Choose the shim you want to boot:" "${shim_options[@]}"
+            eval "${shim_actions[$?]}"
+            break
         done
 	fi
 
@@ -702,7 +702,7 @@ shimboot() {
 		if mount "${loop_root}" $shimroot; then
 			echo -e "ROOT-A found successfully and mounted." | center
 		else
-			fail "Failed to mount ROOT-A" && return 1
+            fail "Failed to mount ROOT-A"
 		fi
 		export skipshimboot=0
 		if ! stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)"; then
@@ -729,39 +729,39 @@ shimboot() {
 		if (( $skipshimboot == 0 )); then
 			mkdir -p /stateful
 			mkdir -p /newroot
-			
-			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot" && return 1
-			mount $stateful /stateful || fail "Failed to mount stateful!" && return 1
-			sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
-			chmod +x /usr/share/shims/*
-			set -x
+            
+			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
+			mount $stateful /stateful || fail "Failed to mount stateful!"
+            sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
+            chmod +x /usr/share/shims/*
+            set -x
 			if [ -f "$sh1mmerfile" ]; then
-			    sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
-			    for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
-			    cp /usr/share/shims/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
-			    chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
-			    chmod +x $sh1mmerfile
-			    rm -f /newroot/sbin/init
-			    cp /usr/share/shims/sh1mmerinit /newroot/sbin/init
-			fi
-			if [ -f "/stateful/opt/.shimboot_version" ]; then
-			    echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time." | center
-			    freespace=$(df -h / | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
-			    echo -e "$freespace of free space" | center
-			    read_center "Enter size to allocate: " shimbootsize
-			    shimbootsize=$(echo "$shimbootsize" | sed -e 's/ //' -e 'Is/GB/G/' -e 'Is/MB/M/')
-			    if echo $shimbootsize | grep -i "k"; then
-			        fail "No." && return 1
-			    fi
-			    cp /usr/share/shims/shimbootstrap.sh /stateful/bin/bootstrap.sh
-			    umount -a
-			    truncate -s +${shimbootsize} $shim
-			    losetup -D
-			    losetup -Pf $shim
-			fi
+                sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
+                for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
+                cp /usr/share/shims/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
+                chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
+                chmod +x $sh1mmerfile
+                rm -f /newroot/sbin/init
+                cp /usr/share/shims/sh1mmerinit /newroot/sbin/init
+            fi
+            if [ -f "/stateful/opt/.shimboot_version" ]; then
+                echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time." | center
+                freespace=$(df -h / | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
+                echo -e "$freespace of free space" | center
+                read_center "Enter size to allocate: " shimbootsize
+                shimbootsize=$(echo "$shimbootsize" | sed -e 's/ //' -e 'Is/GB/G/' -e 'Is/MB/M/')
+                if echo $shimbootsize | grep -i "k"; then
+                    fail "No."
+                fi
+                cp /usr/share/shims/shimbootstrap.sh /stateful/bin/bootstrap.sh
+                umount -a
+                truncate -s +${shimbootsize} $shim
+                losetup -D
+                losetup -Pf $shim
+            fi
 
 			copy_lsb
-			sleep 5
+            sleep 5
 			echo "Copying rootfs to ram..." | center
 			pv_dircopy "$shimroot" /newroot
 
@@ -786,7 +786,7 @@ shimboot() {
 			clear
 
 			mkdir -p /newroot/tmp/aurora
-			    
+                
 			pivot_root /newroot /newroot/tmp/aurora
 			echo "Successfully switched root. Starting init..." | center
 			exec /sbin/init || {
@@ -817,8 +817,8 @@ if [ -f "/etc/wpa_supplicant.conf" ]; then
     connected=0
     for i in $(seq 1 5); do
         if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
-			udhcpc -i "$wifidevice" >/dev/null 2>&1 && connected=1
-			break
+            udhcpc -i "$wifidevice" >/dev/null 2>&1 && connected=1
+            break
         fi
         sleep 1
     done
@@ -838,7 +838,7 @@ connect() {
         echo "Network (${ssid}) already configured." | center
     else
         if [ -z "$psk" ]; then
-			cat >> "$conf" <<EOF
+            cat >> "$conf" <<EOF
 
 network={
     ssid="$ssid"
@@ -846,7 +846,7 @@ network={
 }
 EOF
         else
-			wpa_passphrase "$ssid" "$psk" >> "$conf"
+            wpa_passphrase "$ssid" "$psk" >> "$conf"
         fi
     fi
     killall wpa_supplicant 2>/dev/null
@@ -866,8 +866,8 @@ wifi() {
         echo "Connect to a different network? (y/N): " | center
         read -p "" connectornah
         case $connectornah in
-			y|Y|yes|Yes) connect ;;
-			*) ;;
+            y|Y|yes|Yes) connect ;;
+            *) ;;
         esac
     else
         connect
@@ -881,7 +881,7 @@ canwifi() {
   if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase
     "$@"
   else
-    fail "Not connected to the internet" && return 1
+    fail "Not connected to the internet"
   fi
 }
 export -f canwifi
@@ -903,14 +903,14 @@ download() {
 downloadreco() {
 	versions
     curl --fail --progress-bar -k "$FINAL_URL" -o "$aroot/images/recovery/$chromeVersion.zip" || {
-        fail "Failed to download ChromeOS recovery image." && return 1
+        fail "Failed to download ChromeOS recovery image."
     }
     FINAL_FILENAME=$(unzip -Z1 "$aroot/images/recovery/$chromeVersion.zip")
     file "$aroot/images/recovery/$chromeVersion.zip" | grep -iq "zip" || {
-        fail "ChromeOS recovery archive corrupted." && return 1
+        fail "ChromeOS recovery archive corrupted."
     }
     unzip "$aroot/images/recovery/$chromeVersion.zip" -d "$aroot/images/recovery/" || {
-        fail "Failed to unzip ChromeOS recovery archive." && return 1
+        fail "Failed to unzip ChromeOS recovery archive."
     }
 	rm $aroot/images/recovery/$chromeVersion.zip
     mv $aroot/images/recovery/$FINAL_FILENAME $aroot/images/recovery/$chromeVersion.bin
@@ -933,20 +933,20 @@ downloadshim() {
 	esac
     shimtype=$(echo $FINALSHIM_URL | awk -F. '{print $NF}')
     if [ -n "$shimtype" ]; then
-        fail "Invalid Shim URL" && return 1
+        fail "Invalid Shim URL"
     fi
     shimfile=$(echo $FINALSHIM_URL | awk -F/ '{print $NF}')
     shimname=$(echo $shimfile | sed "s/.${shimtype}//")
     curl --fail --progress-bar -k "$FINALSHIM_URL" -o "$aroot/images/shims/$shimfile" || {
-        fail "Failed to download shim." && return 1
+        fail "Failed to download shim."
     }
     if [ "$shimtype" = "zip" ]; then
         FINALSHIM_FILENAME=$(unzip -Z1 "$aroot/images/shims/$shimfile")
         file "$aroot/images/shims/$shimfile" | grep -iq "zip" || {
-			fail "Shim archive corrupted." && return 1
+            fail "Shim archive corrupted."
         }
         unzip "$aroot/images/shims/$shimfile" -d "$aroot/images/shims/" || {
-			fail "Failed to unzip shim archive." && return 1
+            fail "Failed to unzip shim archive."
         }
     	rm $aroot/images/shims/$shimfile
     fi
@@ -994,10 +994,10 @@ payloads() {
         return
     else
         for payload_path in "${payloadchoose[@]}"; do
-			if [[ "$(basename "$payload_path")" == "$payload_name" ]]; then
-			    source "$payload_path"
-			    break
-			fi
+            if [[ "$(basename "$payload_path")" == "$payload_name" ]]; then
+                source "$payload_path"
+                break
+            fi
         done
         read_center "Press Enter to continue..."
         return
