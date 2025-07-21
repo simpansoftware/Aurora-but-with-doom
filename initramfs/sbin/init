@@ -28,7 +28,7 @@ mount -n -o move "/proc" "/newroot/proc"
 mkdir -p "/newroot/dev"
 mount -n -o move "/dev" "/newroot/dev"
 mkdir -p "/newroot/run"
-mount -n -o move "/run" "/newroot/run"
+mount -n -o move "/run" "/newroot/run" 2>/dev/null
 
 echo "exec switch_root"
 echo "this shouldn't take more than a few seconds"
