@@ -40,7 +40,7 @@ shimbootsizer() {
     newsize=$(echo "$newsize" | awk '{print ($1 == int($1)) ? $1 : int($1)+1}')
 
     parted "$device" resizepart 4 "${newsize}GB"
-    e2fsck -fy "$aurorapartition"
+    e2fsck -f "$aurorapartition"
     resize2fs "$aurorapartition"
 }
 
