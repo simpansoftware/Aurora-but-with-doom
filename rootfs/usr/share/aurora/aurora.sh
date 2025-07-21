@@ -766,6 +766,13 @@ shimboot() {
                 truncate -s +${shimbootsize} $shim
                 losetup -D
                 losetup -Pf $shim
+                if mount "${loop_root}" $shimroot; then
+                    echo -e "ROOT-A found successfully and mounted." | center
+                else
+                    fail "Failed to mount ROOT-A"
+                fi
+                mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
+			    mount $stateful /stateful || fail "Failed to mount stateful!"
             fi
 
 			mkdir -p "/newroot/dev" "/newroot/proc" "/newroot/sys" "/newroot/tmp" "/newroot/run"
