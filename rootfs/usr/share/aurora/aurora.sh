@@ -691,6 +691,8 @@ shimboot() {
                     mount $shimbootlooppartition /tmp/shimbootlooppartition
                     mount $shimbootpartition /tmp/shimbootpartition
                     rsync -avH --info=progress2 "/tmp/shimbootlooppartition/." "/tmp/shimbootpartition/"
+                    umount $shimbootlooppartition
+                    umount $shimbootpartition
                 fi
             fi
 
