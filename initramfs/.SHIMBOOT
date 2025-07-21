@@ -47,7 +47,7 @@ shimbootsizer() {
     resize2fs "$aurorapartition" "$newblocks"
 
     newsize=$(echo "$newbytes / 1073741824" | bc)
-    parted -s "$device" resizepart 4 "${newsize}GB"
+    parted "$device" resizepart 4 "${newsize}GB"
     e2fsck -f "$aurorapartition" || exit 1
 }
 
