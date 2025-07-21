@@ -1,6 +1,6 @@
 #!/bin/bash
 
-shimbootsizer() {
+shrink_filesystem() {
     aurorapartition=$(lsblk -pro NAME,PARTLABEL | grep -i Aurora | awk '{print $1}')
     if [ -z "$aurorapartition" ]; then
         echo "Aurora partition not found."
@@ -14,13 +14,11 @@ shimbootsizer() {
     freespace=$(df -h "$aurorapartition" | tail -n1 | awk '{print $4}')
     umount "$aurorapartition"
     echo -e "$freespace of free space"
-
     read -p "Enter size to allocate (in GB): " shimbootsize
     shimbootsize=$(echo "$shimbootsize" | sed 's/[^0-9.]//g')
 
-    if echo "$shimbootsize" | grep -iq "k"; then
-        echo "No."
-        sleep 5
+    if [ -z "$shimbootsize" ]; then
+        echo "Invalid input."
         exit 1
     fi
 
@@ -29,75 +27,18 @@ shimbootsizer() {
 
     if [ -z "$size" ] || [ -z "$blocks" ]; then
         echo "Cannot find block information."
-        sleep 5
         exit 1
     fi
 
-    subtract=$(( (shimbootsize * 1024 * 1024 * 1024) / size ))
-    newsize=$((blocks - subtract))
+    newsize=$(( (shimbootsize * 1024 * 1024 * 1024) / size ))
     if (( newsize <= 0 )); then
         echo "Invalid size."
-        sleep 5
         exit 1
     fi
-
-    echo "Shrinking Aurora filesystem..."
     e2fsck -f "$aurorapartition"
     resize2fs "$aurorapartition" "$newsize"
-
-    partnum=$(echo "$aurorapartition" | grep -o '[0-9]\+$')
-
-    pstartbytes=$(parted -ms "$device" unit B print | grep "^$partnum:" | cut -d: -f2)
-    pstart=${pstartbytes%B}
-
-    sectsize=$(blockdev --getss "$device" 2>/dev/null || echo 512)
-
-    newpartsize=$(( newsize * size ))
-    newendbytes=$(( pstart + newpartsize - 1 ))
-
-    newend=$(( newendbytes / sectsize ))
-
-    echo "Resizing partition $partnum on $device..."
-    parted -s "$device" rm "$partnum"
-    parted -s "$device" mkpart primary "$pstartbytes" "${newend}s"
-
-    partpath=$(lsblk -prno NAME | grep "^$device$partnum\$" || lsblk -prno NAME | grep "^$aurorapartition$")
-    partpath=$(lsblk -prno NAME,PARTNUM "$device" | awk -v pnum="$partnum" '$2 == pnum {print $1}')
-    if [ -n "$partpath" ]; then
-        e2label "$partpath" "Aurora"
-    fi
-
-    partprobe "$device"
-    sleep 1
-
-    resize2fs "$aurorapartition"
-
-    if ! lsblk -pro NAME,PARTLABEL | grep -iq shimboot; then
-        unavailable=$(parted -s "$device" print | awk '/^ / {print $1}')
-        nextnum=1
-        while echo "$unavailable" | grep -qw "$nextnum"; do
-            nextnum=$((nextnum + 1))
-        done
-
-        last_end_bytes=$(parted -ms "$device" unit B print | tail -n1 | cut -d: -f3)
-        last_end=${last_end_bytes%B}
-        newstart=$((last_end + sectsize))
-
-        diskbytes=$(blockdev --getsize64 "$device")
-
-        if (( newstart >= diskbytes )); then
-            echo "No space left for new partition."
-            exit 1
-        fi
-        parted -s "$device" mkpart primary "${newstart}B" "${diskbytes}B"
-
-        partprobe "$device"
-        sleep 1
-
-        newpart=$(lsblk -prno NAME "$device" | grep -v "^$device$" | tail -n1)
-        mkfs.ext4 -L shimboot_rootfs "$newpart"
-    fi
 }
+
 
 read -p "Make/Resize Shimboot partition? (y/N): " aurorapartitioner
 case $aurorapartitioner in
