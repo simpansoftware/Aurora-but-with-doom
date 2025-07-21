@@ -736,7 +736,7 @@ shimboot() {
             mkdir -p -m 0755 /newroot/run/lock
 
             for mnt in /dev /proc /sys; do
-                mount --move "$mnt" "/newroot$mnt"
+                mount --move "$mnt" "/newroot$mnt" || fail "Failed to mount $mnt"
             done
 
             if ! mountpoint -q /newroot/dev/pts; then
