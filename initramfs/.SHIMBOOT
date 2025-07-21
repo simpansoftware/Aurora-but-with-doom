@@ -37,15 +37,19 @@ shimbootsizer() {
         exit 1
     fi
 
-    newsize=$(echo "$newsize" | awk '{print ($1 == int($1)) ? $1 : int($1)+1}')
+    blocksize=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block size:/ {print $3}')
+    blockcount=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block count:/ {print $3}')
+    oldbytes=$(echo "$blocksize * $blockcount" | bc)
+    shrink=$(echo "$shimbootsize * 1073741824" | bc)
+    newbytes=$(echo "$oldbytes - $shrink" | bc)
+    newblocks=$(echo "$newbytes / $blocksize" | bc)
+    e2fsck -f "$aurorapartition"
+    resize2fs "$aurorapartition" "$newblocks"
 
-    e2fsck -f "$aurorapartition"
-    resize2fs "$aurorapartition" "${newsize}G"
-    e2fsck -f "$aurorapartition"
-    parted "$device" resizepart 4 "${newsize}GB"
-    bash
+    newsize=$(echo "$newbytes / 1073741824" | bc)
+    parted -s "$device" resizepart 4 "${newsize}GB"
+    e2fsck -f "$aurorapartition" || exit 1
 }
-
 
 read -p "Make/Expand space for shimboot partition? (y/N): " aurorapartitioner
 case $aurorapartitioner in
