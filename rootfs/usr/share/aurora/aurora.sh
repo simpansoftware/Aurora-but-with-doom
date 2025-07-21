@@ -798,9 +798,9 @@ shimboot() {
 
 			mkdir -p /newroot/tmp/aurora
             chmod +x /usr/share/shims/*
-            if [ "$specialshim" = "sh1mmer" ]; then
+            if [ -n "$specialshim" ]; then
                 rm -f /newroot/sbin/init
-                cp /usr/share/shims/sh1mmerinit /newroot/sbin/init
+                cp /usr/share/shims/${specialshim}init /newroot/sbin/init
             fi
             if [ "$specialshim" = "shimboot" ]; then
                 rm -f /newroot/bin/bootstrap.sh
