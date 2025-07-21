@@ -308,6 +308,7 @@ funText() {
         "i don't want a lot for christmas\nthere is just one thing i need"
         "we should put particles.js in a shim"
         "vermont isn't real"
+        "\"Bite Me\" - Weird Al"
         ) #              cen-><-ter" 
 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
