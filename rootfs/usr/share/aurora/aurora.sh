@@ -685,12 +685,11 @@ shimboot() {
             if [ -n "$shimbootlooppartition" ] && [ -n "$shimbootpartition" ]; then
                 export specialshim="shimboot"
                 if [ ! -n "$propershimboot" ]; then
-                    parted "$baredevice" name 5 "$(lsblk -no PARTLABEL $shimbootlooppartition)"
                     echo "Copying files from $shimbootlooppartition to $shimbootpartition" | read_center
                     mkdir -p /tmp/shimbootpartition /tmp/shimbootlooppartition
                     mount $shimbootlooppartition /tmp/shimbootlooppartition
                     mount $shimbootpartition /tmp/shimbootpartition
-                    rsync -avH --info=progress2 "/tmp/shimbootlooppartition/." "/tmp/shimbootpartition/"
+                    rsync -avH --info=progress2 "/tmp/shimbootlooppartition/." "/tmp/shimbootpartition/" && parted "$baredevice" name 5 "$(lsblk -no PARTLABEL $shimbootlooppartition)"
                     umount $shimbootlooppartition
                     umount $shimbootpartition
                 fi
