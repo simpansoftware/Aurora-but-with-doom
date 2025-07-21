@@ -1,6 +1,5 @@
 #!/bin/busybox sh
 
-stty intr ''
 echo "Making the newroot partition..."
 mkdir -p /newroot || sleep 10
 sleep 1
