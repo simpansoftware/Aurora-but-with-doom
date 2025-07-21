@@ -744,7 +744,7 @@ shimboot() {
             sleep 5
 			echo "Copying rootfs to ram..." | center
 			pv_dircopy "$shimroot" /newroot
-            
+
 			if lsblk -o PARTLABEL $loop | grep "SH1MMER"; then
                 sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
                 for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
@@ -757,7 +757,7 @@ shimboot() {
                 freespace=$(df -h / | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
                 echo -e "$freespace of free space" | center
                 read_center "Enter size to allocate: " shimbootsize
-                shimbootsize=$(echo "$shimbootsize" | sed -e 's/ //' -e 'Is/GB/G/' -e 'Is/MB/M/')
+                shimbootsize=$(echo "$shimbootsize" | sed -e 's/ //' -e 's/GB/G/I' -e 's/MB/M/I')
                 if echo $shimbootsize | grep -i "k"; then
                     fail "No."
                 fi
