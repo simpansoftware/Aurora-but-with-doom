@@ -739,13 +739,7 @@ shimboot() {
 			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
 			mount $stateful /stateful || fail "Failed to mount stateful!"
             sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
-
-			copy_lsb
-            sleep 5
-			echo "Copying rootfs to ram..." | center
-			pv_dircopy "$shimroot" /newroot
-
-			if lsblk -o PARTLABEL $loop | grep "SH1MMER"; then
+            if lsblk -o PARTLABEL $loop | grep "SH1MMER"; then
                 sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
                 for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
                 cp /usr/share/shims/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
@@ -753,6 +747,7 @@ shimboot() {
                 chmod +x $sh1mmerfile
             fi
             if lsblk -o PARTLABEL $loop | grep "shimboot"; then
+                export specialshim="shimboot"
                 echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time." | center
                 freespace=$(df -h / | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
                 echo -e "$freespace of free space" | center
@@ -761,7 +756,6 @@ shimboot() {
                 if echo $shimbootsize | grep -i "k"; then
                     fail "No."
                 fi
-                cp /usr/share/shims/shimbootstrap.sh /newroot/bin/bootstrap.sh
                 umount $stateful
                 umount $loop_root
                 truncate -s +${shimbootsize} $shim
@@ -776,6 +770,13 @@ shimboot() {
 			    mount $stateful /stateful || fail "Failed to mount stateful!"
                 bash
             fi
+
+			copy_lsb
+            
+			echo "Copying rootfs to ram..." | center
+			pv_dircopy "$shimroot" /newroot
+
+			
 
 			mkdir -p "/newroot/dev" "/newroot/proc" "/newroot/sys" "/newroot/tmp" "/newroot/run"
 			mount -t tmpfs -o mode=1777 none /newroot/tmp
@@ -801,6 +802,10 @@ shimboot() {
             if [ "$specialshim" = "sh1mmer" ]; then
                 rm -f /newroot/sbin/init
                 cp /usr/share/shims/sh1mmerinit /newroot/sbin/init
+            fi
+            if [ "$specialshim" = "shimboot" ]; then
+                rm -f /newroot/bin/bootstrap.sh
+                cp /usr/share/shims/shimbootstrap.sh /newroot/bin/bootstrap.sh
             fi
 			pivot_root /newroot /newroot/tmp/aurora
 			echo "Successfully switched root. Starting init..." | center
