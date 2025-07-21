@@ -14,6 +14,7 @@ shimbootsizer() {
     freespace=$(df -h "$aurorapartition" | tail -n1 | awk '{print $4}')
     umount "$aurorapartition"
     echo -e "$freespace of free space"
+
     read -p "Enter size to allocate (in GB): " shimbootsize
     shimbootsize=$(echo "$shimbootsize" | sed 's/[^0-9.]//g')
 
@@ -22,16 +23,28 @@ shimbootsizer() {
         exit 1
     fi
 
-    blocksize=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block size:/ {print $3}')
-    blockcount=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block count:/ {print $3}')
-    fullsize=$(( (blocksize * blockcount) / 1024 / 1024 / 1024 ))
+    if [[ "$freespace" == *G ]]; then
+        freespace=${freespace%G}
+    else
+        echo "Partition not large enough."
+        exit 1
+    fi
 
-    newsize=$(echo "$shimbootsize" | awk -v total="$fullsize" '{ if ($1 > total) print total; else print $1 }')
+    newsize=$(echo "$freespace - $shimbootsize" | bc)
+
+    if (( $(echo "$newsize <= 0" | bc -l) )); then
+        echo "Invalid Size."
+        exit 1
+    fi
+
+    newsize=$(echo "$newsize" | awk '{print ($1 == int($1)) ? $1 : int($1)+1}')
+
     e2fsck -f "$aurorapartition"
     resize2fs "$aurorapartition" "${newsize}G"
     parted "$device" resizepart 4 "${newsize}GB"
     resize2fs "$aurorapartition"
 }
+
 
 read -p "Make/Expand space for shimboot partition? (y/N): " aurorapartitioner
 case $aurorapartitioner in
