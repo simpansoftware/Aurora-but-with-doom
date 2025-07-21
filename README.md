@@ -33,6 +33,26 @@ You can then either download recovery images or shims in the shim, or put them o
   2. Shimboot
   3. Any future shims that are made
 
+# WSL (Windows Subsystem for Linux)
+Aurora was made entirely on WSL. Building will not be an issue.<br>
+Here's how to access the Aurora USB inside of WSL, though.
+In powershell, run
+```bash
+```
+Close Powershell, and reopen it as administrator (reopen it no matter what)
+```bash
+usbipd list
+```
+You should see your USB (Likely Mass Storage Device or something similar). Note the busid.
+```bash
+usbipd bind --busid <busid>
+```
+```bash
+usbipd attach --wsl --busid <busid>
+```
+And check WSL.<br>
+It is always preferred to use an actual linux machine, though.
+
 # FAQ (Frequently Asked Questions)
 <br><b>I wanna use Shimboot. How can I?</b>
 
