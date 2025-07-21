@@ -681,9 +681,10 @@ shimboot() {
             fi
             shimbootlooppartition=$(lsblk -pro NAME,PARTLABEL $loop | grep "shimboot" | awk '{print $1}')
             shimbootpartition=$(lsblk -pro NAME,PARTLABEL $baredevice | grep "shimboot" | awk '{print $1}')
+            propershimboot=$(lsblk -pro NAME,PARTLABEL $baredevice | grep "shimboot_rootfs:" | awk '{print $1}')
             if [ -n "$shimbootlooppartition" && -n "$shimbootpartition" ]; then
                 export specialshim="shimboot"
-                if ! lsblk -pro NAME,PARTLABEL $baredevice | grep "shimboot_rootfs:" | awk '{print $1}'; then
+                if [ ! -n $propershimboot ]; then
                     parted "$baredevice" name 5 "$(lsblk -no PARTLABEL $shimbootlooppartition)"
                     dd if=$shimbootlooppartition of=$shimbootpartition status=progress
                 fi
