@@ -684,7 +684,7 @@ shimboot() {
             propershimboot=$(lsblk -pro NAME,PARTLABEL $baredevice | grep "shimboot_rootfs:" | awk '{print $1}')
             if [ -n "$shimbootlooppartition" ] && [ -n "$shimbootpartition" ]; then
                 export specialshim="shimboot"
-                if [ ! -n $propershimboot ]; then
+                if [ ! -n "$propershimboot" ]; then
                     parted "$baredevice" name 5 "$(lsblk -no PARTLABEL $shimbootlooppartition)"
                     echo "Copying files from $shimbootlooppartition to $shimbootpartition" | read_center
                     mkdir -p /tmp/shimbootpartition /tmp/shimbootlooppartition
