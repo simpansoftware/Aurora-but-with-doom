@@ -8,18 +8,11 @@ if [ -z "$dev_partition" ]; then
     echo "failed to find aurora partition"
     exit 1
 fi
-if [ -f "/.UNRESIZED" ]; then
-    chmod +x /.UNRESIZED
-    bash /.UNRESIZED
-    rm -f /.UNRESIZED
-    sync
-fi
-if [ -f "/.SHIMBOOT" ]; then
-    chmod +x /.SHIMBOOT
-    bash /.SHIMBOOT
-    rm -f /.SHIMBOOT
-    sync
-fi
+chmod +x /.UNRESIZED
+bash /.UNRESIZED
+chmod +x /.SHIMBOOT
+bash /.SHIMBOOT
+rm -f /.SHIMBOOT
 
 dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
 
