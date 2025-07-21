@@ -241,7 +241,7 @@ fail() {
             hang
         fi
     done
-    splash
+    return 1
 }
 
 hang() {
@@ -729,7 +729,6 @@ shimboot() {
 		if (( $skipshimboot == 0 )); then
 			mkdir -p /stateful
 			mkdir -p /newroot
-            set -x
 			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
 			mount $stateful /stateful || fail "Failed to mount stateful!"
             sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
@@ -1057,7 +1056,6 @@ errormessage() {
 }
 
 while true; do
-    set +x
     clear
     splash
     stty intr ''
