@@ -1,6 +1,6 @@
 #!/bin/bash
 
-shrink_filesystem() {
+shimbootsizer() {
     aurorapartition=$(lsblk -pro NAME,PARTLABEL | grep -i Aurora | awk '{print $1}')
     if [ -z "$aurorapartition" ]; then
         echo "Aurora partition not found."
@@ -40,7 +40,7 @@ shrink_filesystem() {
 }
 
 
-read -p "Make/Resize Shimboot partition? (y/N): " aurorapartitioner
+read -p "Make/Expand space for shimboot partition? (y/N): " aurorapartitioner
 case $aurorapartitioner in
     y|Y) shimbootsizer ;;
     *) ;;
