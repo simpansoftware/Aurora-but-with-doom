@@ -14,7 +14,7 @@ shimbootsizer() {
 
     if echo "$shimbootsize" | grep -iq "k"; then
         echo "No."
-        exit 1
+        sleep 5 && exit 1
     fi
 
     size=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block size:/ {print $3}')
@@ -22,14 +22,14 @@ shimbootsizer() {
 
     if [ -z "$size" ] || [ -z "$blocks" ]; then
         echo "Cannot find block information."
-        exit 1
+        sleep 5 && exit 1
     fi
 
     subtract=$(( (shimbootsize * 1024 * 1024 * 1024) / size ))
     newsize=$((blocks - subtract))
     if (( newsize <= 0 )); then
         echo "Invalid size."
-        exit 1
+        sleep 5 && exit 1
     fi
 
     echo "Shrinking Aurora filesystem..."
