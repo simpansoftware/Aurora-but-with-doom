@@ -5,18 +5,18 @@ shimbootsizer() {
     device=$(echo "$aurorapartition" | sed 's/[0-9]\+$//')
 
     echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time."
-    freespace=$(df -h $aurorapartition | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
+    freespace=$(df -h "$aurorapartition" | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
     echo -e "$freespace of free space"
     read -p "Enter size to allocate (in GB): " shimbootsize
     shimbootsize=$(echo "$shimbootsize" | sed 's/[^0-9.]//g')
 
-    if echo "$shimbootsize" | grep -i "k"; then
+    if echo "$shimbootsize" | grep -iq "k"; then
         echo "No."
         exit 1
     fi
 
-    size=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | grep 'Block size:' | awk '{print $3}')
-    blocks=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | grep 'Block count:' | awk '{print $3}')
+    size=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block size:/ {print $3}')
+    blocks=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block count:/ {print $3}')
 
     if [ -z "$size" ] || [ -z "$blocks" ]; then
         echo "Cannot find block information."
@@ -25,35 +25,40 @@ shimbootsizer() {
 
     subtract=$(( (shimbootsize * 1024 * 1024 * 1024) / size ))
     newsize=$((blocks - subtract))
-
     if (( newsize <= 0 )); then
         echo "Invalid size."
         exit 1
     fi
 
-    echo "Shrinking Aurora partition..."
+    echo "Shrinking Aurora filesystem..."
     e2fsck -f "$aurorapartition"
     resize2fs "$aurorapartition" "$newsize"
 
     partnum=$(echo "$aurorapartition" | grep -o '[0-9]\+$')
-    sectstart=$(parted -m "$device" unit s print | grep "^$partnum:" | cut -d: -f2 | sed 's/s//')
-    sectsize=$(blockdev --getss "$device")
-    bytes=$(( newsize * size ))
-    sectend=$(( sectstart + (bytes / sectsize) - 1 ))
 
-    parted -s "$device" unit s resizepart "$partnum" "${sectend}s"
+    sectsize=$(cat /sys/block/$(basename "$device")/queue/hw_sectsize)
+    firstsect=$(sgdisk -i "$partnum" "$device" | awk '/First sector:/ {print $3}')
+    newendsect=$((firstsect + (newsize * size) / sectsize - 1))
+
+    echo "Resizing GPT partition $partnum to sector $newendsect"
+    sgdisk --delete="$partnum" "$device"
+    sgdisk --new="$partnum:$firstsect:$newendsect" --change-name="$partnum:Aurora" "$device"
     partprobe "$device"
     resize2fs "$aurorapartition"
 
-    if ! lsblk -pro NAME,PARTLABEL | grep -i shimboot; then
-        totalsect=$(blockdev --getsz "$device")
-        newsectstart=$((sectend + 1))
-        newsectend=$((totalsect - 1))
+    if ! lsblk -pro NAME,PARTLABEL | grep -iq shimboot; then
+        nextnum=$(sgdisk -p "$device" | awk '/^[[:space:]]*[0-9]+/ {print $1}' | sort -n | tail -n 1)
+        nextnum=$((nextnum + 1))
 
-        parted -s "$device" unit s mkpart primary ext4 "${newsectstart}s" "${newsectend}s"
+        startsect=$(sgdisk -F "$device")
+        endsect=$(sgdisk -E "$device")
+
+        sgdisk --new="$nextnum:$startsect:$endsect" \
+               --change-name="$nextnum:shimboot_rootfs" \
+               --typecode="$nextnum:8300" "$device"
+
         partprobe "$device"
-
-        newpart=$(lsblk -pro NAME "$device" | tail -n 1)
+        newpart=$(lsblk -prno NAME "$device" | grep -v "^$device" | tail -n 1)
         mkfs.ext4 -L shimboot_rootfs "$newpart"
     fi
 }
