@@ -710,19 +710,9 @@ shimboot() {
 			echo -e "${YELLOW_B}Finding stateful via partition label \"STATE\" failed (try 1...)${COLOR_RESET}" | center
 			if ! stateful="$(cgpt find -l SH1MMER ${loop} | head -n 1 | grep --color=never /dev/)"; then
 				echo -e "${YELLOW_B}Finding stateful via partition label \"SH1MMER\" failed (try 2...)${COLOR_RESET}" | center
-
-				for dev in "$loop"*; do
-					[[ -b "$dev" ]] || continue
-					parttype=$(udevadm info --query=property --name="$dev" 2>/dev/null | grep '^ID_PART_ENTRY_TYPE=' | cut -d= -f2)
-					if [ "$parttype" = "0fc63daf-8483-4772-8e79-3d69d8477de4" ]; then
-						stateful="$dev"
-						break
-					fi
-				done
 			fi
 		fi
 		if [[ -z "${stateful// }" ]]; then
-			echo -e "${RED_B}Finding stateful via partition type \"Linux data\" failed (try 3...)${COLOR_RESET}" | center
 			echo -e "Last resort (try 4...)" | center
 			stateful="${loop}p1"
 		fi
@@ -761,6 +751,7 @@ shimboot() {
             fi
 
 			copy_lsb
+            sleep 5
 			echo "Copying rootfs to ram..." | center
 			pv_dircopy "$shimroot" /newroot
 
