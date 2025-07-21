@@ -15,8 +15,6 @@ chmod +x /.UNRESIZED
 bash /.UNRESIZED
 chmod +x /.SHIMBOOT
 bash /.SHIMBOOT <${tty} >>${tty}
-rm -f /.SHIMBOOT
-sleep 2
 dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
 
 echo "Mounting device..."
