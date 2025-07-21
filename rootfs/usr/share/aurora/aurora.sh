@@ -730,7 +730,7 @@ shimboot() {
 
 			
 
-			mkdir -p "/newroot/dev" "/newroot/proc" "/newroot/sys" "/newroot/tmp" "/newroot/run"
+			mkdir -p "/newroot/dev/pts" "/newroot/proc" "/newroot/sys" "/newroot/tmp" "/newroot/run"
 			mount -t tmpfs -o mode=1777 none /newroot/tmp
 			mount -t tmpfs -o mode=0555 run /newroot/run
 			mkdir -p -m 0755 /newroot/run/lock
