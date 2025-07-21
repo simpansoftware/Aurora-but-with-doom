@@ -730,20 +730,18 @@ shimboot() {
 
 			
 
-			mkdir -p "/newroot/dev/pts" "/newroot/proc" "/newroot/sys" "/newroot/tmp" "/newroot/run"
-			mount -t tmpfs -o mode=1777 none /newroot/tmp
-			mount -t tmpfs -o mode=0555 run /newroot/run
-			mkdir -p -m 0755 /newroot/run/lock
+            mkdir -p /newroot/dev/pts /newroot/proc /newroot/sys /newroot/tmp /newroot/run
+            mount -t tmpfs -o mode=1777 none /newroot/tmp
+            mount -t tmpfs -o mode=0555 run /newroot/run
+            mkdir -p -m 0755 /newroot/run/lock
 
-            if mountpoint -q /dev/pts; then
-                mount --move /dev/pts /newroot/dev/pts || fail "Failed to move /dev/pts" --fatal
-            fi
-
-            mounts=("/dev" "/proc" "/sys")
-            for mnt in "${mounts[@]}"; do
-                mount --move "$mnt" "/newroot$mnt" || :
+            for mnt in /dev /proc /sys; do
+                mount --move "$mnt" "/newroot$mnt"
             done
 
+            if ! mountpoint -q /newroot/dev/pts; then
+                mount -t devpts devpts /newroot/dev/pts
+            fi
 
 			echo "Done" | center
 			echo "About to switch root. If your screen goes black and the device reboots, please make a GitHub issue if you're sure your shim isn't corrupted" | center
