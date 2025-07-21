@@ -8,12 +8,13 @@ if [ -z "$dev_partition" ]; then
     echo "failed to find aurora partition"
     exit 1
 fi
-export tty="/dev/tty"
-[ -e /dev/pts/0 ] && export tty="/dev/pts/0"
-chmod +x /.UNRESIZED
-bash /.UNRESIZED
-chmod +x /.SHIMBOOT
-bash /.SHIMBOOT <${tty} >>${tty}
+if [ -f "/.UNRESIZED" ]; then
+    chmod +x /.UNRESIZED
+    bash /.UNRESIZED
+    rm -f /.UNRESIZED
+    sync
+fi
+
 dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
 
 echo "Mounting device..."
@@ -27,7 +28,7 @@ mount -n -o move "/proc" "/newroot/proc"
 mkdir -p "/newroot/dev"
 mount -n -o move "/dev" "/newroot/dev"
 mkdir -p "/newroot/run"
-mount -n -o move "/run" "/newroot/run" 2>/dev/null
+mount -n -o move "/run" "/newroot/run"
 
 echo "exec switch_root"
 echo "this shouldn't take more than a few seconds"

@@ -27,8 +27,6 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 ## DEFINITIONS ##
 #################
 
-export device=$(lsblk -pro NAME,PARTLABEL | grep -i Aurora | awk '{print $1}' | sed 's/[0-9]//')
-export baredevice=$(echo "$device" | sed 's/p//')
 export aroot="/usr/share/aurora"
 export releaseBuild=1
 export shimroot="/shimroot"
@@ -679,26 +677,36 @@ shimboot() {
                 chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
                 chmod +x $sh1mmerfile
             fi
-            shimbootlooppartition=$(lsblk -pro NAME,PARTLABEL $loop | grep "shimboot" | awk '{print $1}')
-            shimbootpartition=$(lsblk -pro NAME,PARTLABEL $baredevice | grep "shimboot" | awk '{print $1}')
-            propershimboot=$(lsblk -pro NAME,PARTLABEL $baredevice | grep "shimboot_rootfs:" | awk '{print $1}')
-            if [ -n "$shimbootlooppartition" ] && [ -n "$shimbootpartition" ]; then
+            if lsblk -o PARTLABEL $loop | grep "shimboot"; then
                 export specialshim="shimboot"
-                if [ ! -n "$propershimboot" ]; then
-                    echo "Copying files from $shimbootlooppartition to $shimbootpartition" | read_center
-                    mkdir -p /tmp/shimbootpartition /tmp/shimbootlooppartition
-                    mount $shimbootlooppartition /tmp/shimbootlooppartition
-                    mount $shimbootpartition /tmp/shimbootpartition
-                    rsync -avH --info=progress2 "/tmp/shimbootlooppartition/." "/tmp/shimbootpartition/" && parted "$baredevice" name 5 "$(lsblk -no PARTLABEL $shimbootlooppartition)"
-                    umount $shimbootlooppartition
-                    umount $shimbootpartition
+                echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time." | center
+                freespace=$(df -h / | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
+                echo -e "$freespace of free space" | center
+                read_center "Enter size to allocate: " shimbootsize
+                shimbootsize=$(echo "$shimbootsize" | sed -e 's/ //' -e 's/GB/G/I' -e 's/MB/M/I')
+                if echo $shimbootsize | grep -i "k"; then
+                    fail "No."
                 fi
+                umount $stateful
+                umount $loop_root
+                truncate -s +${shimbootsize} $shim
+                losetup -D
+                losetup -Pf $shim
+                if mount "${loop_root}" $shimroot; then
+                    echo -e "ROOT-A found successfully and mounted." | center
+                else
+                    fail "Failed to mount ROOT-A"
+                fi
+                mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
+			    mount $stateful /stateful || fail "Failed to mount stateful!"
             fi
 
 			copy_lsb
             
 			echo "Copying rootfs to ram..." | center
 			pv_dircopy "$shimroot" /newroot
+
+			
 
             mkdir -p /newroot/dev/pts /newroot/proc /newroot/sys /newroot/tmp /newroot/run
             mount -t tmpfs -o mode=1777 none /newroot/tmp
@@ -717,14 +725,7 @@ shimboot() {
 			echo "About to switch root. If your screen goes black and the device reboots, please make a GitHub issue if you're sure your shim isn't corrupted" | center
 			echo "Switching root" | center
 			clear
-            for tty in 1 3; do
-                setsid bash -c "
-                while true; do
-                    script -qfc 'bash -l' /dev/null < /dev/pts/$tty > /dev/pts/$tty 2>&1
-                    sleep 1
-                done
-                " &
-            done
+
 			mkdir -p /newroot/tmp/aurora
             chmod +x /usr/share/shims/*
             if [ -n "$specialshim" ]; then
@@ -965,12 +966,8 @@ updateshim() {
         rm -f /root/Aurora/rootfs/usr/share/aurora/.UNRESIZED
     fi
     cp -Lar /root/Aurora/rootfs/. /
-    mkdir -p /tmp/initramfs
-    mount ${device}3 /tmp/initramfs
-    cp -Lar /root/Aurora/initramfs/. /tmp/initramfs/
-    chmod -R +x /tmp/initramfs/.
+    cp -Lar /root/Aurora/$(uname -m)/. /
     sync
-    umount /tmp/initramfs
 }
 
 ##################
