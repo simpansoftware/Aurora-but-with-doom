@@ -33,6 +33,7 @@ shimbootsizer() {
     parted "$device" unit s resizepart 4 "$newsectors"
     partprobe "$device"
     e2fsck -f "$aurorapartition" || exit 1
+    echo -e "n\n5\n\n\nw" | fdisk "$device"
 }
 
 read -p "Make/Expand space for shimboot partition? (y/N): " aurorapartitioner
