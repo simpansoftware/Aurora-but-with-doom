@@ -741,7 +741,7 @@ shimboot() {
 
             mounts=("/dev" "/proc" "/sys")
             for mnt in "${mounts[@]}"; do
-                mount --move "$mnt" "/newroot$mnt" || fail "Failed to move $mnt"
+                mount --move "$mnt" "/newroot$mnt" || :
             done
 
 
