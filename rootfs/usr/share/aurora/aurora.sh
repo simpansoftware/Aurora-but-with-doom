@@ -369,53 +369,6 @@ EOF
     funText | center
 }
 
-#############
-## STARTUP ##
-#############
-
-
-if [ "$$" -eq 1 ]; then
-    clear
-    tput civis
-    echo -e "$BLUE_B"
-    cat <<'EOF' | center
-╒════════════════════════════════════════╕
-│ .    . .    '    +   *       o    .    │
-│+  '.                    '   .-.     +  │
-│          +      .    +   .   ) )     ''│
-│                   '  .      '-´  *.    │
-│     .    \      .     .  .  +          │
-│         .-o-'       '    .o        o   │
-│  *        \      *            +'       │
-│                '       '               │
-│        .*       .       o   o      .   │
-│              o     . *.                │
-│ 'o*           .        .'    .         │
-│              ┏┓   '. O           *     │
-│     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
-│     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
-╘════════════════════════════════════════╛
-EOF
-    echo -e "${COLOR_RESET}"
-
-    echo "Starting udevd" | center
-    /sbin/udevd --daemon | center || :
-    udevadm trigger | center || :
-    udevadm settle | center || :
-    echo "Done" | center
-    tput cnorm
-
-    chmod +x /usr/share/aurora/aurora.sh
-    for tty in 1 3; do
-        setsid bash -c "
-        while true; do
-            script -qfc '/usr/share/aurora/aurora.sh' /dev/null < /dev/pts/$tty > /dev/pts/$tty 2>&1
-            sleep 1
-        done
-        " &
-    done
-fi
-
 ##################
 ## MURKMOD SHIT ##
 ##################
@@ -820,9 +773,51 @@ shimboot() {
 	fi
 }
 
-##########
-## WIFI ##
-##########
+#############
+## STARTUP ##
+#############
+
+if [ "$$" -eq 1 ]; then
+    clear
+    tput civis
+    echo -e "$BLUE_B"
+    cat <<'EOF' | center
+╒════════════════════════════════════════╕
+│ .    . .    '    +   *       o    .    │
+│+  '.                    '   .-.     +  │
+│          +      .    +   .   ) )     ''│
+│                   '  .      '-´  *.    │
+│     .    \      .     .  .  +          │
+│         .-o-'       '    .o        o   │
+│  *        \      *            +'       │
+│                '       '               │
+│        .*       .       o   o      .   │
+│              o     . *.                │
+│ 'o*           .        .'    .         │
+│              ┏┓   '. O           *     │
+│     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
+│     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
+╘════════════════════════════════════════╛
+EOF
+    echo -e "${COLOR_RESET}"
+
+    echo "Starting udevd" | center
+    /sbin/udevd --daemon | center || :
+    udevadm trigger | center || :
+    udevadm settle | center || :
+    echo "Done" | center
+    tput cnorm
+
+    chmod +x /usr/share/aurora/aurora.sh
+    for tty in 1 3; do
+        setsid bash -c "
+        while true; do
+            script -qfc '/usr/share/aurora/aurora.sh' /dev/null < /dev/pts/$tty > /dev/pts/$tty 2>&1
+            sleep 1
+        done
+        " &
+    done
+fi
 
 for wifi in iwlwifi iwlmvm ccm 8021q; do
     modprobe -r "$wifi" 2>/dev/null || true
@@ -847,6 +842,10 @@ if [ -f "/etc/wpa_supplicant.conf" ]; then
         echo "No nearby saved networks found; Retrying..." | center
     fi
 fi
+
+##########
+## WIFI ##
+##########
 
 connect() {
     echo "Enter your network SSID" | center
@@ -875,7 +874,7 @@ EOF
     ip link set "$wifidevice" up
 
     wpa_supplicant -B -i "$wifidevice" -c "$conf"
-    udhcpc -i "$wifidevice"
+    udhcpc -i "$wifidevice" || fail "Corrupted wpa_supplicant.conf has been fixed. Please reconnect"
 }
 
 wifi() {
