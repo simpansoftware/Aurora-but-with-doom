@@ -10,15 +10,12 @@ shimbootsizer() {
     device=$(echo "$aurorapartition" | sed 's/[0-9]\+$//')
 
     echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time."
-    
-    blocksize=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block size:/ {print $3}')
-    blockcount=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block count:/ {print $3}')
-    oldbytes=$(echo "$blocksize * $blockcount" | bc)
-    oldsize_gb=$(echo "scale=2; $oldbytes / 1073741824" | bc)
+    mount "$aurorapartition" /mnt
+    freespace=$(df -h "$aurorapartition" | tail -n1 | awk '{print $4}')
+    umount /mnt
+    echo -e "$freespace of free space"
 
-    echo "Current Aurora partition size: ${oldsize_gb} GB"
-
-    read -p "Enter how much space to remove from Aurora (in GB): " shimbootsize
+    read -p "Enter size to allocate (in GB): " shimbootsize
     shimbootsize=$(echo "$shimbootsize" | sed 's/[^0-9.]//g')
 
     if [ -z "$shimbootsize" ]; then
@@ -26,26 +23,33 @@ shimbootsizer() {
         exit 1
     fi
 
-    newsize_gb=$(echo "scale=2; $oldsize_gb - $shimbootsize" | bc)
-    if (( $(echo "$newsize_gb <= 1" | bc -l) )); then
+    if [[ "$freespace" == *G ]]; then
+        freespace=${freespace%G}
+    else
+        echo "Partition not large enough."
+        exit 1
+    fi
+    newsize=$(echo "$freespace - $shimbootsize" | bc)
+
+    if (( $(echo "$newsize <= 0" | bc -l) )); then
         echo "Invalid Size."
         exit 1
     fi
 
-    newbytes=$(echo "$newsize_gb * 1073741824" | bc)
+    blocksize=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block size:/ {print $3}')
+    blockcount=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block count:/ {print $3}')
+    oldbytes=$(echo "$blocksize * $blockcount" | bc)
+    shrink=$(echo "$shimbootsize * 1073741824" | bc)
+    newbytes=$(echo "$oldbytes - $shrink" | bc)
     newblocks=$(echo "$newbytes / $blocksize" | bc)
+    e2fsck -f "$aurorapartition"
+    resize2fs "$aurorapartition" "$newblocks"
 
-    echo "Shrinking filesystem to $newblocks blocks..."
-
-    e2fsck -f "$aurorapartition" || exit 1
-    resize2fs "$aurorapartition" "$newblocks" || exit 1
-
-    parted "$device" resizepart 4 "${newsize_gb}GB" || exit 1
+    newsize=$(echo "$newbytes / 1000000000" | bc)
+    parted "$device" resizepart 4 "${newsize}GB"
     partprobe "$device"
-
     e2fsck -f "$aurorapartition" || exit 1
 }
-
 
 read -p "Make/Expand space for shimboot partition? (y/N): " aurorapartitioner
 case $aurorapartitioner in
