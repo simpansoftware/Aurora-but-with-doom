@@ -733,7 +733,8 @@ shimboot() {
 			mount $stateful /stateful || fail "Failed to mount stateful!" && return 1
             sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
             chmod +x /usr/share/shims/*
-            if [ -f $sh1mmerfile ]; then
+            set -x
+            if [ -f "$sh1mmerfile" ]; then
                 sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
                 for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
                 cp /usr/share/shims/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
