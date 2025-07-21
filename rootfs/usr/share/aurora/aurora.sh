@@ -762,7 +762,8 @@ shimboot() {
                     fail "No."
                 fi
                 cp /usr/share/shims/shimbootstrap.sh /newroot/bin/bootstrap.sh
-                umount -a
+                umount $stateful
+                umount $loop_root
                 truncate -s +${shimbootsize} $shim
                 losetup -D
                 losetup -Pf $shim
