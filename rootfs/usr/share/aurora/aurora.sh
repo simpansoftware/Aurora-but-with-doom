@@ -739,14 +739,14 @@ shimboot() {
 			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
 			mount $stateful /stateful || fail "Failed to mount stateful!"
             sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
-			if [ -f "$sh1mmerfile" ]; then
+			if lsblk -o PARTLABEL $loop | grep "SH1MMER"; then
                 sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
                 for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
                 cp /usr/share/shims/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
                 chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
                 chmod +x $sh1mmerfile
             fi
-            if [ -f "/stateful/opt/.shimboot_version" ]; then
+            if lsblk -o PARTLABEL $loop | grep "shimboot"; then
                 echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time." | center
                 freespace=$(df -h / | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
                 echo -e "$freespace of free space" | center
