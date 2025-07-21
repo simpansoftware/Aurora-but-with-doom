@@ -31,7 +31,7 @@ shimbootsizer() {
     e2fsck -f "$aurorapartition"
     resize2fs "$aurorapartition" "${newsize}G"
 
-    parted -s "$device" resizepart 4 "${newsize}GB"
+    yes | parted -s "$device" resizepart 4 "${newsize}GB"
     sleep
     bash
 }
