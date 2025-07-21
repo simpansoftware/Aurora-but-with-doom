@@ -952,8 +952,11 @@ updateshim() {
         rm -f /root/Aurora/rootfs/usr/share/aurora/.UNRESIZED
     fi
     cp -Lar /root/Aurora/rootfs/. /
-    cp -Lar /root/Aurora/$(uname -m)/. /
+    mkdir -p /tmp/initramfs
+    mount ${device}3 /tmp/initramfs
+    cp -Lar /root/Aurora/initramfs/. /tmp/initramfs/
     sync
+    umount /tmp/initramfs
 }
 
 ##################
