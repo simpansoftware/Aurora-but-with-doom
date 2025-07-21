@@ -733,15 +733,12 @@ shimboot() {
 			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
 			mount $stateful /stateful || fail "Failed to mount stateful!"
             sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
-            chmod +x /usr/share/shims/*
 			if [ -f "$sh1mmerfile" ]; then
                 sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
                 for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
                 cp /usr/share/shims/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
                 chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
                 chmod +x $sh1mmerfile
-                rm -f /newroot/sbin/init
-                cp /usr/share/shims/sh1mmerinit /newroot/sbin/init
             fi
             if [ -f "/stateful/opt/.shimboot_version" ]; then
                 echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time." | center
@@ -764,7 +761,6 @@ shimboot() {
 			echo "Copying rootfs to ram..." | center
 			pv_dircopy "$shimroot" /newroot
 
-			echo "Moving mounts..." | center
 			mkdir -p "/newroot/dev" "/newroot/proc" "/newroot/sys" "/newroot/tmp" "/newroot/run"
 			mount -t tmpfs -o mode=1777 none /newroot/tmp
 			mount -t tmpfs -o mode=0555 run /newroot/run
@@ -785,7 +781,11 @@ shimboot() {
 			clear
 
 			mkdir -p /newroot/tmp/aurora
-                
+            chmod +x /usr/share/shims/*
+            if [ "$specialshim" = "sh1mmer" ]; then
+                rm -f /newroot/sbin/init
+                cp /usr/share/shims/sh1mmerinit /newroot/sbin/init
+            fi
 			pivot_root /newroot /newroot/tmp/aurora
 			echo "Successfully switched root. Starting init..." | center
 			exec /sbin/init || {
