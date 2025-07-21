@@ -27,6 +27,8 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 ## DEFINITIONS ##
 #################
 
+export device=$(lsblk -pro NAME,PARTLABEL | grep -i Aurora | awk '{print $1}' | sed 's/[0-9]+$//')
+export baredevice=$(echo "$device" | sed 's/p//')
 export aroot="/usr/share/aurora"
 export releaseBuild=1
 export shimroot="/shimroot"
@@ -161,29 +163,6 @@ echo_menu() {
         printf "%*s%s\n" "$spacing" "" "$line"
     done <<< "$text"
 }
-
-sedbutbetter() {
-  code=$(cat)
-  awk -v start="$1" -v end="$2" -v repl="$code" '
-  BEGIN { inside=0 }
-  {
-    if (!inside && $0 ~ start) {
-      inside=1
-      print repl
-      next
-    }
-    if (inside) {
-      if ($0 ~ end) {
-        inside=0
-        next
-      }
-      next
-    }
-    print
-  }' "$3"
-}
-
-
 
 menu() {
     local prompt="$1"
@@ -699,28 +678,13 @@ shimboot() {
                 chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
                 chmod +x $sh1mmerfile
             fi
-            if lsblk -o PARTLABEL $loop | grep "shimboot"; then
+            shimbootlooppartition=$(lsblk -pro NAME,PARTLABEL $loop | grep "shimboot" | awk '{print $1}')
+            shimbootpartition=$(lsblk -pro NAME,PARTLABEL $baredevice | grep "shimboot" | awk '{print $1}')
+            if [ -n "$shimbootlooppartition" && -n "$shimbootpartition" ]; then
                 export specialshim="shimboot"
-                echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time." | center
-                freespace=$(df -h / | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
-                echo -e "$freespace of free space" | center
-                read_center "Enter size to allocate: " shimbootsize
-                shimbootsize=$(echo "$shimbootsize" | sed -e 's/ //' -e 's/GB/G/I' -e 's/MB/M/I')
-                if echo $shimbootsize | grep -i "k"; then
-                    fail "No."
+                if [ -n "$shimbootpartition" ]; then
+                    dd if=$shimbootlooppartition of=$shimbootpartition status=progress
                 fi
-                umount $stateful
-                umount $loop_root
-                truncate -s +${shimbootsize} $shim
-                losetup -D
-                losetup -Pf $shim
-                if mount "${loop_root}" $shimroot; then
-                    echo -e "ROOT-A found successfully and mounted." | center
-                else
-                    fail "Failed to mount ROOT-A"
-                fi
-                mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
-			    mount $stateful /stateful || fail "Failed to mount stateful!"
             fi
 
 			copy_lsb

@@ -46,6 +46,8 @@ get_part_dev() {
 
 find_rootfs_partitions() {
   for dev in /dev/*; do
+    [[ "$dev" == /dev/loop* ]] && continue
+
     if [ -b "$dev" ] && cgpt show "$dev" >/dev/null 2>&1; then
       for i in $(seq 1 128); do
         label=$(cgpt show -i "$i" -l "$dev" 2>/dev/null)
@@ -60,6 +62,7 @@ find_rootfs_partitions() {
     fi
   done
 }
+
 
 find_chromeos_partitions() {
   local roota_partitions="$(cgpt find -l ROOT-A)"
@@ -140,7 +143,6 @@ print_selector() {
   else
     echo "no bootable partitions found. please see the shimboot documentation to mark a partition as bootable."
   fi
-  echo "UNLESS you have another flash drive or know what you're doing, only boot loop0p* devices." # hehehe hehehe mwah hah hahhhhh
   echo "q) reboot"
   echo "s) enter a shell"
   echo "l) view license"
