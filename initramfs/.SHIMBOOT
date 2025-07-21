@@ -7,6 +7,7 @@ shimbootsizer() {
     fi
 
     device=$(echo "$aurorapartition" | sed 's/[0-9]\+$//')
+    baredevice=$(echo "$device" | sed 's/p//')
 
     mount "$aurorapartition" /mnt
     freespace=$(df -h "$aurorapartition" | tail -n1 | awk '{print $4}')
@@ -25,15 +26,17 @@ shimbootsizer() {
     shrink=$(echo "$shimbootsize * 1073741824" | bc)
     newbytes=$(echo "$oldbytes - $shrink" | bc)
     newblocks=$(echo "$newbytes / $blocksize" | bc)
-    sectorsize=$(blockdev --getss "$device")
+    sectorsize=$(blockdev --getss "$baredevice")
     sectorsize=$(echo "$sectorsize - 1" | bc)
     newsectors=$(echo "$newbytes / $sectorsize" | bc)
     e2fsck -f "$aurorapartition"
     resize2fs "$aurorapartition" "$newblocks"
-    parted "$device" unit s resizepart 4 "$newsectors"
-    partprobe "$device"
+    parted "$baredevice" unit s resizepart 4 "$newsectors"
+    partprobe "$baredevice"
     e2fsck -f "$aurorapartition" || exit 1
-    echo -e "n\n5\n\n\nw" | fdisk "$device"
+    echo -e "n\n5\n\n\nw" | fdisk "$baredevice"
+    mkfs.ext4 ${device}5
+    parted "$baredevice" set 5 name "shimboot"
 }
 
 read -p "Make/Expand space for shimboot partition? (y/N): " aurorapartitioner
