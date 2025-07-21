@@ -162,6 +162,29 @@ echo_menu() {
     done <<< "$text"
 }
 
+sedbutbetter() {
+  code=$(cat)
+  awk -v start="$1" -v end="$2" -v repl="$code" '
+  BEGIN { inside=0 }
+  {
+    if (!inside && $0 ~ start) {
+      inside=1
+      print repl
+      next
+    }
+    if (inside) {
+      if ($0 ~ end) {
+        inside=0
+        next
+      }
+      next
+    }
+    print
+  }' "$3"
+}
+
+
+
 menu() {
     local prompt="$1"
     shift
@@ -305,6 +328,7 @@ funText() {
         "one cannot simply walk into mordor\n- some dumbass who didn't walk into mordor"
         "i don't want a lot for christmas\nthere is just one thing i need"
         "we should put particles.js in a shim"
+        "vermont isn't real"
         ) #              cen-><-ter" 
 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
@@ -523,8 +547,7 @@ copy_lsb() {
     if [ -f "${src_path}" ]; then
         echo "Found ${src_path}." | center
         cp "${src_path}" "${dest_path}" || fail "failed with $?"
-        if cgpt find -l SH1MMER "${loop}" | head -n 1 | grep --color=never -q /dev/; then
-            export specialshim="sh1mmer"
+        if [ "$specialshim" = "sh1mmer" ]; then
             echo "STATEFUL_DEV=${loop}p1" >> "${dest_path}"
         fi
         echo "REAL_USB_DEV=${loop}p3" >> "${dest_path}"
@@ -640,6 +663,50 @@ enable_rw_mount() {
             conv=notrunc count=1 bs=1 2>/dev/null
 }
 
+setupshim() {
+    echo -e "Searching for ROOT-A on shim" | center
+    loop=$(losetup -Pf --show $shim)
+    export loop
+
+    loop_root="$(cgpt find -l ROOT-A $loop | head -n 1)" || loop_root="$(cgpt find -t rootfs $loop | head -n 1)"
+    enable_rw_mount ${loop_root}
+    if mount "${loop_root}" $shimroot; then
+        echo -e "ROOT-A found successfully and mounted." | center
+    else
+        fail "Failed to mount ROOT-A"
+    fi
+    export skipshimboot=0
+    if ! stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)"; then
+        echo -e "${YELLOW_B}Finding stateful via partition label \"STATE\" failed (try 1...)${COLOR_RESET}" | center
+        if ! stateful="$(cgpt find -l SH1MMER ${loop} | head -n 1 | grep --color=never /dev/)"; then
+            echo -e "${YELLOW_B}Finding stateful via partition label \"SH1MMER\" failed (try 2...)${COLOR_RESET}" | center
+
+            for dev in "$loop"*; do
+                [[ -b "$dev" ]] || continue
+                parttype=$(udevadm info --query=property --name="$dev" 2>/dev/null | grep '^ID_PART_ENTRY_TYPE=' | cut -d= -f2)
+                if [ "$parttype" = "0fc63daf-8483-4772-8e79-3d69d8477de4" ]; then
+                    stateful="$dev"
+                    break
+                fi
+            done
+        fi
+    fi
+    if [[ -z "${stateful// }" ]]; then
+        echo -e "${RED_B}Finding stateful via partition type \"Linux data\" failed (try 3...)${COLOR_RESET}" | center
+        echo -e "Last resort (try 4...)" | center
+        stateful="${loop}p1"
+    fi
+    
+
+    if (( $skipshimboot == 0 )); then
+        mkdir -p /stateful
+        mkdir -p /newroot
+        
+        mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
+        mount $stateful /stateful || fail "Failed to mount stateful!"
+    fi
+}
+
 shimboot() {
 	if [[ -z "$(ls -A $aroot/images/shims)" ]]; then
         echo -e "${YELLOW_B}You have no shims downloaded!\nPlease download or build a few images." | center
@@ -670,54 +737,34 @@ shimboot() {
 		return
 	else
 		mkdir -p $shimroot
-		echo -e "Searching for ROOT-A on shim" | center
-		loop=$(losetup -Pf --show $shim)
-		export loop
-
-		loop_root="$(cgpt find -l ROOT-A $loop | head -n 1)" || loop_root="$(cgpt find -t rootfs $loop | head -n 1)"
-        enable_rw_mount ${loop_root}
-		if mount "${loop_root}" $shimroot; then
-			echo -e "ROOT-A found successfully and mounted." | center
-		else
-            fail "Failed to mount ROOT-A"
-		fi
-		export skipshimboot=0
-		if ! stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)"; then
-			echo -e "${YELLOW_B}Finding stateful via partition label \"STATE\" failed (try 1...)${COLOR_RESET}" | center
-			if ! stateful="$(cgpt find -l SH1MMER ${loop} | head -n 1 | grep --color=never /dev/)"; then
-				echo -e "${YELLOW_B}Finding stateful via partition label \"SH1MMER\" failed (try 2...)${COLOR_RESET}" | center
-
-				for dev in "$loop"*; do
-					[[ -b "$dev" ]] || continue
-					parttype=$(udevadm info --query=property --name="$dev" 2>/dev/null | grep '^ID_PART_ENTRY_TYPE=' | cut -d= -f2)
-					if [ "$parttype" = "0fc63daf-8483-4772-8e79-3d69d8477de4" ]; then
-						stateful="$dev"
-						break
-					fi
-				done
-			fi
-		fi
-		if [[ -z "${stateful// }" ]]; then
-			echo -e "${RED_B}Finding stateful via partition type \"Linux data\" failed (try 3...)${COLOR_RESET}" | center
-			echo -e "Last resort (try 4...)" | center
-			stateful="${loop}p1"
-		fi
-
-		if (( $skipshimboot == 0 )); then
-			mkdir -p /stateful
-			mkdir -p /newroot
-            
-			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
-			mount $stateful /stateful || fail "Failed to mount stateful!"
+        setupshim
+        if (( $skipshimboot == 0 )); then
             sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
-            if [ -f $sh1mmerfile ]; then
+            if [ -f "$sh1mmerfile" ]; then
                 sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
                 for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
                 cp /usr/share/shims/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
                 chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
                 chmod +x $sh1mmerfile
             fi
-
+            if [ -f "/stateful/opt/.shimboot_version" ]; then
+                echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time." | center
+                freespace=$(df -h / | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
+                echo -e "$freespace of free space" | center
+                read_center "Enter size to allocate: " shimbootsize
+                shimbootsize=$(echo "$shimbootsize" | sed -e 's/ //' -e 'Is/GB/G/' -e 'Is/MB/M/')
+                if echo $shimbootsize | grep -i "k"; then
+                    fail "No."
+                fi
+                cp /usr/share/shims/shimbootstrap.sh /stateful/bin/bootstrap.sh
+                umount $stateful
+                umount $loop_root
+                umount $stateful -l
+                umount $loop_root -l
+                truncate -s +${shimbootsize} $shim
+                losetup -D
+                setupshim
+            fi
 			copy_lsb
 			echo "Copying rootfs to ram..." | center
 			pv_dircopy "$shimroot" /newroot
@@ -744,10 +791,15 @@ shimboot() {
 
 			mkdir -p /newroot/tmp/aurora
             chmod +x /usr/share/shims/*
-            if [ -n "$specialshim" ]; then
+            if [ "$specialshim" = "sh1mmer" ]; then
                 rm -f /newroot/sbin/init
-                cp /usr/share/shims/${specialshim}init /newroot/sbin/init
+                cp /usr/share/shims/sh1mmerinit /newroot/sbin/init
             fi
+            if [ "$specialshim" = "shimboot" ]; then
+                rm -f /newroot/sbin/init
+                cp /usr/share/shims/sh1mmerinit /newroot/sbin/init
+            fi
+                
 			pivot_root /newroot /newroot/tmp/aurora
 			echo "Successfully switched root. Starting init..." | center
 			exec /sbin/init || {
