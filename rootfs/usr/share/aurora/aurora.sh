@@ -42,7 +42,7 @@ export BLUE_B="\033[1;34m"
 export MAGENTA_B="\033[1;35m"
 export PINK_B="\x1b[1;38;2;235;170;238m"
 export CYAN_B="\033[1;36m"
-export PS1='\[\033[1;34m\]$(cat /etc/hostname):\[\e[0m\]\[\033[1;32m\]\w/\[\e[0m\] # '
+export PS1='\[\033[1;34m\]Aurora:\[\e[0m\]\[\033[1;32m\]\w/\[\e[0m\] # '
 
 alias ls='ls --color=auto'
 alias dir='dir --color=auto'
