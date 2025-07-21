@@ -402,7 +402,7 @@ EOF
     /sbin/udevd --daemon | center || :
     udevadm trigger | center || :
     udevadm settle | center || :
-    echo_c "Done" "GEEN_B" | center
+    echo "Done" | center
     tput cnorm
 
     chmod +x /usr/share/aurora/aurora.sh
@@ -774,6 +774,7 @@ shimboot() {
                 fi
                 mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
 			    mount $stateful /stateful || fail "Failed to mount stateful!"
+                bash
             fi
 
 			mkdir -p "/newroot/dev" "/newroot/proc" "/newroot/sys" "/newroot/tmp" "/newroot/run"
