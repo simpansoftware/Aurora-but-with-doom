@@ -43,6 +43,7 @@ shimbootsizer() {
     resize2fs "$aurorapartition" "${newsize}G"
     e2fsck -f "$aurorapartition"
     parted "$device" resizepart 4 "${newsize}GB"
+    bash
 }
 
 
