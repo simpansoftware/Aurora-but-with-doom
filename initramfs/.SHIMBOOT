@@ -19,17 +19,6 @@ shimbootsizer() {
         exit 1
     fi
 
-    if [[ "$freespace" == *G ]]; then
-        freespace=${freespace%G}
-    else
-        exit 1
-    fi
-    newsize=$(echo "$freespace - $shimbootsize" | bc)
-
-    if (( $(echo "$newsize <= 0" | bc -l) )); then
-        exit 1
-    fi
-
     blocksize=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block size:/ {print $3}')
     blockcount=$(dumpe2fs -h "$aurorapartition" 2>/dev/null | awk '/Block count:/ {print $3}')
     oldbytes=$(echo "$blocksize * $blockcount" | bc)
@@ -37,7 +26,8 @@ shimbootsizer() {
     newbytes=$(echo "$oldbytes - $shrink" | bc)
     newblocks=$(echo "$newbytes / $blocksize" | bc)
     sectorsize=$(blockdev --getss "$device")
-    newsectors=$(echo "($newbytes + $sectorsize - 1) / $sectorsize" | bc)
+    sectorsize=$(echo "$sectorsize - 1" | bc)
+    newsectors=$(echo "$newbytes / $sectorsize" | bc)
     e2fsck -f "$aurorapartition"
     resize2fs "$aurorapartition" "$newblocks"
     parted "$device" unit s resizepart 4 "$newsectors"
