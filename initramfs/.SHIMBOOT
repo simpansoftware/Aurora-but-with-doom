@@ -36,7 +36,7 @@ shimbootsizer() {
     e2fsck -f "$aurorapartition" || exit 1
     echo -e "n\n5\n\n\nw" | fdisk "$baredevice"
     mkfs.ext4 ${device}5
-    parted "$baredevice" set 5 name "shimboot"
+    parted "$baredevice" name 5 "shimboot"
 }
 
 read -p "Make/Expand space for shimboot partition? (y/N): " aurorapartitioner

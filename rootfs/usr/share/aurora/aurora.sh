@@ -684,7 +684,7 @@ shimboot() {
             if [ -n "$shimbootlooppartition" && -n "$shimbootpartition" ]; then
                 export specialshim="shimboot"
                 if [ -n "$shimbootpartition" ]; then
-                    parted "$baredevice" set 5 name "$(lsblk -no PARTLABEL $shimbootlooppartition)"
+                    parted "$baredevice" name 5 "$(lsblk -no PARTLABEL $shimbootlooppartition)"
                     dd if=$shimbootlooppartition of=$shimbootpartition status=progress
                 fi
             fi
