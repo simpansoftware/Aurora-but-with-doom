@@ -697,7 +697,14 @@ shimboot() {
 		loop=$(losetup -Pf --show $shim)
 		export loop
 
-		loop_root="$(cgpt find -l ROOT-A $loop | head -n 1)" || loop_root="$(cgpt find -t rootfs $loop | head -n 1)" || loop_root="${loop}p3"
+		loop_root="$(cgpt find -l ROOT-A "$loop" | head -n1)"
+        if [ -z "$loop_root" ]; then
+            loop_root="$(cgpt find -t rootfs "$loop" | head -n1)"
+        fi
+        if [ -z "$loop_root" ]; then
+            loop_root="${loop}p3"
+        fi
+
         enable_rw_mount ${loop_root}
 		if mount "${loop_root}" $shimroot; then
 			echo -e "ROOT-A found successfully and mounted." | center
