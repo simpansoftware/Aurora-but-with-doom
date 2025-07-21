@@ -241,7 +241,6 @@ fail() {
             hang
         fi
     done
-    return 1
 }
 
 hang() {
@@ -452,7 +451,7 @@ versions() {
 	case "$install_choice" in
 	    0) chromeVersion="latest" ;;
 	    1) read_center -d "Enter Version: " chromeVersion ;;
-        *) fail "Invalid choice (somehow?????)" ;;
+        *) fail "Invalid choice (somehow?????)" && return 1 ;;
 	esac
     echo "Fetching recovery image..." | center
     if [ $chromeVersion == "latest" ]; then
@@ -546,7 +545,7 @@ copy_lsb() {
 
     if [ -f "${src_path}" ]; then
         echo "Found ${src_path}." | center
-        cp "${src_path}" "${dest_path}" || fail "failed with $?"
+        cp "${src_path}" "${dest_path}" || fail "failed with $?" && return 1
         if cgpt find -l SH1MMER "${loop}" | head -n 1 | grep --color=never -q /dev/; then
             export specialshim="sh1mmer"
             echo "STATEFUL_DEV=${loop}p1" >> "${dest_path}"
@@ -555,7 +554,7 @@ copy_lsb() {
         echo "KERN_ARG_KERN_GUID=$(echo "${KERN_ARG_KERN_GUID}" | tr '[:lower:]' '[:upper:]')" >> "${dest_path}"
         echo "Copied lsb-factory to ${dest_path}" | center
     else
-        fail "Missing ${src_path}!"
+        fail "Missing ${src_path}!" && return 1
     fi
 }
 
@@ -608,15 +607,15 @@ installcros() {
 		if mount -r "${loop_root}" $recoroot ; then
 			echo -e "ROOT-A found successfully and mounted." | center
 		else
-			fail "Failed to mount ROOT-A"
+			fail "Failed to mount ROOT-A" && return 1
 		fi
 		local cros_dev="$(get_largest_cros_blockdev)"
   		if [ -z "$cros_dev" ]; then
 			echo -e "${YELLOW_B}No ChromeOS drive was found on the device! Please make sure ChromeOS is installed before using Aurora. Continuing anyway${COLOR_RESET}" | center
 		fi
-		stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)" || fail "Failed to find stateful on ${loop}!"
+		stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)" || fail "Failed to find stateful on ${loop}!" && return 1
 		mkdir /mnt/stateful_partition
-		mount $stateful /mnt/stateful_partition || fail "Failed to mount stateful!"
+		mount $stateful /mnt/stateful_partition || fail "Failed to mount stateful!" && return 1
 		MOUNTS="/proc /dev /sys /tmp /run /var /mnt/stateful_partition"
 		cd $recoroot
 		d=
@@ -624,7 +623,7 @@ installcros() {
 	  		mount -n --bind "${d}" "./${d}"
 	  		mount --make-slave "./${d}"
 		done
-		chroot ./ /usr/sbin/chromeos-install --payload_image="${loop}" --yes || fail "Failed during chroot!"
+		chroot ./ /usr/sbin/chromeos-install --payload_image="${loop}" --yes || fail "Failed during chroot!" && return 1
   		local cros_dev="$(get_largest_cros_blockdev)"
 		cgpt add -i 2 $cros_dev -P 15 -T 15 -S 1 -R 1 || echo -e "${YELLOW_B}Failed to set kernel priority! Continuing anyway${COLOR_RESET}"
 		echo -e "${GEEN_B}Recovery finished. Press any key to reboot."
@@ -703,7 +702,7 @@ shimboot() {
 		if mount "${loop_root}" $shimroot; then
 			echo -e "ROOT-A found successfully and mounted." | center
 		else
-            fail "Failed to mount ROOT-A"
+            fail "Failed to mount ROOT-A" && return 1
 		fi
 		export skipshimboot=0
 		if ! stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)"; then
@@ -721,8 +720,8 @@ shimboot() {
 			mkdir -p /stateful
 			mkdir -p /newroot
             
-			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
-			mount $stateful /stateful || fail "Failed to mount stateful!"
+			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot" && return 1
+			mount $stateful /stateful || fail "Failed to mount stateful!" && return 1
             sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
             chmod +x /usr/share/shims/*
             if [ -f $sh1mmerfile ]; then
@@ -741,7 +740,7 @@ shimboot() {
                 read_center "Enter size to allocate: " shimbootsize
                 shimbootsize=$(echo "$shimbootsize" | sed -e 's/ //' -e 'Is/GB/G/' -e 'Is/MB/M/')
                 if echo $shimbootsize | grep -i "k"; then
-                    fail "No."
+                    fail "No." && return 1
                 fi
                 cp /usr/share/shims/shimbootstrap.sh /stateful/bin/bootstrap.sh
                 umount -a
@@ -871,7 +870,7 @@ canwifi() {
   if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase
     "$@"
   else
-    fail "Not connected to the internet"
+    fail "Not connected to the internet" && return 1
   fi
 }
 export -f canwifi
@@ -887,20 +886,20 @@ download() {
 	case "$download_choice" in
 	    0) downloadreco ;;
 	    1) downloadshim ;;
-        *) fail "Invalid choice (somehow?????)" ;;
+        *) fail "Invalid choice (somehow?????)" && return 1 ;; 
 	esac
 }
 downloadreco() {
 	versions
     curl --fail --progress-bar -k "$FINAL_URL" -o "$aroot/images/recovery/$chromeVersion.zip" || {
-        fail "Failed to download ChromeOS recovery image."
+        fail "Failed to download ChromeOS recovery image." && return 1
     }
     FINAL_FILENAME=$(unzip -Z1 "$aroot/images/recovery/$chromeVersion.zip")
     file "$aroot/images/recovery/$chromeVersion.zip" | grep -iq "zip" || {
-        fail "ChromeOS recovery archive corrupted."
+        fail "ChromeOS recovery archive corrupted." && return 1
     }
     unzip "$aroot/images/recovery/$chromeVersion.zip" -d "$aroot/images/recovery/" || {
-        fail "Failed to unzip ChromeOS recovery archive."
+        fail "Failed to unzip ChromeOS recovery archive." && return 1
     }
 	rm $aroot/images/recovery/$chromeVersion.zip
     mv $aroot/images/recovery/$FINAL_FILENAME $aroot/images/recovery/$chromeVersion.bin
@@ -919,24 +918,24 @@ downloadshim() {
 	case "$download_choice" in
 	    0) export FINALSHIM_URL="" ;;
 	    1) read_center -d "Enter Shim URL: " FINALSHIM_URL ;;
-        *) fail "Invalid choice (somehow?????)" ;;
+        *) fail "Invalid choice (somehow?????)" && return 1 ;;
 	esac
     shimtype=$(echo $FINALSHIM_URL | awk -F. '{print $NF}')
     if [ -n "$shimtype" ]; then
-        fail "Invalid Shim URL"
+        fail "Invalid Shim URL" && return 1
     fi
     shimfile=$(echo $FINALSHIM_URL | awk -F/ '{print $NF}')
     shimname=$(echo $shimfile | sed "s/.${shimtype}//")
     curl --fail --progress-bar -k "$FINALSHIM_URL" -o "$aroot/images/shims/$shimfile" || {
-        fail "Failed to download shim."
+        fail "Failed to download shim." && return 1
     }
     if [ "$shimtype" = "zip" ]; then
         FINALSHIM_FILENAME=$(unzip -Z1 "$aroot/images/shims/$shimfile")
         file "$aroot/images/shims/$shimfile" | grep -iq "zip" || {
-            fail "Shim archive corrupted."
+            fail "Shim archive corrupted." && return 1
         }
         unzip "$aroot/images/shims/$shimfile" -d "$aroot/images/shims/" || {
-            fail "Failed to unzip shim archive."
+            fail "Failed to unzip shim archive." && return 1
         }
     	rm $aroot/images/shims/$shimfile
     fi
