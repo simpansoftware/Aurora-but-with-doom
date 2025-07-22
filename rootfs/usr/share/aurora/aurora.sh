@@ -1034,7 +1034,6 @@ EOF
     udevadm trigger | center || :
     udevadm settle | center || :
     echo "Done" | center
-    tput cnorm
 
     chmod +x /usr/share/aurora/aurora.sh
     for tty in 1 3; do
@@ -1077,6 +1076,7 @@ for chmod in /usr/bin/aurorabuildenv; do
 done
 
 while true; do
+    tput cnorm
     clear
     splash
     stty intr ''

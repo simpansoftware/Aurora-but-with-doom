@@ -1,3 +1,17 @@
+#!/bin/bash
+
+export COLOR_RESET="\033[0m"
+export BLACK_B="\033[1;30m"
+export RED_B="\033[1;31m"
+export GEEN="\033[0;32m"
+export GEEN_B="\033[1;32m"
+export YELLOW="\033[0;33m"
+export YELLOW_B="\033[1;33m"
+export BLUE_B="\033[1;34m"
+export MAGENTA_B="\033[1;35m"
+export PINK_B="\x1b[1;38;2;235;170;238m"
+export CYAN_B="\033[1;36m"
+
 downloadrawshim() { # aurora is singlehandedly putting vk6 out of business
     export COLUMNS=$(tput cols)
     last=$(( $(curl -s "https://cdn.cros.download/files/$board_name/$board_name.zip.manifest" | jq -r '.chunks[]' | tail -n1 | awk -F. '{print $NF}' | tr -d '0') + 1 ))
@@ -17,193 +31,190 @@ downloadrawshim() { # aurora is singlehandedly putting vk6 out of business
     rm $aroot/build/.$board_name.zip
     export basebuildshim="$aroot/build/.$board_name.bin"
 }
+export alpinebuild="$aroot/build/env/alpine"
+export crosbuild="$aroot/build/env/cros"
+export debianbuild="$aroot/build/env/debian"
+mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild"
 
-aurorabuildenv() {
-    export alpinebuild="$aroot/build/env/alpine"
-    export crosbuild="$aroot/build/env/cros"
-    export debianbuild="$aroot/build/env/debian"
-    mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild"
-
-    for env in alpine cros debian; do
-        local build="${env}build"
-        local created="${env}created"
-        local file="${!build}/etc/.exists"
-        if [ ! -e "$file" ]; then
-            : "${!created:=0}"
-            export "$created"
-        fi
-    done
-    aurorabuildenv-help() {
-        cat <<'EOF'
+for env in alpine cros debian; do
+    local build="${env}build"
+    local created="${env}created"
+    local file="${!build}/etc/.exists"
+    if [ ! -e "$file" ]; then
+        : "${!created:=0}"
+        export "$created"
+    fi
+done
+aurorabuildenv-help() {
+    cat <<'EOF'
 Usage: command [options]
 
 Commands:
-  help - display this menu
-  list - display created build environments
-  create - create a cros and alpine build environment
-  delete - create a cros and alpine build environment
-  start - start a build environment
-  exit - exits back to Aurora menu
+    help    display this menu
+    list    display created build environments
+    create  create a build environment
+    delete  delete a build environment
+    start   start a build environment
+    exit    exits back to Aurora menu
 
 Options:
-  Required:
-  -c  --cros - applies action to cros env
-  -a  --alpine - applies action to alpine env
-  -d  --debian - applies action to debian env
+Required:
+    -c  --cros      applies action to cros env
+    -al --alpine    applies action to alpine env
+    -d  --debian    applies action to debian env
 EOF
-    }
-    aurorabuildenv-list() {
-        find $aroot/build/ -type f -name .exists | awk -F/ '{print $7}'
-    }
-    aurorabuildenv-create() {
-        mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild"
-        local buildenvname=""
-        case "$1" in
-            -al|--alpine)
-                buildenvname="alpine"
-                ;;
-            -c|--cros)
-                buildenvname="cros"
-                ;;
-            -d|--debian)
-                buildenvname="debian"
-                ;;
-            *)
-                echo "Usage: create [-al|--alpine] [-c|--cros] [-d|--debian]"
-                return 1
-                ;;
-        esac
-        if [ "${buildenvname}" = "alpine" ]; then
-            if [ "$alpinecreated" -ne 1 ] 2>/dev/null; then
-                export alpinebuild="$aroot/build/env/alpine"
-                curl -L "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$(uname -m)/alpine-minirootfs-3.22.0-$(uname -m).tar.gz" -o alpine-minirootfs.tar.gz
-                tar -xf alpine-minirootfs.tar.gz -C "$alpinebuild"
-                rm -f "$alpinebuild/sbin/init"
-                rm -f alpine-minirootfs.tar.gz
-                touch "$alpinebuild/etc/.exists"
-                export alpinecreated=1
-            else
-                echo "Please remove the existing alpine build environment before creating another."
-            fi
-            sync
-        fi
-        if [ "${buildenvname}" = "cros" ]; then
-            if [ "$croscreated" -ne 1 ] 2>/dev/null; then
-                export crosbuild="$aroot/build/env/cros"
-                downloadrawshim
-                crosbuildloopdev=$(losetup -Pf --show "$basebuildshim")
-                crosbuildlooproota=$(lsblk -pro NAME,PARTLABEL "$crosbuildloopdev" | grep "ROOT-A" | awk '{print $1}')
-                crosbuildtempdir=$(mktemp -d)
-                mount "$crosbuildlooproota" "$crosbuildtempdir" -o ro
-                cp -ra "$crosbuildtempdir/." "$crosbuild"
-                umount "$crosbuildlooproota"
-                rm -f "$crosbuild/sbin/init"
-                touch "$crosbuild/etc/.exists"
-                export croscreated=1
-            else
-                echo "Please remove the existing cros build environment before creating another." 
-            fi
-            sync
-        fi
-        if [ "${buildenvname}" = "debian" ]; then
-            if [ "$debiancreated" -ne 1 ] 2>/dev/null; then
-                arch=$(uname -m)
-                export debianbuild="$aroot/build/env/debian"
-                case "$arch" in
-                    x86_64)   dbsarch=amd64 ;;
-                    aarch64)  dbsarch=arm64 ;;
-                    *)        echo "Unsupported arch."; return 1 ;;
-                esac
-                debootstrap --arch="$dbsarch" bookworm "$debianbuild" http://deb.debian.org/debian
-                touch "$debianbuild/etc/.exists"
-                export debiancreated=1
-            else
-                echo "Please remove the existing debian build environment before creating another."
-            fi
-            sync
-        fi
-    }
-
-    aurorabuildenv-delete() {
-        local buildenvname=""
-        case "$1" in
-            -al|--alpine)
-                buildenvname="alpine"
-                ;;
-            -c|--cros)
-                buildenvname="cros"
-                ;;
-            -d|--debian)
-                buildenvname="debian"
-                ;;
-            *)
-                echo "Usage: create [-al|--alpine] [-c|--cros] [-d|--debian]"
-                return 1
-                ;;
-        esac
-        read -p "Delete build environment? (y/N): " confirmdeletebuildenv
-        created="${buildenvname}created"
-        case "$confirmdeletebuildenv" in
-            y|Y)
-                rm -rf "$aroot/build/env/$buildenvname"
-                export "$created"=0 ;;
-            *) ;;
-        esac
-    }
-
-    aurorabuildenv-start() {
-        local dist=""
-        case "$1" in
-            -al|--alpine)
-                dist="alpine"
-                ;;
-            -c|--cros)
-                dist="cros"
-                ;;
-            -d|--debian)
-                dist="debian"
-                ;;
-            *)
-                echo "Usage: start [-al|--alpine] [-c|--cros] [-d|--debian]"
-                return 1
-                ;;
-        esac
-        created="${dist}created"
-        build="${dist}build"
-        if [ "${!created}" -eq 1 ] 2>/dev/null; then
-            for mountpoint in /dev /proc /sys; do
-                mount --bind "$mountpoint" "${!build}${mountpoint}"
-            done
-
-            clear
-            chroot "${!build}" /bin/bash
-
-            for mountpoint in /dev /proc /sys; do
-                umount "${!build}${mountpoint}"
-            done
-            clear
-            echo "'help' to display commands"
-        else
-            echo "Please create ${dist} environment first"
-        fi
-    }
-    clear
-    echo -e "${BLUE_B}aurorabuildenv 1.0 ${YELLOW_B}[$(uname -m)]${COLOR_RESET}"
-    echo "'help' to display commands"
-    while true; do
-        echo -ne "$GEEN_B(aurorabuildenv)> $COLOR_RESET"
-        read aurorabuildenvopt
-        read -ra aurora_args <<< "$aurorabuildenvopt"
-        cmd="${aurora_args[0]}"
-        flags="${aurora_args[@]:1}"
-        case $cmd in
-            start) aurorabuildenv-start $flags ;;
-            create) aurorabuildenv-create $flags ;;
-            delete) aurorabuildenv-delete $flags ;;
-            help) aurorabuildenv-help ;;
-            list) aurorabuildenv-list ;;
-            exit) break ;;
-            *) aurorabuildenv-help ;;
-        esac
-    done
 }
+aurorabuildenv-list() {
+    find $aroot/build/ -type f -name .exists | awk -F/ '{print $7}'
+}
+aurorabuildenv-create() {
+    mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild"
+    local buildenvname=""
+    case "$1" in
+        -al|--alpine)
+            buildenvname="alpine"
+            ;;
+        -c|--cros)
+            buildenvname="cros"
+            ;;
+        -d|--debian)
+            buildenvname="debian"
+            ;;
+        *)
+            echo "Usage: create [-al | --alpine] [-c | --cros] [-d | --debian]"
+            return 1
+            ;;
+    esac
+    if [ "${buildenvname}" = "alpine" ]; then
+        if [ "$alpinecreated" -ne 1 ] 2>/dev/null; then
+            export alpinebuild="$aroot/build/env/alpine"
+            curl -L "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$(uname -m)/alpine-minirootfs-3.22.0-$(uname -m).tar.gz" -o alpine-minirootfs.tar.gz
+            tar -xf alpine-minirootfs.tar.gz -C "$alpinebuild"
+            rm -f "$alpinebuild/sbin/init"
+            rm -f alpine-minirootfs.tar.gz
+            touch "$alpinebuild/etc/.exists"
+            export alpinecreated=1
+        else
+            echo "Please remove the existing alpine build environment before creating another."
+        fi
+        sync
+    fi
+    if [ "${buildenvname}" = "cros" ]; then
+        if [ "$croscreated" -ne 1 ] 2>/dev/null; then
+            export crosbuild="$aroot/build/env/cros"
+            downloadrawshim
+            crosbuildloopdev=$(losetup -Pf --show "$basebuildshim")
+            crosbuildlooproota=$(lsblk -pro NAME,PARTLABEL "$crosbuildloopdev" | grep "ROOT-A" | awk '{print $1}')
+            crosbuildtempdir=$(mktemp -d)
+            mount "$crosbuildlooproota" "$crosbuildtempdir" -o ro
+            cp -ra "$crosbuildtempdir/." "$crosbuild"
+            umount "$crosbuildlooproota"
+            rm -f "$crosbuild/sbin/init"
+            touch "$crosbuild/etc/.exists"
+            export croscreated=1
+        else
+            echo "Please remove the existing cros build environment before creating another." 
+        fi
+        sync
+    fi
+    if [ "${buildenvname}" = "debian" ]; then
+        if [ "$debiancreated" -ne 1 ] 2>/dev/null; then
+            arch=$(uname -m)
+            export debianbuild="$aroot/build/env/debian"
+            case "$arch" in
+                x86_64)   dbsarch=amd64 ;;
+                aarch64)  dbsarch=arm64 ;;
+                *)        echo "Unsupported arch."; return 1 ;;
+            esac
+            debootstrap --arch="$dbsarch" bookworm "$debianbuild" http://deb.debian.org/debian
+            touch "$debianbuild/etc/.exists"
+            export debiancreated=1
+        else
+            echo "Please remove the existing debian build environment before creating another."
+        fi
+        sync
+    fi
+}
+
+aurorabuildenv-delete() {
+    local buildenvname=""
+    case "$1" in
+        -al|--alpine)
+            buildenvname="alpine"
+            ;;
+        -c|--cros)
+            buildenvname="cros"
+            ;;
+        -d|--debian)
+            buildenvname="debian"
+            ;;
+        *)
+            echo "Usage: delete [-al | --alpine] [-c | --cros] [-d | --debian]"
+            return 1
+            ;;
+    esac
+    read -p "Delete build environment? (y/N): " confirmdeletebuildenv
+    created="${buildenvname}created"
+    case "$confirmdeletebuildenv" in
+        y|Y)
+            rm -rf "$aroot/build/env/$buildenvname"
+            export "$created"=0 ;;
+        *) ;;
+    esac
+}
+
+aurorabuildenv-start() {
+    local dist=""
+    case "$1" in
+        -al|--alpine)
+            dist="alpine"
+            ;;
+        -c|--cros)
+            dist="cros"
+            ;;
+        -d|--debian)
+            dist="debian"
+            ;;
+        *)
+            echo "Usage: start [-al | --alpine] [-c | --cros] [-d | --debian]"
+            return 1
+            ;;
+    esac
+    created="${dist}created"
+    build="${dist}build"
+    if [ "${!created}" -eq 1 ] 2>/dev/null; then
+        for mountpoint in /dev /proc /sys; do
+            mount --bind "$mountpoint" "${!build}${mountpoint}"
+        done
+
+        clear
+        chroot "${!build}" /bin/bash
+
+        for mountpoint in /dev /proc /sys; do
+            umount "${!build}${mountpoint}"
+        done
+        clear
+        echo "'help' to display commands"
+    else
+        echo "Please create ${dist} environment first"
+    fi
+}
+clear
+echo -e "${BLUE_B}aurorabuildenv 1.0 ${YELLOW_B}[$(uname -m)]${COLOR_RESET}"
+echo "'help' to display commands"
+while true; do
+    echo -ne "$GEEN_B(aurorabuildenv)> $COLOR_RESET"
+    read aurorabuildenvopt
+    read -ra aurora_args <<< "$aurorabuildenvopt"
+    cmd="${aurora_args[0]}"
+    flags="${aurora_args[@]:1}"
+    case $cmd in
+        start) aurorabuildenv-start $flags ;;
+        create) aurorabuildenv-create $flags ;;
+        delete) aurorabuildenv-delete $flags ;;
+        help) aurorabuildenv-help ;;
+        list) aurorabuildenv-list ;;
+        exit) break ;;
+        *) aurorabuildenv-help ;;
+    esac
+done
