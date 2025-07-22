@@ -1023,13 +1023,9 @@ Commands:
   help - display this menu
   create - create a cros and alpine build environment
   delete - create a cros and alpine build environment
-EOF
-        if [ "$aurorabuildenvcreated" -eq 1 ]; then
-            cat <<'EOF' | center
   start - start a build environment
-EOF
-        fi
-        cat <<'EOF' | center
+  exit - exits back to Aurora menu
+
 Options:
   Required:
   -c  --cros - applies action to cros env
@@ -1042,7 +1038,7 @@ EOF
         crosbuild="$aroot/build/env/cros"
         debianbuild="$aroot/build/env/debian"
         mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild"
-        local dist=""
+        local buildenvname=""
         case "$1" in
             -al|--alpine)
                 buildenvname="$alpine"
@@ -1099,11 +1095,29 @@ EOF
     }
 
     aurorabuildenv-delete() {
+        local buildenvname=""
+        case "$1" in
+            -al|--alpine)
+                buildenvname="$alpine"
+                ;;
+            -c|--cros)
+                buildenvname="$cros"
+                ;;
+            -d|--debian)
+                buildenvname="$debian"
+                ;;
+            *)
+                echo "Usage: create [-al|--alpine] [-c|--cros] [-d|--debian]" | center
+                return 1
+                ;;
+        esac
         read_center -d "Delete build environment? (y/N): " confirmdeletebuildenv
+        created="${buildenvname}created"
         case "$confirmdeletebuildenv" in
             y|Y)
-                rm -rf "$aroot/build/env/*"
-                export aurorabuildenvcreated=0 ;;
+                rm -rf "$aroot/build/env/$buildenvname"
+                eval "$created=0"
+                export "$created" ;;
             *) ;;
         esac
     }
@@ -1153,6 +1167,7 @@ EOF
         start) aurorabuildenv-start $flags ;;
         create) aurorabuildenv-create $flags ;;
         help) aurorabuildenv-help ;;
+        exit)
     esac
 }
 
