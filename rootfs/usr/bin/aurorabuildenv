@@ -36,15 +36,6 @@ export crosbuild="$aroot/build/env/cros"
 export debianbuild="$aroot/build/env/debian"
 mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild"
 
-for env in alpine cros debian; do
-    local build="${env}build"
-    local created="${env}created"
-    local file="${!build}/etc/.exists"
-    if [ ! -e "$file" ]; then
-        : "${!created:=0}"
-        export "$created"
-    fi
-done
 aurorabuildenv-help() {
     cat <<'EOF'
 Usage: command [options]
@@ -86,21 +77,20 @@ aurorabuildenv-create() {
             ;;
     esac
     if [ "${buildenvname}" = "alpine" ]; then
-        if [ "$alpinecreated" -ne 1 ] 2>/dev/null; then
+        if [ ! -e "${aroot}/build/env/${buildenvname}/etc/.exists" ]; then
             export alpinebuild="$aroot/build/env/alpine"
             curl -L "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$(uname -m)/alpine-minirootfs-3.22.0-$(uname -m).tar.gz" -o alpine-minirootfs.tar.gz
             tar -xf alpine-minirootfs.tar.gz -C "$alpinebuild"
             rm -f "$alpinebuild/sbin/init"
             rm -f alpine-minirootfs.tar.gz
             touch "$alpinebuild/etc/.exists"
-            export alpinecreated=1
         else
             echo "Please remove the existing alpine build environment before creating another."
         fi
         sync
     fi
     if [ "${buildenvname}" = "cros" ]; then
-        if [ "$croscreated" -ne 1 ] 2>/dev/null; then
+        if [ ! -e "${aroot}/build/env/${buildenvname}/etc/.exists" ]; then
             export crosbuild="$aroot/build/env/cros"
             downloadrawshim
             crosbuildloopdev=$(losetup -Pf --show "$basebuildshim")
@@ -111,14 +101,13 @@ aurorabuildenv-create() {
             umount "$crosbuildlooproota"
             rm -f "$crosbuild/sbin/init"
             touch "$crosbuild/etc/.exists"
-            export croscreated=1
         else
             echo "Please remove the existing cros build environment before creating another." 
         fi
         sync
     fi
     if [ "${buildenvname}" = "debian" ]; then
-        if [ "$debiancreated" -ne 1 ] 2>/dev/null; then
+        if [ ! -e "${aroot}/build/env/${buildenvname}/etc/.exists" ]; then
             arch=$(uname -m)
             export debianbuild="$aroot/build/env/debian"
             case "$arch" in
@@ -128,7 +117,6 @@ aurorabuildenv-create() {
             esac
             debootstrap --arch="$dbsarch" bookworm "$debianbuild" http://deb.debian.org/debian
             touch "$debianbuild/etc/.exists"
-            export debiancreated=1
         else
             echo "Please remove the existing debian build environment before creating another."
         fi
@@ -154,11 +142,9 @@ aurorabuildenv-delete() {
             ;;
     esac
     read -p "Delete build environment? (y/N): " confirmdeletebuildenv
-    created="${buildenvname}created"
     case "$confirmdeletebuildenv" in
         y|Y)
-            rm -rf "$aroot/build/env/$buildenvname"
-            export "$created"=0 ;;
+            rm -rf "$aroot/build/env/$buildenvname" ;;
         *) ;;
     esac
 }
@@ -180,9 +166,8 @@ aurorabuildenv-start() {
             return 1
             ;;
     esac
-    created="${dist}created"
     build="${dist}build"
-    if [ "${!created}" -eq 1 ] 2>/dev/null; then
+    if [ -e "${aroot}/build/env/${dist}/etc/.exists" ]; then
         for mountpoint in /dev /proc /sys; do
             mount --bind "$mountpoint" "${!build}${mountpoint}"
         done
