@@ -1066,7 +1066,7 @@ EOF
             fi
         fi
         if [ "${buildenvname}" = "cros" ]; then
-            if [ "$croscreated"-ne 1 ]; then
+            if [ "$croscreated" -ne 1 ]; then
                 downloadrawshim
                 crosbuildloopdev=$(losetup -Pf --show "$basebuildshim")
                 crosbuildlooproota=$(lsblk -pro NAME,PARTLABEL "$crosbuildloopdev" | grep "ROOT-A" | awk '{print $1}')
@@ -1081,7 +1081,7 @@ EOF
             fi
         fi
         if [ "${buildenvname}" = "debian" ]; then
-            if [ "$debiancreated"-ne 1 ]; then
+            if [ "$debiancreated" -ne 1 ]; then
                 case "$arch" in
                     x86_64)   dbsarch=amd64 ;;
                     aarch64)  dbsarch=arm64 ;;
@@ -1152,6 +1152,8 @@ EOF
             for mountpoint in /dev /proc /sys; do
                 umount "${!build}${mountpoint}"
             done
+            clear
+            echo "'help' to display commands"
         else
             echo "Please create ${dist} environment first"
         fi
