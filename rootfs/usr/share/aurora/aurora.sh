@@ -1143,7 +1143,9 @@ EOF
         fi
     }
     echo "'help' to display commands" | center
+    echo -n "$GEEN_B"
     read_center -d "(aurorabuildenv)> " aurorabuildenvopt
+    echo -n "$COLOR_RESET"
     read -ra aurora_args <<< "$aurorabuildenvopt"
     cmd="${aurora_args[0]}"
     flags="${aurora_args[@]:1}"
