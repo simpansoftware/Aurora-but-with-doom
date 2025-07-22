@@ -377,9 +377,7 @@ boot_chromeos() {
   pivot_root /newroot /newroot/tmp/bootloader
 
   echo "starting init"
-  echo 64M > /sys/block/zram0/disksize
-  mkswap /dev/zram0
-  swapon /dev/zram0
+  /sbin/modprobe zram
   exec_init
 }
 
