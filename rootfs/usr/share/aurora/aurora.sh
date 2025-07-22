@@ -1015,6 +1015,20 @@ downloadrawshim() { # aurora is singlehandedly putting vk6 out of business
 }
 
 aurorabuildenv() {
+    alpinebuild="$aroot/build/env/alpine"
+    crosbuild="$aroot/build/env/cros"
+    debianbuild="$aroot/build/env/debian"
+    mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild"
+
+    for env in alpine cros debian; do
+        local build="${env}build"
+        local created="${env}created"
+        local bin="${!build}/bin"
+        if [ -z "$(ls -A "$bin" 2>/dev/null)" ]; then
+            : "${!created:=0}"
+            export "$created"
+        fi
+    done
     aurorabuildenv-help() {
         cat <<'EOF'
 aurorabuildenv 1.0 [$(uname -m)]
@@ -1035,10 +1049,6 @@ Options:
 EOF
     }
     aurorabuildenv-create() {
-        alpinebuild="$aroot/build/env/alpine"
-        crosbuild="$aroot/build/env/cros"
-        debianbuild="$aroot/build/env/debian"
-        mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild"
         local buildenvname=""
         case "$1" in
             -al|--alpine)
