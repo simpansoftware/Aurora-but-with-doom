@@ -8,11 +8,10 @@ http://dl-cdn.alpinelinux.org/alpine/edge/main
 http://dl-cdn.alpinelinux.org/alpine/edge/community
 http://dl-cdn.alpinelinux.org/alpine/edge/testing
 EOF
-apk add jq rsync cgpt file unzip dhcpcd fastfetch figlet util-linux syslog-ng e2fsprogs fish lsblk losetup wpa_supplicant vboot-utils curl tpm2-tools cryptsetup coreutils bash openrc dbus eudev udev-init-scripts ncurses udisks2 sudo zram-init iw wpa_supplicant cloud-utils-growpart nano sfdisk sgdisk
+apk add jq debootstrap rsync cgpt file unzip dhcpcd fastfetch figlet util-linux syslog-ng e2fsprogs fish lsblk losetup wpa_supplicant vboot-utils curl tpm2-tools cryptsetup coreutils bash openrc dbus eudev udev-init-scripts ncurses udisks2 sudo zram-init iw wpa_supplicant cloud-utils-growpart nano sfdisk sgdisk
 
 cat <<'EOF' >> /etc/profile
 export PS1='\[\033[1;34m\]Aurora\[\e[0m\]:\[\033[1;32m\]\w\[\e[0m\]\$ '
-stty sane && stty erase '^H'
 alias ls='ls --color=auto'
 alias dir='dir --color=auto'
 alias grep='grep --color=auto'

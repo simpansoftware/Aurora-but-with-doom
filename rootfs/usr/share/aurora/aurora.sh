@@ -1172,7 +1172,7 @@ EOF
             done
 
             clear
-            chroot "${!build}"
+            chroot "${!build}" /bin/bash
 
             for mountpoint in /dev /proc /sys; do
                 umount "${!build}${mountpoint}"
@@ -1234,7 +1234,6 @@ payloads() {
     fi
 }
 
-
 if [ "$$" -ne 1 ]; then
     menu_options=(
         "1. Open Terminal"
@@ -1248,13 +1247,13 @@ if [ "$$" -ne 1 ]; then
     )
 
     menu_actions=(
-        "clear && script -qfc 'exec bash -l || exec busybox sh -l' /dev/null"
+        "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
         "clear && installcros"
         "clear && wifi"
         "canwifi clear && download"
         "clear && payloads"
         "canwifi updateshim"
-        "canwifi aurorabuildenv"
+        "clear && script -qfc 'stty sane && stty erase '^H' && canwifi aurorabuildenv'"
         "reboot -f"
     )
 else
@@ -1271,14 +1270,14 @@ else
     )
 
     menu_actions=(
-        "clear && script -qfc 'exec bash -l || exec busybox sh -l' /dev/null"
+        "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
         "clear && installcros"
         "clear && shimboot"
         "clear && wifi"
         "canwifi clear && download"
         "clear && payloads"
         "canwifi updateshim"
-        "canwifi aurorabuildenv"
+        "clear && script -qfc 'stty sane && stty erase '^H' && canwifi aurorabuildenv'"
         "reboot -f"
     )
 fi
