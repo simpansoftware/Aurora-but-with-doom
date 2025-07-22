@@ -1165,7 +1165,7 @@ EOF
         read -ra aurora_args <<< "$aurorabuildenvopt"
         cmd="${aurora_args[0]}"
         flags="${aurora_args[@]:1}"
-        case $aurorabuildenvopt in
+        case $cmd in
             start) aurorabuildenv-start $flags ;;
             create) aurorabuildenv-create $flags ;;
             help) aurorabuildenv-help ;;
