@@ -1160,9 +1160,8 @@ EOF
     clear
     echo "'help' to display commands"
     while true; do
-        echo -ne "$GEEN_B"
-        read -p "(aurorabuildenv)> " aurorabuildenvopt
-        echo -ne "$COLOR_RESET"
+        echo -ne "$GEEN_B(aurorabuildenv)> $COLOR_RESET"
+        read aurorabuildenvopt
         read -ra aurora_args <<< "$aurorabuildenvopt"
         cmd="${aurora_args[0]}"
         flags="${aurora_args[@]:1}"
