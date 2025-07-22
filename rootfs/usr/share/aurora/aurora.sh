@@ -1142,7 +1142,7 @@ EOF
         esac
         created="${dist}created"
         build="${dist}build"
-        if [ "${!created}" -eq 1 ]; then
+        if [ "${!created}" -eq 1 ] 2>/dev/null; then
             for mountpoint in /dev /proc /sys; do
                 mount --bind "$mountpoint" "${!build}${mountpoint}"
             done
