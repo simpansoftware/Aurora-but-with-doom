@@ -1170,6 +1170,7 @@ EOF
             create) aurorabuildenv-create $flags ;;
             help) aurorabuildenv-help ;;
             exit) break ;;
+            *) echo -e "${RED_B}Invalid Command${COLOR_RESET}"
         esac
     done
 }
