@@ -48,6 +48,7 @@ alias ls='ls --color=auto'
 alias dir='dir --color=auto'
 alias grep='grep --color=auto'
 mkdir -p $aroot/images/shims
+mkdir -p $aroot/build
 mkdir -p $aroot/images/recovery
 mkdir -p $aroot/images/gurt
 declare -A VERSION
@@ -969,6 +970,14 @@ updateshim() {
     cp -Lar /root/Aurora/rootfs/. /
     cp -Lar /root/Aurora/$(uname -m)/. /
     sync
+}
+
+#######################
+## BUILD ENVIRONMENT ##
+#######################
+
+startbuildenv() {
+    
 }
 
 ##################
