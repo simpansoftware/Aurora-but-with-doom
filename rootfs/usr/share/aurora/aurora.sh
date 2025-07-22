@@ -1253,7 +1253,7 @@ if [ "$$" -ne 1 ]; then
         "canwifi clear && download"
         "clear && payloads"
         "canwifi updateshim"
-        "clear && script -qfc 'stty sane && stty erase '^H' && canwifi aurorabuildenv'"
+        "canwifi clear && script -qfc 'stty sane && stty erase '^H' && aurorabuildenv'"
         "reboot -f"
     )
 else
@@ -1277,7 +1277,7 @@ else
         "canwifi clear && download"
         "clear && payloads"
         "canwifi updateshim"
-        "clear && script -qfc 'stty sane && stty erase '^H' && canwifi aurorabuildenv'"
+        "canwifi clear && script -qfc 'stty sane && stty erase '^H' && aurorabuildenv'"
         "reboot -f"
     )
 fi
