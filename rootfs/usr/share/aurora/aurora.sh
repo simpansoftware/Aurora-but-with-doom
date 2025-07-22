@@ -822,7 +822,7 @@ if [ -f "/etc/wpa_supplicant.conf" ]; then
     done
 
     if [ $connected -eq 0 ]; then
-        echo "No nearby saved networks found; Retrying..." | center
+        echo "No nearby saved networks found" | center
     fi
 fi
 release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
@@ -1031,8 +1031,7 @@ aurorabuildenv() {
     done
     aurorabuildenv-help() {
         cat <<'EOF'
-aurorabuildenv 1.0 [$(uname -m)]
-Usage: aurorabuildenv command [options]
+Usage: command [options]
 
 Commands:
   help - display this menu
@@ -1184,6 +1183,7 @@ EOF
         fi
     }
     clear
+    echo -e "${BLUE_B}aurorabuildenv 1.0 ${YELLOW_B}[$(uname -m)]${COLOR_RESET}"
     echo "'help' to display commands"
     while true; do
         echo -ne "$GEEN_B(aurorabuildenv)> $COLOR_RESET"
