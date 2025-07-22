@@ -1103,11 +1103,12 @@ EOF
         fi
         if [ "${buildenvname}" = "debian" ]; then
             if [ "$debiancreated" -ne 1 ] 2>/dev/null; then
+                arch=$(uname -m)
                 export debianbuild="$aroot/build/env/debian"
                 case "$arch" in
                     x86_64)   dbsarch=amd64 ;;
                     aarch64)  dbsarch=arm64 ;;
-                    *)        echo "Unsupported arch."; exit 1 ;;
+                    *)        echo "Unsupported arch."; return 1 ;;
                 esac
                 debootstrap --arch="$dbsarch" bookworm "$debianbuild" http://deb.debian.org/debian
                 touch "$debianbuild/etc/.exists"
