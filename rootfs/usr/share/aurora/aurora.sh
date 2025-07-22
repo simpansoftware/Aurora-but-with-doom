@@ -1015,7 +1015,7 @@ downloadrawshim() { # aurora is singlehandedly putting vk6 out of business
 
 aurorabuildenv() {
     aurorabuildenv-help() {
-        cat <<'EOF' | center
+        cat <<'EOF'
 aurorabuildenv 1.0 [$(uname -m)]
 Usage: aurorabuildenv command [options]
 
@@ -1050,7 +1050,7 @@ EOF
                 buildenvname="$debian"
                 ;;
             *)
-                echo "Usage: create [-al|--alpine] [-c|--cros] [-d|--debian]" | center
+                echo "Usage: create [-al|--alpine] [-c|--cros] [-d|--debian]"
                 return 1
                 ;;
         esac
@@ -1061,7 +1061,7 @@ EOF
                 rm -f "$alpinebuild/sbin/init"
                 export alpinecreated=1
             else
-                echo "Please remove the existing alpine build environment before creating another." | center
+                echo "Please remove the existing alpine build environment before creating another."
             fi
         fi
         if [ "${buildenvname}" = "cros" ]; then
@@ -1076,7 +1076,7 @@ EOF
                 rm -f "$crosbuild/sbin/init"
                 export croscreated=1
             else
-                echo "Please remove the existing cros build environment before creating another." | center
+                echo "Please remove the existing cros build environment before creating another." 
             fi
         fi
         if [ "${buildenvname}" = "debian" ]; then
@@ -1084,12 +1084,12 @@ EOF
                 case "$arch" in
                     x86_64)   dbsarch=amd64 ;;
                     aarch64)  dbsarch=arm64 ;;
-                    *)        echo "Unsupported arch." | center; exit 1 ;;
+                    *)        echo "Unsupported arch."; exit 1 ;;
                 esac
                 debootstrap --arch=$dbsarch bookworm $debianbuild http://deb.debian.org/debian
                 export debiancreated=1
             else
-                echo "Please remove the existing debian build environment before creating another." | center
+                echo "Please remove the existing debian build environment before creating another."
             fi
         fi
     }
@@ -1107,11 +1107,11 @@ EOF
                 buildenvname="$debian"
                 ;;
             *)
-                echo "Usage: create [-al|--alpine] [-c|--cros] [-d|--debian]" | center
+                echo "Usage: create [-al|--alpine] [-c|--cros] [-d|--debian]"
                 return 1
                 ;;
         esac
-        read_center -d "Delete build environment? (y/N): " confirmdeletebuildenv
+        read -p "Delete build environment? (y/N): " confirmdeletebuildenv
         created="${buildenvname}created"
         case "$confirmdeletebuildenv" in
             y|Y)
@@ -1135,7 +1135,7 @@ EOF
                 dist="$debian"
                 ;;
             *)
-                echo "Usage: start [-al|--alpine] [-c|--cros] [-d|--debian]" | center
+                echo "Usage: start [-al|--alpine] [-c|--cros] [-d|--debian]"
                 return 1
                 ;;
         esac
@@ -1156,10 +1156,11 @@ EOF
             echo "Please create ${dist} environment first"
         fi
     }
-    echo "'help' to display commands" | center
-    echo -n "$GEEN_B"
-    read_center -d "(aurorabuildenv)> " aurorabuildenvopt
-    echo -n "$COLOR_RESET"
+    clear
+    echo "'help' to display commands"
+    echo -ne "$GEEN_B"
+    read -p "(aurorabuildenv)> " aurorabuildenvopt
+    echo -ne "$COLOR_RESET"
     read -ra aurora_args <<< "$aurorabuildenvopt"
     cmd="${aurora_args[0]}"
     flags="${aurora_args[@]:1}"
@@ -1167,7 +1168,7 @@ EOF
         start) aurorabuildenv-start $flags ;;
         create) aurorabuildenv-create $flags ;;
         help) aurorabuildenv-help ;;
-        exit)
+        exit) exit ;;
     esac
 }
 
