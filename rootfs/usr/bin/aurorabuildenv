@@ -173,7 +173,7 @@ aurorabuildenv-start() {
         done
 
         clear
-        chroot "${!build}" script -qfc "stty sane && stty erase '^H' && exec bash"
+        chroot "${!build}" bash
 
         for mountpoint in /dev /proc /sys; do
             umount "${!build}${mountpoint}"
