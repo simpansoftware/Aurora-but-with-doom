@@ -27,6 +27,7 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 ## DEFINITIONS ##
 #################
 
+export device=$(lsblk -pro NAME,PARTLABEL,MOUNTPOINT | grep -i "Aurora /" | awk '{print $1}' | sed 's/[0-9]//')
 export aroot="/usr/share/aurora"
 export releaseBuild=1
 export shimroot="/shimroot"
