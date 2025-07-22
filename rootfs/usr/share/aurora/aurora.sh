@@ -631,7 +631,7 @@ shimboot() {
 
 		loop_root="$(cgpt find -l ROOT-A "$loop" | head -n1)"
         if [ -z "$loop_root" ]; then
-            loop_root="$(cgpt find -t rootfs "$loop" | head -n1)"
+                loop_root="$(cgpt find -t rootfs "$loop" | head -n1)"
         fi
         if [ -z "$loop_root" ]; then
             loop_root="${loop}p3"
@@ -680,6 +680,9 @@ shimboot() {
             fi
             if lsblk -o PARTLABEL $loop | grep "shimboot"; then
                 modprobe zram
+                echo 1024M > /sys/block/zram0/disksize
+                mkswap /dev/zram0
+                swapon /dev/zram0
                 export specialshim="shimboot"
                 echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time." | center
                 freespace=$(df -h / | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
@@ -689,16 +692,16 @@ shimboot() {
                 if echo $shimbootsize | grep -i "k"; then
                     fail "No."
                 fi
-                umount $stateful
-                umount $loop_root
-                truncate -s +${shimbootsize} $shim
+                umount $stateful || true
+                umount $loop_root || true
                 losetup -D
-                losetup -Pf $shim
-                if mount "${loop_root}" $shimroot; then
-                    echo -e "ROOT-A found successfully and mounted." | center
-                else
-                    fail "Failed to mount ROOT-A"
-                fi
+
+                truncate -s +${shimbootsize} "$shim"
+                loop=$(losetup -Pf --show "$shim")
+                partprobe "$loop"
+
+                loop_root="$(cgpt find -l ROOT-A "$loop" | head -n1)"
+                stateful="$(cgpt find -l STATE "$loop" | head -n1)"
                 mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
 			    mount $stateful /stateful || fail "Failed to mount stateful!"
             fi
@@ -820,6 +823,8 @@ if [ -f "/etc/wpa_supplicant.conf" ]; then
         echo "No nearby saved networks found; Retrying..." | center
     fi
 fi
+release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
+export board_name=${release_board%%-*}
 
 ##########
 ## WIFI ##
@@ -878,7 +883,12 @@ canwifi() {
   if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase
     "$@"
   else
-    fail "Not connected to the internet"
+    echo "Not connected to the internet, or Nebula Services is down."
+    if curl -Is https://example.com | head -n 1 | grep -q "HTTP/"; then # nebula got ddosed like a day ago
+        "$@"
+    else
+        fail "Not connected to the internet"
+    fi
   fi
 }
 export -f canwifi
@@ -955,6 +965,7 @@ downloadyo() {
 }
 
 updateshim() {
+    arch=$(uname -m)
     apk add git github-cli
     rm -rf /usr/share/aurora/aurora.sh
     if [ -d "/root/Aurora/.git" ]; then
@@ -968,7 +979,12 @@ updateshim() {
         rm -f /root/Aurora/rootfs/usr/share/aurora/.UNRESIZED
     fi
     cp -Lar /root/Aurora/rootfs/. /
-    cp -Lar /root/Aurora/$(uname -m)/. /
+    initramfsmnt=$(mktemp -d)
+    mount ${device}3 $initramfsmnt
+    cp -Lar /root/Aurora/initramfs/. /
+    chroot "$initramfsmnt" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/initramfsupdatepackages.sh && /opt/initramfsupdatepackages.sh $arch"
+    umount $initramfsmnt
+    chmod +x /opt/rootfsupdatepackages.sh && /opt/rootfsupdatepackages.sh
     sync
 }
 
@@ -976,9 +992,122 @@ updateshim() {
 ## BUILD ENVIRONMENT ##
 #######################
 
-startbuildenv() {
-    test
+downloadrawshim() { # aurora is singlehandedly putting vk6 out of business
+    export COLUMNS=$(tput cols)
+    last=$(( $(curl -s "https://cdn.cros.download/files/$board_name/$board_name.zip.manifest" | jq -r '.chunks[]' | tail -n1 | awk -F. '{print $NF}' | tr -d '0') + 1 ))
+    curl -s "https://cdn.cros.download/files/$board_name/$board_name.zip.manifest" | jq -r '.chunks[]' | while IFS= read -r chunk; do
+        n=$(( $(echo "$chunk" | awk -F. '{print $NF}' | tr -d '0') + 1 ))
+        if [ -z "$n" ]; then n=1; fi
+        echo -n "${n}/$last Chunks || "
+        percent=$(awk -v n="$n" -v last="$last" 'BEGIN { printf "%.0f", (n / last) * 100 }')
+        printf '%d%%\n' "$percent"
+        curl --progress-bar -Lk "https://cdn.cros.download/files/$board_name/$chunk" >> "$aroot/build/.$board_name.zip"
+        tput cuu 2
+        tput cr
+        tput el
+    done
+    unzip $aroot/build/.$board_name.zip
+    mv "$(unzip -Z1 $aroot/build/.$board_name.zip)" $aroot/build/.$board_name.bin
+    rm $aroot/build/.$board_name.zip
+    export basebuildshim="$aroot/build/.$board_name.bin"
 }
+
+aurorabuildenv() {
+    aurorabuildenv-help() {
+        cat <<'EOF' | center
+aurorabuildenv 1.0 [$(uname -m)]
+Usage: aurorabuildenv command [options]
+
+Commands:
+  help - display this menu
+  create - create a cros and alpine build environment
+  delete - create a cros and alpine build environment
+EOF
+        if [ "$aurorabuildenvcreated" -eq 1 ]; then
+            cat <<'EOF' | center
+  start - start a build environment
+EOF
+        fi
+        cat <<'EOF' | center
+Options:
+  Required:
+  -c  --cros - applies action to cros env
+  -a  --alpine - applies action to alpine env
+  -d  --debian - applies action to debian env
+EOF
+    }
+    aurorabuildenv-create() {
+        alpinebuild="$aroot/build/env/alpine"
+        crosbuild="$aroot/build/env/cros"
+        debianbuild="$aroot/build/env/debian"
+        mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild"
+        if [ "${buildenvname}" = "alpine" ]; then
+            if [ "$alpinecreated" -eq 0 ]; then
+                curl -L "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$(uname -m)/alpine-minirootfs-3.22.0-$(uname -m).tar.gz" -o alpine-minirootfs.tar.gz
+                tar -xf alpine-minirootfs.tar.gz -C "$alpinebuild"
+                rm -f "$alpinebuild/sbin/init"
+                export alpinecreated=1
+            else
+                echo "Please remove the existing alpine build environment before creating another."
+            fi
+        fi
+        if [ "${buildenvname}" = "cros" ]; then
+            if [ "$croscreated" -eq 0 ]; then
+                downloadrawshim
+                crosbuildloopdev=$(losetup -Pf --show "$basebuildshim")
+                crosbuildlooproota=$(lsblk -pro NAME,PARTLABEL "$crosbuildloopdev" | grep "ROOT-A" | awk '{print $1}')
+                crosbuildtempdir=$(mktemp -d)
+                mount "$crosbuildlooproota" "$crosbuildtempdir" -o ro
+                cp -ra "$crosbuildtempdir/." "$crosbuild"
+                umount "$crosbuildlooproota"
+                rm -f "$crosbuild/sbin/init"
+                export croscreated=1
+            else
+                echo "Please remove the existing cros build environment before creating another."
+            fi
+        fi
+        if [ "${buildenvname}" = "debian" ]; then
+            if [ "$debiancreated" -eq 0 ]; then
+
+                export debiancreated=1
+            else
+                echo "Please remove the existing debian build environment before creating another."
+            fi
+        fi
+    }
+
+    aurorabuildenv-delete() {
+        read_center "Delete build environment? (y/N): " confirmdeletebuildenv
+        case "$confirmdeletebuildenv" in
+            y|Y)
+                rm -rf "$aroot/build/env/*"
+                export aurorabuildenvcreated=0 ;;
+            *) ;;
+        esac
+    }
+    if [ "$aurorabuildenvcreated" -eq 1 ]; then
+        aurorabuildenv-cros() {
+            for mountpoint in /dev /proc /sys; do
+                mount --bind $mountpoint ${crosbuild}${mountpoint}
+            done
+            chroot $crosbuild
+            for mountpoint in /dev /proc /sys; do
+                umount ${crosbuild}${mountpoint}
+            done
+        }
+        aurorabuildenv-alpine() {
+            for mountpoint in /dev /proc /sys; do
+                mount --bind $mountpoint ${alpinebuild}${mountpoint}
+            done
+            chroot $alpinebuild
+            for mountpoint in /dev /proc /sys; do
+                umount ${alpinebuild}${mountpoint}
+            done
+        }
+    fi
+    "aurorabuildenv-${1}"
+}
+
 
 ##################
 ## OPTIONS MENU ##

@@ -79,7 +79,7 @@ find_chromeos_partitions() {
 }
 
 find_all_partitions() {
-  # echo "$(find_chromeos_partitions)"
+  echo "$(find_chromeos_partitions)"
   echo "$(find_rootfs_partitions)"
 }
 
