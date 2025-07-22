@@ -188,7 +188,7 @@ aurorabuildenv-start() {
         done
 
         clear
-        chroot "${!build}" /bin/bash
+        chroot "${!build}" script -qfc "stty sane && stty erase '^H' && exec bash"
 
         for mountpoint in /dev /proc /sys; do
             umount "${!build}${mountpoint}"
@@ -203,8 +203,7 @@ clear
 echo -e "${BLUE_B}aurorabuildenv 1.0 ${YELLOW_B}[$(uname -m)]${COLOR_RESET}"
 echo "'help' to display commands"
 while true; do
-    echo -ne "$GEEN_B(aurorabuildenv)> $COLOR_RESET"
-    read aurorabuildenvopt
+    read -e -p "$(printf "${GEEN_B}(aurorabuildenv)> ${COLOR_RESET}")" aurorabuildenvopt
     read -ra aurora_args <<< "$aurorabuildenvopt"
     cmd="${aurora_args[0]}"
     flags="${aurora_args[@]:1}"
