@@ -983,6 +983,7 @@ updateshim() {
     mount ${device}3 $initramfsmnt
     cp -Lar /root/Aurora/initramfs/. $initramfsmnt/
     chroot "$initramfsmnt" /bin/busybox sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/initramfsupdatepackages.sh && /opt/initramfsupdatepackages.sh $arch"
+    chmod -R +x $initramfsmnt/sbin/
     umount $initramfsmnt
     chmod +x /opt/rootfsupdatepackages.sh && /opt/rootfsupdatepackages.sh
     sync
