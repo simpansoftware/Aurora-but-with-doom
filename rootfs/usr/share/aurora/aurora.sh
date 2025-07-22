@@ -1042,13 +1042,13 @@ EOF
         local buildenvname=""
         case "$1" in
             -al|--alpine)
-                buildenvname="$alpine"
+                buildenvname="alpine"
                 ;;
             -c|--cros)
-                buildenvname="$cros"
+                buildenvname="cros"
                 ;;
             -d|--debian)
-                buildenvname="$debian"
+                buildenvname="debian"
                 ;;
             *)
                 echo "Usage: create [-al|--alpine] [-c|--cros] [-d|--debian]"
@@ -1099,13 +1099,13 @@ EOF
         local buildenvname=""
         case "$1" in
             -al|--alpine)
-                buildenvname="$alpine"
+                buildenvname="alpine"
                 ;;
             -c|--cros)
-                buildenvname="$cros"
+                buildenvname="cros"
                 ;;
             -d|--debian)
-                buildenvname="$debian"
+                buildenvname="debian"
                 ;;
             *)
                 echo "Usage: create [-al|--alpine] [-c|--cros] [-d|--debian]"
@@ -1117,8 +1117,7 @@ EOF
         case "$confirmdeletebuildenv" in
             y|Y)
                 rm -rf "$aroot/build/env/$buildenvname"
-                eval "$created=0"
-                export "$created" ;;
+                export "$created"=0 ;;
             *) ;;
         esac
     }
@@ -1127,13 +1126,13 @@ EOF
         local dist=""
         case "$1" in
             -al|--alpine)
-                dist="$alpine"
+                dist="alpine"
                 ;;
             -c|--cros)
-                dist="$cros"
+                dist="cros"
                 ;;
             -d|--debian)
-                dist="$debian"
+                dist="debian"
                 ;;
             *)
                 echo "Usage: start [-al|--alpine] [-c|--cros] [-d|--debian]"
