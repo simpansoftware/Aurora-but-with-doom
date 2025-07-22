@@ -1157,9 +1157,9 @@ EOF
             echo "Please create ${dist} environment first"
         fi
     }
+    clear
+    echo "'help' to display commands"
     while true; do
-        clear
-        echo "'help' to display commands"
         echo -ne "$GEEN_B"
         read -p "(aurorabuildenv)> " aurorabuildenvopt
         echo -ne "$COLOR_RESET"
