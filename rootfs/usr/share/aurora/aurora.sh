@@ -1156,20 +1156,22 @@ EOF
             echo "Please create ${dist} environment first"
         fi
     }
-    clear
-    echo "'help' to display commands"
-    echo -ne "$GEEN_B"
-    read -p "(aurorabuildenv)> " aurorabuildenvopt
-    echo -ne "$COLOR_RESET"
-    read -ra aurora_args <<< "$aurorabuildenvopt"
-    cmd="${aurora_args[0]}"
-    flags="${aurora_args[@]:1}"
-    case $aurorabuildenvopt in
-        start) aurorabuildenv-start $flags ;;
-        create) aurorabuildenv-create $flags ;;
-        help) aurorabuildenv-help ;;
-        exit) exit ;;
-    esac
+    while true; do
+        clear
+        echo "'help' to display commands"
+        echo -ne "$GEEN_B"
+        read -p "(aurorabuildenv)> " aurorabuildenvopt
+        echo -ne "$COLOR_RESET"
+        read -ra aurora_args <<< "$aurorabuildenvopt"
+        cmd="${aurora_args[0]}"
+        flags="${aurora_args[@]:1}"
+        case $aurorabuildenvopt in
+            start) aurorabuildenv-start $flags ;;
+            create) aurorabuildenv-create $flags ;;
+            help) aurorabuildenv-help ;;
+            exit) break ;;
+        esac
+    done
 }
 
 
