@@ -1056,7 +1056,7 @@ EOF
                 ;;
         esac
         if [ "${buildenvname}" = "alpine" ]; then
-            if [ "$alpinecreated" -eq 0 ]; then
+            if [ "$alpinecreated" -ne 1 ]; then
                 curl -L "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$(uname -m)/alpine-minirootfs-3.22.0-$(uname -m).tar.gz" -o alpine-minirootfs.tar.gz
                 tar -xf alpine-minirootfs.tar.gz -C "$alpinebuild"
                 rm -f "$alpinebuild/sbin/init"
@@ -1066,7 +1066,7 @@ EOF
             fi
         fi
         if [ "${buildenvname}" = "cros" ]; then
-            if [ "$croscreated" -eq 0 ]; then
+            if [ "$croscreated"-ne 1 ]; then
                 downloadrawshim
                 crosbuildloopdev=$(losetup -Pf --show "$basebuildshim")
                 crosbuildlooproota=$(lsblk -pro NAME,PARTLABEL "$crosbuildloopdev" | grep "ROOT-A" | awk '{print $1}')
@@ -1081,7 +1081,7 @@ EOF
             fi
         fi
         if [ "${buildenvname}" = "debian" ]; then
-            if [ "$debiancreated" -eq 0 ]; then
+            if [ "$debiancreated"-ne 1 ]; then
                 case "$arch" in
                     x86_64)   dbsarch=amd64 ;;
                     aarch64)  dbsarch=arm64 ;;
@@ -1167,6 +1167,7 @@ EOF
         case $cmd in
             start) aurorabuildenv-start $flags ;;
             create) aurorabuildenv-create $flags ;;
+            delete) aurorabuildenv-delete $flags ;;
             help) aurorabuildenv-help ;;
             exit) break ;;
             *) echo -e "${RED_B}Invalid Command${COLOR_RESET}"
