@@ -981,7 +981,7 @@ updateshim() {
     cp -Lar /root/Aurora/rootfs/. /
     initramfsmnt=$(mktemp -d)
     mount ${device}3 $initramfsmnt
-    cp -Lar /root/Aurora/initramfs/. /
+    cp -Lar /root/Aurora/initramfs/. $initramfsmnt/
     chroot "$initramfsmnt" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/initramfsupdatepackages.sh && /opt/initramfsupdatepackages.sh $arch"
     umount $initramfsmnt
     chmod +x /opt/rootfsupdatepackages.sh && /opt/rootfsupdatepackages.sh
