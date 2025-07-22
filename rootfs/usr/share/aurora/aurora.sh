@@ -1150,6 +1150,7 @@ EOF
     case $aurorabuildenvopt in
         start) aurorabuildenv-start $flags ;;
         create) aurorabuildenv-create $flags ;;
+        help) aurorabuildenv-help ;;
     esac
 }
 
@@ -1192,7 +1193,8 @@ if [ "$$" -ne 1 ]; then
         "4. Download a ChromeOS recovery image/shim"
         "5. Payloads Menu"
         "6. Update shim"
-        "7. Exit and Reboot"
+        "7. Build Environment Shell"
+        "8. Exit and Reboot"
     )
 
     menu_actions=(
@@ -1202,6 +1204,7 @@ if [ "$$" -ne 1 ]; then
         "canwifi clear && download"
         "clear && payloads"
         "canwifi updateshim"
+        "canwifi aurorabuildenv"
         "reboot -f"
     )
 else
@@ -1213,7 +1216,8 @@ else
         "5. Download a ChromeOS recovery image/shim"
         "6. Payloads Menu"
         "7. Update shim"
-        "8. Exit and Reboot"
+        "8. Build Environment Shell"
+        "9. Exit and Reboot"
     )
 
     menu_actions=(
@@ -1224,6 +1228,7 @@ else
         "canwifi clear && download"
         "clear && payloads"
         "canwifi updateshim"
+        "canwifi aurorabuildenv"
         "reboot -f"
     )
 fi
