@@ -907,7 +907,6 @@ updateshim() {
         rm -f /root/Aurora/rootfs/usr/share/aurora/.UNRESIZED
     fi
     cp -Lar /root/Aurora/rootfs/. /
-    chmod -R +x /*
     initramfsmnt=$(mktemp -d)
     mount ${device}3 $initramfsmnt
     cp -Lar /root/Aurora/initramfs/. $initramfsmnt/
