@@ -1008,8 +1008,8 @@ downloadrawshim() { # aurora is singlehandedly putting vk6 out of business
         tput cr
         tput el
     done
-    unzip $aroot/build/.$board_name.zip
-    mv "$(unzip -Z1 $aroot/build/.$board_name.zip)" $aroot/build/.$board_name.bin
+    unzip $aroot/build/.$board_name.zip 2>/dev/null
+    mv "$(unzip -Z1 $aroot/build/.$board_name.zip 2>/dev/null)" $aroot/build/.$board_name.bin
     rm $aroot/build/.$board_name.zip
     export basebuildshim="$aroot/build/.$board_name.bin"
 }
@@ -1074,6 +1074,7 @@ EOF
             else
                 echo "Please remove the existing alpine build environment before creating another."
             fi
+            sync
         fi
         if [ "${buildenvname}" = "cros" ]; then
             if [ "$croscreated" -ne 1 ] 2>/dev/null; then
@@ -1089,6 +1090,7 @@ EOF
             else
                 echo "Please remove the existing cros build environment before creating another." 
             fi
+            sync
         fi
         if [ "${buildenvname}" = "debian" ]; then
             if [ "$debiancreated" -ne 1 ] 2>/dev/null; then
@@ -1102,6 +1104,7 @@ EOF
             else
                 echo "Please remove the existing debian build environment before creating another."
             fi
+            sync
         fi
     }
 
