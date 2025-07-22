@@ -678,6 +678,7 @@ shimboot() {
                 chmod +x $sh1mmerfile
             fi
             if lsblk -o PARTLABEL $loop | grep "shimboot"; then
+                modprobe zram
                 export specialshim="shimboot"
                 echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time." | center
                 freespace=$(df -h / | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
