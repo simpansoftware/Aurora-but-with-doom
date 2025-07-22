@@ -756,78 +756,6 @@ shimboot() {
 	fi
 }
 
-#############
-## STARTUP ##
-#############
-
-if [ "$$" -eq 1 ]; then
-    clear
-    tput civis
-    echo -e "$BLUE_B"
-    cat <<'EOF' | center
-╒════════════════════════════════════════╕
-│ .    . .    '    +   *       o    .    │
-│+  '.                    '   .-.     +  │
-│          +      .    +   .   ) )     ''│
-│                   '  .      '-´  *.    │
-│     .    \      .     .  .  +          │
-│         .-o-'       '    .o        o   │
-│  *        \      *            +'       │
-│                '       '               │
-│        .*       .       o   o      .   │
-│              o     . *.                │
-│ 'o*           .        .'    .         │
-│              ┏┓   '. O           *     │
-│     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
-│     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
-╘════════════════════════════════════════╛
-EOF
-    echo -e "${COLOR_RESET}"
-
-    echo "Starting udevd" | center
-    /sbin/udevd --daemon | center || :
-    udevadm trigger | center || :
-    udevadm settle | center || :
-    echo "Done" | center
-    tput cnorm
-
-    chmod +x /usr/share/aurora/aurora.sh
-    for tty in 1 3; do
-        setsid bash -c "
-        while true; do
-            script -qfc '/usr/share/aurora/aurora.sh' /dev/null < /dev/pts/$tty > /dev/pts/$tty 2>&1
-            sleep 1
-        done
-        " &
-    done
-fi
-
-for wifi in iwlwifi iwlmvm ccm 8021q; do
-    modprobe -r "$wifi" 2>/dev/null || true
-    modprobe "$wifi" 2>/dev/null
-done
-export needswifi=0
-echo "Connecting to wifi" | center
-if [ -f "/etc/wpa_supplicant.conf" ]; then
-    wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
-    wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
-
-    connected=0
-    for i in $(seq 1 5); do
-        if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
-            udhcpc -i "$wifidevice" >/dev/null 2>&1 && connected=1
-            break
-        fi
-        sleep 1
-    done
-
-    if [ $connected -eq 0 ]; then
-        echo "No nearby saved networks found" | center
-    fi
-fi
-release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
-export board_name=${release_board%%-*}
-
 ##########
 ## WIFI ##
 ##########
@@ -878,8 +806,6 @@ wifi() {
     fi
     sync
 }
-
-
 
 canwifi() {
   if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase
@@ -981,7 +907,7 @@ updateshim() {
         rm -f /root/Aurora/rootfs/usr/share/aurora/.UNRESIZED
     fi
     cp -Lar /root/Aurora/rootfs/. /
-    chmod -R +x /
+    chmod -R +x /*
     initramfsmnt=$(mktemp -d)
     mount ${device}3 $initramfsmnt
     cp -Lar /root/Aurora/initramfs/. $initramfsmnt/
@@ -1075,6 +1001,81 @@ errormessage() {
     fi
     echo -e "${COLOR_RESET}"
 }
+
+#############
+## STARTUP ##
+#############
+
+if [ "$$" -eq 1 ]; then
+    clear
+    tput civis
+    echo -e "$BLUE_B"
+    cat <<'EOF' | center
+╒════════════════════════════════════════╕
+│ .    . .    '    +   *       o    .    │
+│+  '.                    '   .-.     +  │
+│          +      .    +   .   ) )     ''│
+│                   '  .      '-´  *.    │
+│     .    \      .     .  .  +          │
+│         .-o-'       '    .o        o   │
+│  *        \      *            +'       │
+│                '       '               │
+│        .*       .       o   o      .   │
+│              o     . *.                │
+│ 'o*           .        .'    .         │
+│              ┏┓   '. O           *     │
+│     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
+│     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
+╘════════════════════════════════════════╛
+EOF
+    echo -e "${COLOR_RESET}"
+
+    echo "Starting udevd" | center
+    /sbin/udevd --daemon | center || :
+    udevadm trigger | center || :
+    udevadm settle | center || :
+    echo "Done" | center
+    tput cnorm
+
+    chmod +x /usr/share/aurora/aurora.sh
+    for tty in 1 3; do
+        setsid bash -c "
+        while true; do
+            script -qfc '/usr/share/aurora/aurora.sh' /dev/null < /dev/pts/$tty > /dev/pts/$tty 2>&1
+            sleep 1
+        done
+        " &
+    done
+fi
+
+for wifi in iwlwifi iwlmvm ccm 8021q; do
+    modprobe -r "$wifi" 2>/dev/null || true
+    modprobe "$wifi" 2>/dev/null
+done
+export needswifi=0
+echo "Connecting to wifi" | center
+if [ -f "/etc/wpa_supplicant.conf" ]; then
+    wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
+    wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
+
+    connected=0
+    for i in $(seq 1 5); do
+        if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
+            udhcpc -i "$wifidevice" >/dev/null 2>&1 && connected=1
+            break
+        fi
+        sleep 1
+    done
+
+    if [ $connected -eq 0 ]; then
+        echo "No nearby saved networks found" | center
+    fi
+fi
+release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
+export board_name=${release_board%%-*}
+for chmod in /usr/bin/aurorabuildenv; do
+    chmod +x $chmod
+done
 
 while true; do
     clear
