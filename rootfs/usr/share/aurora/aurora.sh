@@ -1142,8 +1142,8 @@ EOF
             echo "Please create ${dist} environment first"
         fi
     }
-    echo "\'help\' to display commands" | center
-    read_center -d "${GEEN_B}(aurorabuildenv)${COLOR_RESET}> " aurorabuildenvopt
+    echo "'help' to display commands" | center
+    read_center -d "(aurorabuildenv)> " aurorabuildenvopt
     read -ra aurora_args <<< "$aurorabuildenvopt"
     cmd="${aurora_args[0]}"
     flags="${aurora_args[@]:1}"
