@@ -34,7 +34,8 @@ downloadrawshim() { # aurora is singlehandedly putting vk6 out of business
 export alpinebuild="$aroot/build/env/alpine"
 export crosbuild="$aroot/build/env/cros"
 export debianbuild="$aroot/build/env/debian"
-mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild"
+export archbuild="$aroot/build/env/arch"
+mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild" "$archbuild"
 
 aurorabuildenv-help() {
     cat <<'EOF'
@@ -53,13 +54,14 @@ Required:
     -c  --cros      applies action to cros env
     -al --alpine    applies action to alpine env
     -d  --debian    applies action to debian env
+    -ar --arch      applies action to arch env
 EOF
 }
 aurorabuildenv-list() {
     find $aroot/build/ -type f -name .exists | awk -F/ '{print $7}'
 }
 aurorabuildenv-create() {
-    mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild"
+    mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild" "$archbuild"
     local buildenvname=""
     case "$1" in
         -al|--alpine)
@@ -71,8 +73,11 @@ aurorabuildenv-create() {
         -d|--debian)
             buildenvname="debian"
             ;;
+        -ar|--arch)
+            buildenvname="arch"
+            ;;
         *)
-            echo "Usage: create [-al | --alpine] [-c | --cros] [-d | --debian]"
+            echo "Usage: create [-al | --alpine] [-c | --cros] [-d | --debian] [-ar | --arch]"
             return 1
             ;;
     esac
@@ -123,6 +128,18 @@ aurorabuildenv-create() {
         fi
         sync
     fi
+    if [ "${buildenvname}" = "arch" ]; then
+        if [ ! -e "${aroot}/build/env/${buildenvname}/etc/.exists" ]; then
+            export archbuild="$aroot/build/env/arch"
+            curl -Lo arch-bootstrap.sh https://raw.githubusercontent.com/tokland/arch-bootstrap/master/arch-bootstrap.sh
+            chmod +x arch-bootstrap.sh
+            ./arch-bootstrap.sh "$archbuild"
+            touch "$archbuild/etc/.exists"
+        else
+            echo "Please remove the existing arch build environment before creating another."
+        fi
+        sync
+    fi
 }
 
 aurorabuildenv-delete() {
@@ -137,8 +154,11 @@ aurorabuildenv-delete() {
         -d|--debian)
             buildenvname="debian"
             ;;
+        -ar|--arch)
+            buildenvname="arch"
+            ;;
         *)
-            echo "Usage: delete [-al | --alpine] [-c | --cros] [-d | --debian]"
+            echo "Usage: delete [-al | --alpine] [-c | --cros] [-d | --debian] [-ar | --arch]"
             return 1
             ;;
     esac
@@ -162,8 +182,11 @@ aurorabuildenv-start() {
         -d|--debian)
             dist="debian"
             ;;
+        -ar|--arch)
+            dist="arch"
+            ;;
         *)
-            echo "Usage: start [-al | --alpine] [-c | --cros] [-d | --debian]"
+            echo "Usage: start [-al | --alpine] [-c | --cros] [-d | --debian] [-ar | --arch]"
             return 1
             ;;
     esac
