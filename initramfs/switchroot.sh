@@ -14,15 +14,20 @@ if [ -f "/.UNRESIZED" ]; then
     sync
 fi
 echo "Mounting device..."
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t devtmpfs dev /dev
+mount -t devpts devpts /dev/pts
 mount $dev_partition /newroot || mount /dev/sda4 /newroot || mount /dev/mmcblk1p4 /newroot # incase of thuggery from dev_partition
-for mnt in /dev /proc /sys; do
+for mnt in /dev /proc /sys /dev/pts; do
     mkdir -p "/newroot$mnt"
-    mount -n -o move "$mnt" "/newroot$mnt"
+    mount --move "$mnt" "/newroot$mnt"
 done
 
 echo "pivoting root"
 mkdir -p /newroot/initramfs
 pivot_root /newroot /newroot/initramfs
+umount -l /initramfs
 chmod +x /sbin/init
 echo "exec /sbin/init"
 exec /sbin/init < "$TTY1" >> "$TTY1" 2>&1
