@@ -16,7 +16,6 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 shim=$1
-arch=$2
 
 source ./utils/functions.sh
 
@@ -59,7 +58,6 @@ mount -o ro $chromeos $tempmount
 if [ -d $tempmount/lib/modules ]; then
     cp -ar $tempmount/lib/modules ./rootfs/lib/
     cp -ar $tempmount/etc/lsb-release ./rootfs/etc/lsb-release
-    cp -ar $tempmount/etc/lsb-release ./rootfs/etc/lsb-release
     export boardname=$(lsbval CHROMEOS_RELEASE_BOARD)
     umount $tempmount
 else
@@ -72,7 +70,7 @@ sgdisk --zap-all "$dev"
 sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev"
 sgdisk -n 2:10240:75775    "$dev"
 sgdisk -n 3:75776:126975 -c 3:"ROOT-A" "$dev"
-sgdisk -n 4:126976:0 -c 4:"Aurora" "$dev"
+sgdisk -n 4:126976:1387183 -c 4:"Aurora" "$dev"
 
 sgdisk -t 3:3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC "$dev"
 sgdisk -t 4:8300 "$dev"
