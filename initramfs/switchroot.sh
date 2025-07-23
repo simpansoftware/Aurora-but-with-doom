@@ -30,4 +30,4 @@ pivot_root /newroot /newroot/initramfs
 umount -l /initramfs
 chmod +x /sbin/init
 echo "exec /sbin/init"
-exec /sbin/init < "$TTY1" >> "$TTY1" 2>&1
+exec /sbin/init < "$TTY1" >> "$TTY1"
