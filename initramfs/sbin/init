@@ -3,30 +3,6 @@ export TTY1="/dev/tty1"
 export TTY2="/dev/tty2"
 export TTY3="/dev/tty4"
 [ -e /dev/pts/0 ] && export TTY1="/dev/pts/0" && export TTY2="/dev/pts/1" && export TTY3="/dev/pts/3"
-echo "Making the newroot partition..."
-mkdir -p /newroot
-dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' || true)
-dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
-if [ -z "$dev_partition" ]; then
-    echo "failed to find aurora partition"
-    exit 1
-fi
-if [ -f "/.UNRESIZED" ]; then
-    chmod +x /.UNRESIZED
-    bash /.UNRESIZED
-    rm -f /.UNRESIZED
-    sync
-fi
-echo "Mounting device..."
-mount $dev_partition /newroot || mount /dev/sda4 /newroot || mount /dev/mmcblk1p4 /newroot # incase of thuggery from dev_partition
-for mnt in /dev /proc /sys; do
-    mkdir -p "/newroot$mnt"
-    mount -n -o move "$mnt" "/newroot$mnt"
-done
-
-echo "pivoting root"
-mkdir -p /newroot/initramfs
-pivot_root /newroot /newroot/initramfs
-chmod +x /newroot/sbin/init
-echo "exec /sbin/init"
-exec /sbin/init < "$TTY1" >> "$TTY1" 2>&1
+/bin/busybox --install /bin || true
+exec /switchroot.sh < "$TTY1" >> "$TTY1" 2>&1 || echo "failed" && exec sh  < "$TTY1" >> "$TTY1" 2>&1
+sleep 7d
