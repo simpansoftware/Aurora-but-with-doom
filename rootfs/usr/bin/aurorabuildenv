@@ -179,6 +179,7 @@ aurorabuildenv-start() {
             umount "${!build}${mountpoint}"
         done
         clear
+        echo -e "${BLUE_B}aurorabuildenv 1.0 ${YELLOW_B}[$(uname -m)]${COLOR_RESET}"
         echo "'help' to display commands"
     else
         echo "Please create ${dist} environment first"
