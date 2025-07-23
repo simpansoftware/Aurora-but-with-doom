@@ -83,6 +83,7 @@ aurorabuildenv-create() {
             tar -xf alpine-minirootfs.tar.gz -C "$alpinebuild"
             rm -f "$alpinebuild/sbin/init"
             rm -f alpine-minirootfs.tar.gz
+            chroot $alpinebuild apk add bash
             touch "$alpinebuild/etc/.exists"
         else
             echo "Please remove the existing alpine build environment before creating another."
