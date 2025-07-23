@@ -32,3 +32,4 @@ else
     echo_c "Please run on a raw shim." RED_B
     exit
 fi
+losetup -D
