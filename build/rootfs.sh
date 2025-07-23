@@ -32,13 +32,12 @@ fi
 echo_c "Bootstrapping Alpine" GEEN_B
 
 if [ ! -f alpine-minirootfs.tar.gz ]; then
-    curl -L https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$originalarch/alpine-minirootfs-3.22.0-$originalarch.tar.gz -o alpine-minirootfs.tar.gz
+    curl -L https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$arch/alpine-minirootfs-3.22.0-$arch.tar.gz -o alpine-minirootfs.tar.gz
 fi
 tar -xf alpine-minirootfs.tar.gz -C $rootfs
 rm -f $rootfs/sbin/init
 
 echo "nameserver 8.8.8.8" > $rootfs/etc/resolv.conf
-# haha 69
 for arg in "$@"; do
     case "$arg" in
         --nowifi|-nw)
