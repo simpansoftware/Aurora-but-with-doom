@@ -1,13 +1,17 @@
 #!/bin/bash
-if [ $# -ne 2 ] || [ ! -e "$1" ] || [ ! -e "$2" ]; then
+if [ ! -e "$1" ] || [ ! -e "$2" ]; then
     echo "Usage: sudo bash kernel.sh /path/to/rawshim.bin /path/to/aurorashim.bin"
     exit 1
 fi
+if [ "$3" = "--device" ]; then
+    aurorashimdev="$2"
+else
+    aurorashim=$2
+    aurorashimdev="$(losetup -Pf --show $aurorashim)"
+fi
 source ./utils/functions.sh
 shim=$1
-aurorashim=$2
 shimdev="$(losetup -Pf --show $shim)"
-aurorashimdev="$(losetup -Pf --show $aurorashim)"
 skpart="$(cgpt find -l KERN-A $shimdev | head -n 1)"
 auroraskpart="$(cgpt find -l KERN-A $aurorashimdev | head -n 1)"
 skpartnum="$(echo $skpart | sed "s|${shimdev}p||")"
