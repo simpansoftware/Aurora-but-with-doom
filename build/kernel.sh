@@ -17,7 +17,7 @@ sgdisk --partition-guid=2:B5BAF579-07EF-A747-858B-87C0E507CD29 "$aurorashimdev"
 cgpt add -i 2 -t "$(cgpt show -i $skpartnum -t "$shimdev")" -l "$(cgpt show -i $skpartnum -l "$shimdev")" -P 15 -T 15 -S 1 "$aurorashimdev"
 
 chromeos="$(cgpt find -l ROOT-A $shimdev | head -n 1)"
-aurorapart="$(cgpt find -l Aurora $shimdev | head -n 1)"
+aurorapart="$(cgpt find -l Aurora $aurorashimdev | head -n 1)"
 tempmount="$(mktemp -d)"
 auroratempmount="$(mktemp -d)"
 echo_c "Copying Modules..." GEEN_B
