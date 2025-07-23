@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ -z "$@" ]; then
+if [ $# -ne 2 ] || [ ! -e "$1" ] || [ ! -e "$2" ]; then
     echo "Usage: sudo bash kernel.sh /path/to/rawshim.bin /path/to/aurorashim.bin"
     exit 1
 fi
@@ -13,7 +13,7 @@ auroraskpart="$(cgpt find -l KERN-A $aurorashimdev | head -n 1)"
 skpartnum="$(echo $skpart | sed "s|${shimdev}p||")"
 skguid="$(sgdisk -i $skpartnum "$shimdev")"
 dd if=$skpart of=$auroraskpart
-sgdisk --partition-guid=2:B5BAF579-07EF-A747-858B-87C0E507CD29 "$dev"
+sgdisk --partition-guid=2:B5BAF579-07EF-A747-858B-87C0E507CD29 "$aurorashimdev"
 cgpt add -i 2 -t "$(cgpt show -i $skpartnum -t "$shimdev")" -l "$(cgpt show -i $skpartnum -l "$shimdev")" -P 15 -T 15 -S 1 "$aurorashimdev"
 
 chromeos="$(cgpt find -l ROOT-A $shimdev | head -n 1)"
