@@ -88,6 +88,11 @@ aurorabuildenv-create() {
             tar -xf alpine-minirootfs.tar.gz -C "$alpinebuild"
             rm -f "$alpinebuild/sbin/init"
             rm -f alpine-minirootfs.tar.gz
+            cat <<EOF > $alpinebuild/etc/apk/repositories
+http://dl-cdn.alpinelinux.org/alpine/edge/main
+http://dl-cdn.alpinelinux.org/alpine/edge/community
+http://dl-cdn.alpinelinux.org/alpine/edge/testing
+EOF
             chroot $alpinebuild apk add bash
             touch "$alpinebuild/etc/.exists"
         else
