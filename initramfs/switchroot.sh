@@ -23,6 +23,6 @@ done
 echo "pivoting root"
 mkdir -p /newroot/initramfs
 pivot_root /newroot /newroot/initramfs
-chmod +x /newroot/sbin/init
+chmod +x /sbin/init
 echo "exec /sbin/init"
 exec /sbin/init < "$TTY1" >> "$TTY1" 2>&1
