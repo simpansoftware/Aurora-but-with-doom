@@ -983,12 +983,10 @@ while [ $# -ne 0 ]; do
 			;;
         *)
             if [ -z "${DISK}" ]; then
-                case "$next" in
+                case "$cur" in
                     *[!0-9]*[0-9]*)
                         DISK=$(echo "$cur" | sed -E 's/p?[0-9]+$//')
                         PART=$(echo "$cur" | sed -E 's/.*[^0-9]([0-9]+)$/\1/')
-                        echo $DISK
-                        echo $PART
                         ;;
                     *)
                         DISK="$cur"
