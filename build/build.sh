@@ -58,6 +58,7 @@ mount -o ro $chromeos $tempmount
 if [ -d $tempmount/lib/modules ]; then
     cp -ar $tempmount/lib/modules ./rootfs/lib/
     cp -ar $tempmount/etc/lsb-release ./rootfs/etc/lsb-release
+    cp -ar $tempmount/etc/lsb-release ./rootfs/etc/lsb-release
     export boardname=$(lsbval CHROMEOS_RELEASE_BOARD)
     umount $tempmount
 else
