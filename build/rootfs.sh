@@ -21,7 +21,6 @@ source ./utils/functions.sh
 
 initramfs=$(realpath -m "./initramfs")
 rootfs=$(realpath -m "./rootfs")
-buildrootfs=$(realpath -m "./buildrootfs")
 
 rm -rf "${rootfs}" 
 mkdir -p "${rootfs}"
@@ -33,7 +32,7 @@ fi
 echo_c "Bootstrapping Alpine" GEEN_B
 
 if [ ! -f alpine-minirootfs.tar.gz ]; then
-    curl -L https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$arch/alpine-minirootfs-3.22.0-$arch.tar.gz -o alpine-minirootfs.tar.gz
+    curl -L https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$originalarch/alpine-minirootfs-3.22.0-$originalarch.tar.gz -o alpine-minirootfs.tar.gz
 fi
 tar -xf alpine-minirootfs.tar.gz -C $rootfs
 rm -f $rootfs/sbin/init

@@ -1,8 +1,6 @@
 #!/bin/sh
 set -e
 
-arch="${1}"
-
 cat <<EOF > /etc/apk/repositories
 http://dl-cdn.alpinelinux.org/alpine/edge/main
 http://dl-cdn.alpinelinux.org/alpine/edge/community
