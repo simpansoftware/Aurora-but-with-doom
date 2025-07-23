@@ -1003,7 +1003,10 @@ while [ $# -ne 0 ]; do
 	shift
 done
 
-[ -n "${DISK}" ] || bad_Usage "must supply disk and partition-number"
+case "$DISK" in
+  *[!0-9]*) ;;
+  *) bad_Usage "must supply disk and partition-number" ;;
+esac
 [ -n "${PART}" ] || bad_Usage "must supply partition-number"
 
 [ -e "${DISK}" ] || fail "${DISK}: does not exist"
