@@ -16,6 +16,7 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 shim=$1
+arch=$2
 
 source ./utils/functions.sh
 
