@@ -1,8 +1,9 @@
 #!/bin/bash
 if [ -z "$@" ]; then
-    echo "Usage: sudo bash changeshim.sh /path/to/rawshim.bin /path/to/aurorashim.bin"
+    echo "Usage: sudo bash kernel.sh /path/to/rawshim.bin /path/to/aurorashim.bin"
     exit 1
 fi
+source ./utils/functions.sh
 shim=$1
 aurorashim=$2
 shimdev="$(losetup -Pf --show $shim)"
