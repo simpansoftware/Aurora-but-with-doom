@@ -6,7 +6,7 @@ http://dl-cdn.alpinelinux.org/alpine/edge/main
 http://dl-cdn.alpinelinux.org/alpine/edge/community
 http://dl-cdn.alpinelinux.org/alpine/edge/testing
 EOF
-apk add adw-gtk3 bash cgpt cloud-utils-growpart coreutils curl dbus debootstrap e2fsprogs elogind file fish fastfetch figlet gnupg gzip htop iw jq lsblk losetup lz4 lzo mtools mousepad nano ncurses network-manager-applet networkmanager networkmanager-tui networkmanager-wifi ncurses openrc polkit-elogind polkit sudo sfdisk sgdisk syslog-ng tar tpm2-tools udev-init-scripts udisks2 unzip util-linux vboot-utils wget xz zstd zram-init wpa_supplicant
+apk add bash cgpt cloud-utils-growpart coreutils curl dbus debootstrap e2fsprogs elogind file fish fastfetch figlet gnupg gzip htop iw jq lsblk losetup lz4 lzo mtools nano ncurses networkmanager networkmanager-tui networkmanager-wifi openrc polkit-elogind polkit sudo sfdisk sgdisk syslog-ng tar tpm2-tools udev-init-scripts udisks2 unzip util-linux vboot-utils wget xz zstd zram-init wpa_supplicant
 rc-update add acpid default
 rc-update add bootmisc boot
 rc-update add crond default
