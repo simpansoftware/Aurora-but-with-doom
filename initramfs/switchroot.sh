@@ -18,6 +18,7 @@ mount -t proc none /proc
 mount -t sysfs none /sys
 mount -t devtmpfs dev /dev
 mount -t devpts devpts /dev/pts
+mkdir -p /proc/sys/kernel
 mount $dev_partition /newroot || mount /dev/sda4 /newroot || mount /dev/mmcblk1p4 /newroot # incase of thuggery from dev_partition
 for mnt in /dev /proc /sys /dev/pts; do
     mkdir -p "/newroot$mnt"
