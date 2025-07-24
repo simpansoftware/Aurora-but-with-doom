@@ -318,6 +318,14 @@ funText() {
 }
 
 splash() {
+    if [ -n "$wifidevice" ]; then # device...?
+        ssid="$(iw dev "$iface" link | awk -F ': ' '/SSID/ {print $2}')"
+        if [ -n "$ssid" ]; then
+            echo -e "${GEEN_B}● $wifidevice${COLOR_RESET} $ssid" | center
+        else
+            echo -e "${RED_B}● $wifidevice${COLOR_RESET} disconnected" | center
+        fi
+    fi
     local width=42
 	local verstring=${VERSION["STRING"]}
 	local build=${VERSION["BUILDDATE"]}
@@ -1032,7 +1040,7 @@ done
 export needswifi=0
 echo "Connecting to wifi" | center
 if [ -f "/etc/wpa_supplicant.conf" ]; then
-    wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
+    export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
     wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
 
     connected=0
