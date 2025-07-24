@@ -1099,13 +1099,13 @@ for chmod in /usr/bin/aurorabuildenv; do
     chmod +x $chmod
 done
 clear
-setup
 while true; do
     tput cnorm
+    stty $stty
+    eval "setup"
     clear
     export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
     splash
-    stty $stty
     errormessage
     export errormsg=""
     menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${menu_options[@]}"
