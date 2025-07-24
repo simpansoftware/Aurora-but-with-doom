@@ -892,11 +892,11 @@ updateshim() {
     fi
     echo "Copying files"
     cp -Lar /root/Aurora/rootfs/. /
-    chmod -R +x /usr/share/aurora/*
+    chmod +x /usr/share/aurora/*
     initramfsmnt=$(mktemp -d)
     mount ${device}3 $initramfsmnt
     cp -Lar /root/Aurora/initramfs/. $initramfsmnt/
-    chmod -R +x $initramfsmnt/
+    chmod +x $initramfsmnt/init $initramfsmnt/bootstrap.sh $initramfsmnt/sbin/init
     umount $initramfsmnt
     chmod +x /opt/rootfsupdatepackages.sh && /opt/rootfsupdatepackages.sh
     sync
