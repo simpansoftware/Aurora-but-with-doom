@@ -140,11 +140,25 @@ print_selector() {
   else
     echo "no bootable partitions found. please see the shimboot documentation to mark a partition as bootable."
   fi
+  echo "a) boot aurora"
   echo "q) reboot"
   echo "s) enter a shell"
   echo "l) view license"
 }
-
+auroraselected() {
+    echo "Moving mounts to /auroraroot"
+    mkdir -p "/auroraroot/sys"
+    mount -n -o move "/sys" "/auroraroot/sys"
+    mkdir -p "/auroraroot/proc"
+    mount -n -o move "/proc" "/auroraroot/proc"
+    mkdir -p "/auroraroot/dev"
+    mount -n -o move "/dev" "/auroraroot/dev"
+    mkdir -p /auroraroot/initramfs
+    chmod +x /auroraroot/sbin/init
+    pivot_root /auroraroot /auroraroot/initramfs
+    umount -l /initramfs
+    exec /sbin/init < "$TTY1" >> "$TTY1" 2>&1
+}
 get_selection() {
   local rootfs_partitions="$1"
   local i=1
@@ -155,6 +169,8 @@ get_selection() {
     reboot -f
   elif [ "$selection" = "s" ]; then
     script -qfc 'stty sane && stty erase '^H' && exec busybox sh -l' /dev/null
+  elif [ "$selection" = "a" ]; then
+    auroraselected
   elif [ "$selection" = "l" ]; then
     clear
     print_license
