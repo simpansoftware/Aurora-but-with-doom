@@ -318,13 +318,11 @@ funText() {
 }
 
 splash() {
-    if [ -n "$wifidevice" ]; then # device...?
-        ssid="$(iw dev "$iface" link | awk -F ': ' '/SSID/ {print $2}')"
-        if [ -n "$ssid" ]; then
-            echo -e "${GEEN_B}● $wifidevice${COLOR_RESET} $ssid" | center
-        else
-            echo -e "${RED_B}● $wifidevice${COLOR_RESET} disconnected" | center
-        fi
+    ssid="$(iw dev "$iface" link | awk -F ': ' '/SSID/ {print $2}')"
+    if [ -n "$ssid" ]; then
+        echo -e "${GEEN_B}● $wifidevice${COLOR_RESET} $ssid" | center
+    else
+        echo -e "${RED_B}● $wifidevice${COLOR_RESET} disconnected" | center
     fi
     local width=42
 	local verstring=${VERSION["STRING"]}
@@ -1061,12 +1059,10 @@ export board_name=${release_board%%-*}
 for chmod in /usr/bin/aurorabuildenv; do
     chmod +x $chmod
 done
-if [ $connected -eq 1 ]; then
-    export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
-fi
 while true; do
     tput cnorm
     clear
+    export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
     splash
     stty intr ''
     errormessage
