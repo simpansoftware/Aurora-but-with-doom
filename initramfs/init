@@ -177,7 +177,7 @@ EOF
     read initselection
     case $initselection in
         1) auroraselected ;;
-        2) shimbootselected ;;
+        2) shimbootselected || sleep 5 ;;
         3) clear && script -qfc 'stty sane && stty erase '^H' && exec busybox sh -l' /dev/null ;;
         *) echo "Invalid Option" ;;
     esac
