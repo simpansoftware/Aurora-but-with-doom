@@ -1061,7 +1061,9 @@ export board_name=${release_board%%-*}
 for chmod in /usr/bin/aurorabuildenv; do
     chmod +x $chmod
 done
-
+if [ $connected -eq 1 ]; then
+    export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
+fi
 while true; do
     tput cnorm
     clear
