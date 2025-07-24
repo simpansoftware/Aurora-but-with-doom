@@ -1090,6 +1090,7 @@ export board_name=${release_board%%-*}
 for chmod in /usr/bin/aurorabuildenv; do
     chmod +x $chmod
 done
+clear
 setup
 while true; do
     tput cnorm
