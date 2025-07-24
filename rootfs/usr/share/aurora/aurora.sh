@@ -121,9 +121,9 @@ read_center() {
         stty -icanon -echo
 
         while IFS= read -rsn1 char; do
-            if [[ $char == $'\n' || $char == $'\r' ]]; then
+            if [[ -z $char ]]; then
                 break
-            elif [[ $char == $'\x7f' || $char == $'\x08' ]]; then
+            elif [[ $char == $'\x7f' || $char == $'\x08' || $char == $'\b'  || $char == '^H' ]]; then
                 if [[ -n $input ]]; then
                     input="${input::-1}"
                     ((ilen--))
