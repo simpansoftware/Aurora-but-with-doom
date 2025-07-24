@@ -151,7 +151,7 @@ shimbootselected() {
             mkdir -p /mnt/shimloop /mnt/newshim
             mount "$looprootpart" /mnt/shimloop
             mount "$shimboot_partition" /mnt/newshim
-            cp -a /mnt/shimloop/. /mnt/newshim/
+            copy_progress /mnt/shimloop /mnt/newshim
             umount /mnt/shimloop /mnt/newshim
             losetup -d "$looproot"
 
