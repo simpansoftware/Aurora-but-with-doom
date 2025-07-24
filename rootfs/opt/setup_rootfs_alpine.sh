@@ -22,9 +22,12 @@ alias reboot='reboot -f'
 alias toilet="figlet" # those who know
 echo ""
 cat /etc/motd
-username=root
-read -p "$(hostname) login: " username
-sudo -u $username bash -l
+if [ "$login" -eq 0 ]; then
+  username=root
+  read -p "$(hostname) login: " username
+  sudo -u $username bash -l
+  login=1
+fi
 EOF
 
 

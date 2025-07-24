@@ -1110,6 +1110,7 @@ while true; do
     splash
     errormessage
     export errormsg=""
+    export login=0
     menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${menu_options[@]}"
     choice=$?
     echo ""
