@@ -99,7 +99,9 @@ shimbootselected() {
                 echo "Failed to check filesystem"
                 return 1
             }
-            resize2fs "$dev_partition" $(( (newauroraend - aurorastart + 1) * 512 ))s || {
+            blocks=$(( newauroraend - aurorastart + 1 ))
+            echo "Resizing Aurora filesystem to $blocks sectors..."
+            resize2fs "$dev_partition" "${blocks}s" || {
                 echo "Failed to resize filesystem"
                 return 1
             }
