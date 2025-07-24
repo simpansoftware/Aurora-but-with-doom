@@ -8,34 +8,3 @@ export TTY3="/dev/tty4"
 /bin/busybox --install /bin || true
 exec /init < "$TTY1" >> "$TTY1" 2>&1 || sleep 1d
 exit 1
-
-echo "Making the newroot partition..."
-mkdir -p /newroot || sleep 10
-sleep 1
-dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' || true)
-if [ -z "$dev_partition" ]; then
-    echo "failed to find aurora partition"
-    exit 1
-fi
-if [ -f "/.UNRESIZED" ]; then
-    chmod +x /.UNRESIZED
-    bash /.UNRESIZED
-    rm -f /.UNRESIZED
-    sync
-fi
-
-dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
-
-echo "Mounting device..."
-mount $dev_partition /newroot
-
-echo "Moving mounts to /newroot"
-mkdir -p "/newroot/sys"
-mount -n -o move "/sys" "/newroot/sys"
-mkdir -p "/newroot/proc"
-mount -n -o move "/proc" "/newroot/proc"
-mkdir -p "/newroot/dev"
-mount -n -o move "/dev" "/newroot/dev"
-mkdir -p /newroot/bootloader
-pivot_root /newroot /newroot/bootloader
-exec /sbin/init < "$TTY1" >> "$TTY1" 2>&1

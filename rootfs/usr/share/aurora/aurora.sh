@@ -681,6 +681,8 @@ shimboot() {
                 chmod +x $sh1mmerfile
             fi
             if lsblk -o PARTLABEL $loop | grep "shimboot"; then
+                touch /etc/shimboot
+                sync
                 read_center "Reboot to boot into shimboot instead of Aurora from the initramfs? (Y/n): " bootshimboot
                 case $bootshimboot in
                     n|N|no|No|NO) return 0 ;;
