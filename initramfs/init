@@ -133,12 +133,13 @@ shimbootselected() {
                 return 1
             }
 
-            sgdisk --new=5:${shimbootpartition_start}:0 --change-name=5:"shimboot_rootfs" "$dev"
+            looproot=$(losetup -Pf --show "$shim")
+            looprootpart=$(blkid | grep 'PARTLABEL="shimboot_rootfs' | grep "$looproot" | awk -F: '{print $1}' | head -n1 || true)
+            sgdisk --delete=5 "$dev"
+            sgdisk --new=5:${shimbootpartition_start}:0 -c 5:"$(lsblk -no PARTLABEL $looprootpart)" "$dev"
             partprobe "$dev"
             sleep 2
 
-            looproot=$(losetup -Pf --show "$shim")
-            looprootpart=$(blkid | grep 'PARTLABEL="shimboot_rootfs' | grep "$looproot" | awk -F: '{print $1}' | head -n1 || true)
 
             mkfs.ext4 "${dev}p5"
             mkdir -p /mnt/shimloop /mnt/newshim
