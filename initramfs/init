@@ -9,6 +9,7 @@ auroraselected() {
     mkdir -p "/newroot/dev"
     mount -n -o move "/dev" "/newroot/dev"
     mkdir -p /newroot/initramfs
+    chmod +x /newroot/sbin/init
     pivot_root /newroot /newroot/initramfs
     umount -l /initramfs
     exec /sbin/init < "$TTY1" >> "$TTY1" 2>&1
@@ -74,6 +75,8 @@ if [ -e /newroot/etc/shimboot ] || find /newroot/usr/share/aurora/images/shims/ 
             1) auroraselected ;;
             2) shimbootselected ;;
             3) clear && script -qfc 'stty sane && stty erase '^H' && exec busybox sh -l' /dev/null ;;
-
         esac
     done
+else
+    auroraselected
+fi
