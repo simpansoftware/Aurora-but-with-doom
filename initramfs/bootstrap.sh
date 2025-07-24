@@ -154,9 +154,7 @@ get_selection() {
     echo "rebooting now."
     reboot -f
   elif [ "$selection" = "s" ]; then
-    reset
-    enable_debug_console "$TTY1"
-    return 0
+    script -qfc 'stty sane && stty erase '^H' && exec busybox sh -l' /dev/null
   elif [ "$selection" = "l" ]; then
     clear
     print_license
@@ -292,7 +290,7 @@ boot_target() {
   local target="$1"
 
   echo "moving mounts to newroot"
-  mkdir /newroot
+  mkdir -p /newroot
   mount $target /newroot
   #bind mount /dev/console to show systemd boot msgs
   if [ -f "/bin/frecon-lite" ]; then 
