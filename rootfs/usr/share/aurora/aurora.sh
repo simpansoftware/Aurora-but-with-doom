@@ -17,8 +17,10 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+stty sane
+stty erase '^H'
 stty intr ''
+export stty=$(stty -g)
 export tty="/dev/tty"
 [ -e /dev/pts/0 ] && export tty="/dev/pts/0"
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
@@ -114,21 +116,24 @@ read_center() {
         local char=""
         local ilen=0
         local nowrap=1
+        stty -echo -icanon time 0 min 1
 
         while IFS= read -rsn1 char; do
-            if [[ $char == $'\n' ]]; then
+            if [[ $char == $'\n' || $char == $'\r' ]]; then
                 break
-             elif [[ $char == $'\x1b' ]]; then
-                read -rsn2 discard
-                continue
-            elif [[ $char == $'\x7f' ]]; then
+            elif [[ $char == $'\x7f' || $char == $'\x08' ]]; then
                 if [[ -n $input ]]; then
                     input="${input::-1}"
                     ((ilen--))
-                    tput cub $((width))
+                    tput cub "$width"
                     tput el
+                    local pad=$(( (width - plen - ilen) / 2 + offset ))
+                    (( pad < 0 )) && pad=0
                     printf "%*s%s%s" "$pad" "" "$prompt" "$input"
                 fi
+            elif [[ $char == $'\x1b' ]]; then
+                read -rsn2 discard
+                continue
             else
                 input+="$char"
                 ((ilen++))
@@ -137,7 +142,7 @@ read_center() {
                     nowrap=0
                     echo -n "$char"
                 elif (( nowrap )); then
-                    tput cub "$(tput cols)"
+                    tput cub "$width"
                     tput el
                     local pad=$(( (width - plen - ilen) / 2 + offset ))
                     (( pad < 0 )) && pad=0
@@ -151,6 +156,7 @@ read_center() {
         if [[ -n "$readvar" ]]; then
             printf -v "$readvar" '%s' "$input"
         fi
+        stty $stty
     fi
 }
 
@@ -1097,7 +1103,7 @@ while true; do
     clear
     export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
     splash
-    stty intr ''
+    stty $stty
     errormessage
     export errormsg=""
     menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${menu_options[@]}"
@@ -1106,9 +1112,9 @@ while true; do
     if [[ "${menu_actions[$choice]}" == *"bash -l"* ]]; then
         eval "${menu_actions[$choice]}"
     else
-        stty intr ''
+        stty $stty
         eval "${menu_actions[$choice]}"
     fi
-    stty intr ''
+    stty $stty
     sleep 1
 done
