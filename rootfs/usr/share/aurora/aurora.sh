@@ -998,7 +998,6 @@ errormessage() {
 setup() {
     if [ ! -f /etc/setup ]; then
         clear
-        hostname Aurora
         splash
         echo -e "\nSetup Aurora" | center
         sed -i '/%wheel ALL=.*NOPASSWD.*/d' /etc/sudoers
@@ -1018,10 +1017,12 @@ setup() {
         read_center "Change Hostname? (y/N): " changehostname
         case $changehostname in
             y) read_center -d "Hostname: " hostname
-               hostname "$hostname"
+               echo "$hostname" > /etc/customhostname
                echo "$hostname" > /etc/hostname
                echo "127.0.0.1 localhost $hostname" >> /etc/hosts ;;
-            *) : ;;
+            *) echo "Aurora" > /etc/customhostname
+               echo "Aurora" > /etc/hostname
+               echo "127.0.0.1 localhost Aurora" >> /etc/hosts ;;
         esac
         touch /etc/setup
     fi
@@ -1105,6 +1106,7 @@ while true; do
     tput cnorm
     stty $stty
     eval "setup"
+    hostname "$(cat /etc/customhostname)" # so it doesnt reset upon boot
     clear
     export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
     splash
