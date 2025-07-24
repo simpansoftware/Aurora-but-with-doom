@@ -58,7 +58,7 @@ checkarch
 
 source ./build/utils/functions.sh
 
-shim="$1"
+shim=$(realpath -m "$1")
 
 echo_c "Architecture: ($arch)" BLUE_B
 echo_c "Shim: ($shim)" "BLUE_B"

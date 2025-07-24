@@ -11,25 +11,17 @@ export BLUE_B="\033[1;34m"
 export MAGENTA_B="\033[1;35m"
 export PINK_B="\x1b[1;38;2;235;170;238m"
 export CYAN_B="\033[1;36m"
+release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
+export board_name=${release_board%%-*}
 
-downloadrawshim() { # aurora is singlehandedly putting vk6 out of business
-    export COLUMNS=$(tput cols)
-    last=$(( $(curl -s "https://cdn.cros.download/files/$board_name/$board_name.zip.manifest" | jq -r '.chunks[]' | tail -n1 | awk -F. '{print $NF}' | tr -d '0') + 1 ))
-    curl -s "https://cdn.cros.download/files/$board_name/$board_name.zip.manifest" | jq -r '.chunks[]' | while IFS= read -r chunk; do
-        n=$(( $(echo "$chunk" | awk -F. '{print $NF}' | tr -d '0') + 1 ))
-        if [ -z "$n" ]; then n=1; fi
-        echo -n "${n}/$last Chunks || "
-        percent=$(awk -v n="$n" -v last="$last" 'BEGIN { printf "%.0f", (n / last) * 100 }')
-        printf '%d%%\n' "$percent"
-        curl --progress-bar -Lk "https://cdn.cros.download/files/$board_name/$chunk" >> "$aroot/build/.$board_name.zip"
-        tput cuu 2
-        tput cr
-        tput el
-    done
-    unzip $aroot/build/.$board_name.zip 2>/dev/null
-    mv "$(unzip -Z1 $aroot/build/.$board_name.zip 2>/dev/null)" $aroot/build/.$board_name.bin
-    rm $aroot/build/.$board_name.zip
-    export basebuildshim="$aroot/build/.$board_name.bin"
+downloadrawshim() {
+    if [ ! -f "${aroot}/build/.${board_name}.bin" ]; then
+        curl --progress-bar -Lk "https://dl.cros.download/files/$board_name/$board_name.zip" -o "$aroot/build/.$board_name.zip"
+        unzip $aroot/build/.$board_name.zip
+        mv "$(unzip -Z1 $aroot/build/.$board_name.zip)" $aroot/build/.$board_name.bin 2>/dev/null
+        rm $aroot/build/.$board_name.zip
+        export basebuildshim="$aroot/build/.$board_name.bin"
+    fi
 }
 export alpinebuild="$aroot/build/env/alpine"
 export crosbuild="$aroot/build/env/cros"

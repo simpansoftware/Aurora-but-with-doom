@@ -61,7 +61,7 @@ shimbootselected() {
             a_free_kb=$(df -k /auroraroot | awk 'NR==2 {print $4}')
             a_free_bytes=$((a_free_kb * 1024))
             echo "Available: $(numfmt --to=iec "$a_free_bytes")"
-            echo -n "Enter size to allocate to shimboot rootfs [Ex: +1G]: "
+            echo -n "Enter size to allocate to shimboot rootfs [Ex: 1G]: "
             read size
 
             shimbytes=$(stat -c %s "$shim")

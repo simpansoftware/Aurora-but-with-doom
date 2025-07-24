@@ -19,7 +19,7 @@ shim=$1
 
 source ./utils/functions.sh
 
-aurorashim="../$(basename "${shim%.*}")-aurora.bin"
+aurorashim="../$(basename "${shim}")-aurora.bin"
 if [ -z $shim ]; then
     echo_c "Please specify a valid rawshim file." RED_B
 fi
@@ -125,5 +125,5 @@ umount $root_amount -l
 umount $root_bmount
 umount $root_bmount -l
 losetup -D
-mv $aurorashim ../${boardname}-aurora.bin
+mv $aurorashim ../${boardname}-aurora.bin 2>/dev/null
 export finalshim="${boardname}-aurora.bin"
