@@ -117,8 +117,7 @@ read_center() {
         local ilen=0
         local nowrap=1
 
-        local stty_old
-        stty_old=$(stty -g)
+        local stty=$(stty -g)
         stty -icanon -echo
 
         while IFS= read -rsn1 char; do
@@ -159,7 +158,7 @@ read_center() {
         if [[ -n "$readvar" ]]; then
             printf -v "$readvar" '%s' "$input"
         fi
-        stty "$stty_old"
+        stty "$stty"
     fi
 }
 
