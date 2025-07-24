@@ -115,7 +115,7 @@ echo_c "Copying initramfs to shim" "GEEN_B"
 rm -f $root_amount/bin/init
 cp ../initramfs/. $initramfs -ar
 rsync -avH --info=progress2 "$initramfs" "$root_amount" &>/dev/null
-chmod +x $root_amount/sbin/init
+chmod +x $root_amount/init $root_amount/sbin/init $root_amount/bootstrap.sh
 chmod +x $root_bmount/sbin/init
 echo_c "Unmounting..." "GEEN_B"
 umount $statemount

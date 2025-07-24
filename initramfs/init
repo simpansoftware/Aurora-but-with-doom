@@ -22,7 +22,7 @@ shimbootselected() {
     for shim in "$shimdir"/*.bin; do
         [ -e "$shim" ] || continue
         echo "$i) $(basename "$shim")"
-        eval "file_$i=\"\$f\""
+        eval "file_$i=\"\$shim\""
         i=$((i + 1))
     done
 
@@ -39,7 +39,7 @@ shimbootselected() {
 
     if [ -n "$shim" ] && [ -e "$shim" ]; then
         losetup -Pf $shim
-        chmod +x /bootstrap.sh && exec /bootstrap.sh < "$TTY1" >> "$TTY1" 2>&1
+        exec /bootstrap.sh < "$TTY1" >> "$TTY1" 2>&1
     else
         echo "Invalid choice... somehow"
         return 1
