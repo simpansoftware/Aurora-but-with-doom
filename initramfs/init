@@ -142,7 +142,7 @@ shimbootselected() {
             sleep 5
 
             for i in $(seq 1 5); do
-                shimboot_partition=$(blkid | grep 'PARTLABEL="shimboot_rootfs' | awk -F: '{print $1}' | head -n1 )
+                shimboot_partition=$(blkid | grep "$dev" | grep 'PARTLABEL="shimboot_rootfs' | awk -F: '{print $1}' | head -n1 )
                 if [ -n "$shimboot_partition" ] && [ -e "$shimboot_partition" ]; then break; fi
                 sleep 1
             done
