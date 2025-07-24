@@ -1008,7 +1008,7 @@ setup() {
                addgroup "$username" wheel ;;
         esac
         read_center -d "Enter your timezone: " timezone
-        timezone="*$(echo "$timezone" | sed 's/ \+/*/g')*"
+        timezone="*$(echo "$timezone" | sed 's/ /*/g')*"
         timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -n 1)
         rm -f /etc/localtime /etc/timezone
         echo "${timezonefile#/usr/share/zoneinfo/}" > /etc/timezone
