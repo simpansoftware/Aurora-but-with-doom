@@ -91,19 +91,45 @@ shimbootselected() {
                 return 1
             fi
 
-            echo "Shrinking Aurora: end $auroraend → $newauroraend"
-            umount /auroraroot
-            sync
-            e2fsck -f "$dev_partition"
-            sync
-            resize2fs "$dev_partition" $(( (newauroraend - aurorastart + 1) * 512 ))s
-            sync
+            umount /auroraroot || {
+                echo "Failed to unmount filesystem"
+                return 1
+            }
+            e2fsck -f "$dev_partition" || {
+                echo "Failed to check filesystem"
+                return 1
+            }
+            resize2fs "$dev_partition" $(( (newauroraend - aurorastart + 1) * 512 ))s || {
+                echo "Failed to resize filesystem"
+                return 1
+            }
+
             sgdisk --delete=4 "$dev"
-            sgdisk --new=4:${aurorastart}:${newauroraend} --change-name=4:"Aurora" "$dev"
+            sgdisk --new=4:${aurorastart}:${newauroraend} -c 4:"Aurora" "$dev"
+
             partprobe "$dev"
-            sleep 2
-            sync
-            mount "$dev_partition" /auroraroot
+            sleep 3
+
+            for i in $(seq 1 5); do
+                dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}')
+                if [ -n "$dev_partition" ] && [ -e "$dev_partition" ]; then break; fi
+                sleep 1
+            done
+
+            if [ ! -e "$dev_partition" ]; then
+                echo "failed to find aurora partition"
+                return 1
+            fi
+
+            e2fsck -f "$dev_partition" || {
+                echo "Failed to check filesystem"
+                return 1
+            }
+
+            mount "$dev_partition" /auroraroot || {
+                echo "Failed to mount filesystem"
+                return 1
+            }
 
             sgdisk --new=5:${shimbootpartition_start}:0 --change-name=5:"shimboot_rootfs" "$dev"
             partprobe "$dev"
