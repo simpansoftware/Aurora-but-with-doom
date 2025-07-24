@@ -1009,7 +1009,7 @@ setup() {
         esac
         read_center -d "Enter your timezone: " timezone
         timezone="*$(echo "$timezone" | sed 's/ /*/g')*"
-        timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -n 1)
+        timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -n 1 | awk -F/ '{print $NF}')
         rm -f /etc/localtime /etc/timezone
         echo "${timezonefile#/usr/share/zoneinfo/}" > /etc/timezone
         ln -s "$timezonefile" /etc/localtime 
