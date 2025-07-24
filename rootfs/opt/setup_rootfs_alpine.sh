@@ -25,7 +25,7 @@ cat /etc/motd
 if [ "$login" -eq 0 ]; then
   username=root
   read -p "$(hostname) login: " username
-  sudo -u $username bash -l
+  exec sudo -u $username bash -l
   export login=1
 fi
 EOF
