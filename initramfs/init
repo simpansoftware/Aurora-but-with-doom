@@ -1,7 +1,5 @@
 #!/bin/busybox sh
 
-read -p "If you have a shimboot drive, Plug it in now and press Enter to continue."
-
 auroraselected() {
     echo "Moving mounts to /auroraroot"
     mkdir -p "/auroraroot/sys"
@@ -129,20 +127,16 @@ if [ -f "/.UNRESIZED" ]; then
 fi
 echo "Mounting device..."
 mount $dev_partition /auroraroot
-if [ -e /auroraroot/etc/shimboot ] || find /auroraroot/usr/share/aurora/images/shims/ -iname "*shimboot*" | grep -q . || blkid | grep "shimboot" ; then
-    while true; do
-        clear
-        echo "1. Aurora [$dev_partition]"
-        echo "2. Shimboot (ONLY select this if you have a shimboot shim in Aurora's shim directory or a shimboot partition already)"
-        echo "3. Shell"
-        echo -n "Enter Selection: "
-        read initselection
-        case $initselection in
-            1) auroraselected ;;
-            2) shimbootselected ;;
-            3) clear && script -qfc 'stty sane && stty erase '^H' && exec busybox sh -l' /dev/null ;;
-        esac
-    done
-else
-    auroraselected
-fi
+while true; do
+    clear
+    echo "1. Aurora [$dev_partition]"
+    echo "2. Shimboot (If you have it)"
+    echo "3. Shell"
+    echo -n "Enter Selection: "
+    read initselection
+    case $initselection in
+        1) auroraselected ;;
+        2) shimbootselected ;;
+        3) clear && script -qfc 'stty sane && stty erase '^H' && exec busybox sh -l' /dev/null ;;
+    esac
+done
