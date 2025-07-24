@@ -890,6 +890,7 @@ updateshim() {
     if [ ! -e /usr/share/aurora/.UNRESIZED ]; then
         rm -f /root/Aurora/rootfs/usr/share/aurora/.UNRESIZED
     fi
+    echo "Copying files"
     cp -Lar /root/Aurora/rootfs/. /
     chmod -R +x /usr/share/aurora/*
     initramfsmnt=$(mktemp -d)
