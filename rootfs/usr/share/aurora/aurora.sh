@@ -995,11 +995,11 @@ setup() {
         read_center "Setup a user? (Y/n) " setupuser
         case $setupuser in
             n) : ;;
-            *) read_center "Username: " username
+            *) read_center -d "Username: " username
                adduser $username
                addgroup $username wheel ;;
         esac
-        read_center "Enter your timezone: " timezone
+        read_center -d "Enter your timezone: " timezone
         timezone="*$(echo "$timezone" | sed 's/ \+/*/g')*"
         timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -n 1)
         rm -f /etc/localtime /etc/timezone
@@ -1007,7 +1007,7 @@ setup() {
         ln -s "$timezonefile" /etc/localtime 
         read_center "Change Hostname? (y/N): " changehostname
         case $changehostname in
-            y) read_center "Hostname: " hostname
+            y) read_center -d "Hostname: " hostname
                hostname $hostname
                echo "$hostname" > /etc/hostname
                echo "127.0.0.1 localhost $hostname" >> /etc/hosts ;;
