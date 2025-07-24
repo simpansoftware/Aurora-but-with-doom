@@ -1,22 +1,22 @@
 #!/bin/busybox sh
 
 auroraselected() {
-    echo "Moving mounts to /newroot"
-    mkdir -p "/newroot/sys"
-    mount -n -o move "/sys" "/newroot/sys"
-    mkdir -p "/newroot/proc"
-    mount -n -o move "/proc" "/newroot/proc"
-    mkdir -p "/newroot/dev"
-    mount -n -o move "/dev" "/newroot/dev"
-    mkdir -p /newroot/initramfs
-    chmod +x /newroot/sbin/init
-    pivot_root /newroot /newroot/initramfs
+    echo "Moving mounts to /auroraroot"
+    mkdir -p "/auroraroot/sys"
+    mount -n -o move "/sys" "/auroraroot/sys"
+    mkdir -p "/auroraroot/proc"
+    mount -n -o move "/proc" "/auroraroot/proc"
+    mkdir -p "/auroraroot/dev"
+    mount -n -o move "/dev" "/auroraroot/dev"
+    mkdir -p /auroraroot/initramfs
+    chmod +x /auroraroot/sbin/init
+    pivot_root /auroraroot /auroraroot/initramfs
     umount -l /initramfs
     exec /sbin/init < "$TTY1" >> "$TTY1" 2>&1
 }
 
 shimbootselected() {
-    shimdir="/newroot/usr/share/aurora/images/shims/"
+    shimdir="/auroraroot/usr/share/aurora/images/shims/"
     i=1
 
     for shim in "$shimdir"/*.bin; do
@@ -28,7 +28,7 @@ shimbootselected() {
 
     if [ "$i" -eq 1 ]; then
         echo "No shims found."
-        rm -f /newroot/etc/shimboot
+        rm -f /auroraroot/etc/shimboot
         return 1
     fi
 
@@ -38,7 +38,11 @@ shimbootselected() {
     eval "shim=\$file_$choice"
 
     if [ -n "$shim" ] && [ -e "$shim" ]; then
-        losetup -Pf $shim
+        echo -n "Enter size to allocate to shimboot rootfs [G]: "
+	read size
+	size=$(echo $size | sed 's/G//I'
+	truncate "$shim" +${size}G
+	losetup -Pf $shim
         exec /bootstrap.sh < "$TTY1" >> "$TTY1" 2>&1
     else
         echo "Invalid choice... somehow"
@@ -47,8 +51,8 @@ shimbootselected() {
 }
 
 clear
-echo "Making the newroot partition..."
-mkdir -p /newroot || sleep 10
+echo "Making the auroraroot partition..."
+mkdir -p /auroraroot || sleep 10
 dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' || true)
 dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
 if [ -z "$dev_partition" ]; then
@@ -63,11 +67,11 @@ if [ -f "/.UNRESIZED" ]; then
     sync
 fi
 echo "Mounting device..."
-mount $dev_partition /newroot
-if [ -e /newroot/etc/shimboot ] || find /newroot/usr/share/aurora/images/shims/ -iname "*shimboot*" | grep -q .; then
+mount $dev_partition /auroraroot
+if [ -e /auroraroot/etc/shimboot ] || find /auroraroot/usr/share/aurora/images/shims/ -iname "*shimboot*" | grep -q . || blkid | grep "shimboot" ; then
     while true; do
         echo "1. Aurora [$dev_partition]"
-        echo "2. Shimboot (ONLY select this if you have a shimboot shim in Aurora's shim directory)"
+        echo "2. Shimboot (ONLY select this if you have a shimboot shim in Aurora's shim directory or a shimboot drive)"
         echo "3. Shell"
         echo -n "Enter Selection: "
         read initselection
