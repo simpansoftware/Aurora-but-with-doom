@@ -152,6 +152,7 @@ shimbootselected() {
             mount "$looprootpart" /mnt/shimloop
             mount "$shimboot_partition" /mnt/newshim
             copy_progress /mnt/shimloop /mnt/newshim
+            cp /auroraroot/usr/bin/aurorabuildenv /mnt/newshim/usr/bin/aurorabuildenv && chmod +x /mnt/newshim/usr/bin/aurorabuildenv
             umount /mnt/shimloop /mnt/newshim
             losetup -d "$looproot"
 
