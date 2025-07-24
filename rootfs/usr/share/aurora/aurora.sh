@@ -318,7 +318,7 @@ funText() {
 }
 
 splash() {
-    ssid="$(iw dev "$iface" link | awk -F ': ' '/SSID/ {print $2}')"
+    ssid="$(iw dev "$wifidevice" link | awk -F ': ' '/SSID/ {print $2}')"
     if [ -n "$ssid" ]; then
         echo -e "${GEEN_B}● $wifidevice${COLOR_RESET} $ssid" | center
     else
