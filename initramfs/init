@@ -42,13 +42,14 @@ shimbootselected() {
         eval "shim=\$file_$choice"
 
         if [ -n "$shim" ] && [ -e "$shim" ]; then
-            echo -n "Enter size to allocate to shimboot rootfs [Ex: +1G]: "
-            read size
 
             mountpoint -q /auroraroot || mount "$dev_partition" /auroraroot
 
             a_free_kb=$(df -k /auroraroot | awk 'NR==2 {print $4}')
             a_free_bytes=$((a_free_kb * 1024))
+            echo "Available: $(numfmt --to=iec "$a_free_bytes")"
+            echo -n "Enter size to allocate to shimboot rootfs [Ex: +1G]: "
+            read size
 
             shimbytes=$(stat -c %s "$shim")
             extrabytes=$(numfmt --from=iec "$size" 2>/dev/null || echo 0)
@@ -57,6 +58,10 @@ shimbootselected() {
             if [ "$totalbytes" -ge "$a_free_bytes" ]; then
                 echo "ERROR: Not enough free space in Aurora to shrink by $(numfmt --to=iec "$totalbytes")"
                 umount /auroraroot
+                return 1
+            fi
+            if [ "$extrabytes" -le 0 ]; then
+                echo "Invalid size."
                 return 1
             fi
 
@@ -75,14 +80,16 @@ shimbootselected() {
 
             echo "Shrinking Aurora: end $auroraend → $newauroraend"
             umount /auroraroot
+            sync
             e2fsck -f "$dev_partition"
+            sync
             resize2fs "$dev_partition" $(( (newauroraend - aurorastart + 1) * 512 ))s
-
+            sync
             sgdisk --delete=4 "$dev"
             sgdisk --new=4:${aurorastart}:${newauroraend} --change-name=4:"Aurora" "$dev"
             partprobe "$dev"
             sleep 2
-
+            sync
             mount "$dev_partition" /auroraroot
 
             sgdisk --new=5:${shimbootpartition_start}:0 --change-name=5:"shimboot_rootfs" "$dev"
