@@ -304,6 +304,7 @@ boot_target() {
   mkdir -p /newroot/bootloader /newroot/auroraroot
   mount --bind /auroraroot /newroot/auroraroot
   pivot_root /newroot /newroot/bootloader
+  script -qfc 'stty sane && stty erase '^H' && exec busybox sh -l' /dev/null
   exec_init
 }
 
