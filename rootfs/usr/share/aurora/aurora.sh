@@ -319,6 +319,7 @@ funText() {
         "vermont isn't real"
         "\"Bite Me\" - Weird Al"
         "Hi there. I'm SmallAnt1."
+        "Man I sure do love InitramF5"
         ) #              cen-><-ter" 
 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
