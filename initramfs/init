@@ -1,5 +1,7 @@
 #!/bin/busybox sh
 
+read -p "If you have a shimboot drive, Plug it in now and press Enter to continue."
+
 auroraselected() {
     echo "Moving mounts to /auroraroot"
     mkdir -p "/auroraroot/sys"
