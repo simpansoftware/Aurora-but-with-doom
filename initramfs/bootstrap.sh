@@ -45,19 +45,19 @@ get_part_dev() {
 }
 
 find_rootfs_partitions() {
-  local disks=$(fdisk -l | sed -n "s/Disk \(\/dev\/.*\):.*/\1/p")
-  if [ ! "${disks}" ]; then
-    return 1
-  fi
-
-  for disk in $disks; do
-    local partitions=$(fdisk -l $disk | sed -n "s/^[ ]\+\([0-9]\+\).*shimboot_rootfs:\(.*\)$/\1:\2/p")
-    if [ ! "${partitions}" ]; then
-      continue
+  for dev in /dev/*; do
+    if [ -b "$dev" ] && cgpt show "$dev" >/dev/null 2>&1; then
+      for i in $(seq 1 128); do
+        label=$(cgpt show -i "$i" -l "$dev" 2>/dev/null)
+        if [ -n "$label" ] && printf "%s" "$label" | grep -q '^shimboot'; then
+          case "$dev" in
+            *[0-9]) part="${dev}p$i" ;;
+            *)      part="${dev}$i"  ;;
+          esac
+          echo "$part:$label"
+        fi
+      done
     fi
-    for partition in $partitions; do
-      get_part_dev "$disk" "$partition"
-    done
   done
 }
 
@@ -140,7 +140,6 @@ print_selector() {
   else
     echo "no bootable partitions found. please see the shimboot documentation to mark a partition as bootable."
   fi
-
   echo "q) reboot"
   echo "s) enter a shell"
   echo "l) view license"
@@ -294,13 +293,7 @@ boot_target() {
 
   echo "moving mounts to newroot"
   mkdir /newroot
-  #use cryptsetup to check if the rootfs is encrypted
-  if cryptsetup luksDump "$target" >/dev/null 2>&1; then
-    cryptsetup open $target rootfs
-    mount /dev/mapper/rootfs /newroot
-  else
-    mount $target /newroot
-  fi
+  mount $target /newroot
   #bind mount /dev/console to show systemd boot msgs
   if [ -f "/bin/frecon-lite" ]; then 
     rm -f /dev/console
@@ -335,6 +328,7 @@ boot_chromeos() {
   local donor_files="/newroot/tmp/donor"
   mkdir -p $donor_mount
   mount -o ro $donor $donor_mount
+
   echo "copying modules and firmware to tmpfs (this may take a while)"
   copy_progress $donor_mount/lib/modules $donor_files/lib/modules
   copy_progress $donor_mount/lib/firmware $donor_files/lib/firmware
