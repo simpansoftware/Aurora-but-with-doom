@@ -308,6 +308,8 @@ boot_target() {
   echo "moving mounts to newroot"
   mkdir -p /newroot
   mount $target /newroot
+  mkdir -p /newroot/bootloader /newroot/auroraroot
+  mount --move /auroraroot /newroot/auroraroot
   #bind mount /dev/console to show systemd boot msgs
   if [ -f "/bin/frecon-lite" ]; then 
     rm -f /dev/console
@@ -317,8 +319,6 @@ boot_target() {
   move_mounts /newroot
 
   echo "switching root"
-  mkdir -p /newroot/bootloader /newroot/auroraroot
-  mount --move /auroraroot /newroot/auroraroot
   pivot_root /newroot /newroot/bootloader
   exec_init
 }
