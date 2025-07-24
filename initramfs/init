@@ -39,11 +39,18 @@ shimbootselected() {
 
     if [ -n "$shim" ] && [ -e "$shim" ]; then
         echo -n "Enter size to allocate to shimboot rootfs [G]: "
-	read size
-	size=$(echo $size | sed 's/G//I')
-	size="+${size}G"
-	truncate $shim -s "$size" || echo "Invalid size. Please use an integer." && return 1
-	losetup -Pf $shim
+        read size
+        size=$(echo "$size" | sed 's/G//I')
+        if ! echo "$size" | grep -Eq '^[0-9]+$'; then
+            echo "Invalid size."
+            return 1
+        fi
+        size="+${size}G"
+        if ! truncate "$shim" -s "$size"; then
+            echo "Invalid size. Please use an integer."
+            return 1
+        fi
+    	losetup -Pf $shim
         exec /bootstrap.sh < "$TTY1" >> "$TTY1" 2>&1
     else
         echo "Invalid choice... somehow"
