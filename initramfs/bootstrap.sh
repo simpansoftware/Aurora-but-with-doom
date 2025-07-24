@@ -301,7 +301,8 @@ boot_target() {
   move_mounts /newroot
 
   echo "switching root"
-  mkdir -p /newroot/bootloader
+  mkdir -p /newroot/bootloader /newroot/auroraroot
+  mount --bind /auroraroot /newroot/auroraroot
   pivot_root /newroot /newroot/bootloader
   exec_init
 }
