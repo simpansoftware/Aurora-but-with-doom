@@ -134,8 +134,43 @@ if [ -f "/.UNRESIZED" ]; then
 fi
 echo "Mounting device..."
 mount $dev_partition /auroraroot
+declare -A VERSION
+VERSION["BRANCH"]="dev-alpine"
+VERSION["NUMBER"]="3.0"
+VERSION["BUILDDATE"]="[2025-07-16]"
+VERSION["RELNAME"]="Rhymes with Grug"
+VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]} - \"${VERSION["RELNAME"]}\""
+width=42
+verstring=${VERSION["STRING"]}
+build=${VERSION["BUILDDATE"]}
+version_pad=$(( (width - ${#verstring}) / 2 ))
+build_pad=$(( (width - ${#build}) / 2 ))
+
 while true; do
     clear
+        echo -ne "$BLUE_B"
+    cat <<'EOF'
+╒════════════════════════════════════════╕
+│ .    . .    '    +   *       o    .    │
+│+  '.                    '   .-.     +  │
+│          +      .    +   .   ) )     ''│
+│                   '  .      '-´  *.    │
+│     .    \      .     .  .  +          │
+│         .-o-'       '    .o        o   │
+│  *        \      *            +'       │
+│                '       '               │
+│        .*       .       o   o      .   │
+│              o     . *.                │
+│ 'o*           .        .'    .         │
+│              ┏┓   '. O           *     │
+│     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
+│     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
+╘════════════════════════════════════════╛
+
+EOF
+    echo -e "${version_pad}$verstring" | center
+    echo -e "${build_pad}$build" | center
+    echo -e "${COLOR_RESET}\n"
     echo "1. Aurora [$dev_partition]"
     echo "2. Shimboot (If you have it)"
     echo "3. Shell"
