@@ -43,7 +43,7 @@ export BLUE_B="\033[1;34m"
 export MAGENTA_B="\033[1;35m"
 export PINK_B="\x1b[1;38;2;235;170;238m"
 export CYAN_B="\033[1;36m"
-export PS1='\[\033[1;34m\]Aurora:\[\e[0m\]\[\033[1;32m\]\w/\[\e[0m\] # '
+export PS1='\e[1;34m\]\u@\h \e[1;33m\]$(date +"%H:%M %b %d")\e[1;32m\] \w/\[\e[0m\] '
 
 alias ls='ls --color=auto'
 alias dir='dir --color=auto'
@@ -987,6 +987,36 @@ errormessage() {
     echo -e "${COLOR_RESET}"
 }
 
+setup() {
+    if [ ! -f /etc/setup ]; then
+        splash
+        echo -e "\nSetup Aurora" | center
+        sed -i '/%wheel ALL=.*NOPASSWD.*/d' /etc/sudoers
+        read_center "Setup a user? (Y/n) " setupuser
+        case $setupuser in
+            n) : ;;
+            *) read_center "Username: " username
+               adduser $username
+               addgroup $username wheel ;;
+        esac
+        read_center "Enter your timezone: " timezone
+        timezone="*$(echo "$timezone" | sed 's/ \+/*/g')*"
+        timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -n 1)
+        rm -f /etc/localtime /etc/timezone
+        echo "${timezonefile#/usr/share/zoneinfo/}" > /etc/timezone
+        ln -s "$timezonefile" /etc/localtime 
+        read_center "Change Hostname? (y/N): " changehostname
+        case $changehostname in
+            y) read_center "Hostname: " hostname
+               hostname $hostname
+               echo "$hostname" > /etc/hostname
+               echo "127.0.0.1 localhost $hostname" >> /etc/hosts ;;
+            *) : ;;
+        esac
+        touch /etc/setup
+    fi
+}
+
 #############
 ## STARTUP ##
 #############
@@ -1060,6 +1090,7 @@ export board_name=${release_board%%-*}
 for chmod in /usr/bin/aurorabuildenv; do
     chmod +x $chmod
 done
+setup
 while true; do
     tput cnorm
     clear
