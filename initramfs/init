@@ -170,10 +170,10 @@ while true; do
               Initramfs Menu
 EOF
     echo -e "${COLOR_RESET}\n"
-    echo "1. Aurora (${YELLOW_B}${dev_partition}${COLOR_RESET})"
-    echo "2. Shimboot (If you have it)"
+    echo -e "1. Aurora (${YELLOW_B}${dev_partition}${COLOR_RESET})"
+    echo -e "2. Shimboot (If you have it)"
     echo -e "3. Shell\n"
-    echo -n "${GEEN_B}(initramfs)> ${COLOR_RESET}"
+    echo -ne "${GEEN_B}(initramfs)> ${COLOR_RESET}"
     read initselection
     case $initselection in
         1) auroraselected ;;
