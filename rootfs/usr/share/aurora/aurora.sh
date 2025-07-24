@@ -997,6 +997,8 @@ errormessage() {
 
 setup() {
     if [ ! -f /etc/setup ]; then
+        clear
+        hostname Aurora
         splash
         echo -e "\nSetup Aurora" | center
         sed -i '/%wheel ALL=.*NOPASSWD.*/d' /etc/sudoers

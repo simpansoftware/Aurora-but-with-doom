@@ -21,6 +21,8 @@ alias grep='grep --color=auto'
 alias reboot='reboot -f'
 alias toilet="figlet" # those who know
 cat /etc/motd
+read -p "$(hostname) login: " username
+sudo -u $username bash -l
 EOF
 
 
