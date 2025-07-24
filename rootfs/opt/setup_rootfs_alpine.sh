@@ -20,6 +20,7 @@ alias dir='dir --color=auto'
 alias grep='grep --color=auto'
 alias reboot='reboot -f'
 alias toilet="figlet" # those who know
+echo ""
 cat /etc/motd
 username=root
 read -p "$(hostname) login: " username
