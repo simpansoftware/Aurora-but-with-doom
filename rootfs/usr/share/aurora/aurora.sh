@@ -952,7 +952,7 @@ if [ "$$" -ne 1 ]; then
     )
 
     menu_actions=(
-        "clear && script -qfc 'stty sane && stty erase '^H' && exec login || exec busybox sh -l' /dev/null"
+        "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
         "clear && installcros"
         "clear && wifi"
         "canwifi clear && download"
@@ -975,7 +975,7 @@ else
     )
 
     menu_actions=(
-        "clear && script -qfc 'stty sane && stty erase '^H' && exec login || exec busybox sh -l' /dev/null"
+        "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
         "clear && installcros"
         "clear && shimboot"
         "clear && wifi"
@@ -1111,7 +1111,7 @@ while true; do
     menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${menu_options[@]}"
     choice=$?
     echo ""
-    if [[ "${menu_actions[$choice]}" == *"login"* ]]; then
+    if [[ "${menu_actions[$choice]}" == *"bash -l"* ]]; then
         eval "${menu_actions[$choice]}"
     else
         stty $stty
