@@ -116,7 +116,10 @@ read_center() {
         local char=""
         local ilen=0
         local nowrap=1
-        stty -echo -icanon time 0 min 1
+
+        local stty_old
+        stty_old=$(stty -g)
+        stty -icanon -echo
 
         while IFS= read -rsn1 char; do
             if [[ $char == $'\n' || $char == $'\r' ]]; then
@@ -125,7 +128,7 @@ read_center() {
                 if [[ -n $input ]]; then
                     input="${input::-1}"
                     ((ilen--))
-                    tput cub "$width"
+                    tput cr
                     tput el
                     local pad=$(( (width - plen - ilen) / 2 + offset ))
                     (( pad < 0 )) && pad=0
@@ -142,7 +145,7 @@ read_center() {
                     nowrap=0
                     echo -n "$char"
                 elif (( nowrap )); then
-                    tput cub "$width"
+                    tput cr
                     tput el
                     local pad=$(( (width - plen - ilen) / 2 + offset ))
                     (( pad < 0 )) && pad=0
@@ -156,7 +159,7 @@ read_center() {
         if [[ -n "$readvar" ]]; then
             printf -v "$readvar" '%s' "$input"
         fi
-        stty $stty
+        stty "$stty_old"
     fi
 }
 
