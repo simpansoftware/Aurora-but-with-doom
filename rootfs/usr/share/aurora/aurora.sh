@@ -320,16 +320,16 @@ funText() {
 splash() {
     ssid="$(iw dev "$wifidevice" link 2>/dev/null | awk -F ': ' '/SSID/ {print $2}')"
     if [ -n "$ssid" ]; then
-        echo -e "${GEEN_B}● $wifidevice${COLOR_RESET} $ssid" | center
+        echo -e "\n${GEEN_B}● $wifidevice${COLOR_RESET} $ssid" | center
     else
-        echo -e "${RED_B}● $wifidevice${COLOR_RESET} disconnected" | center
+        echo -e "\n${RED_B}● $wifidevice${COLOR_RESET} disconnected" | center
     fi
     local width=42
 	local verstring=${VERSION["STRING"]}
 	local build=${VERSION["BUILDDATE"]}
 	local version_pad=$(( (width - ${#verstring}) / 2 ))
     local build_pad=$(( (width - ${#build}) / 2 ))
-    echo -e "$BLUE_B"
+    echo -ne "$BLUE_B"
     cat <<'EOF' | center
 ╒════════════════════════════════════════╕
 │ .    . .    '    +   *       o    .    │
