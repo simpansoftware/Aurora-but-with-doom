@@ -8,11 +8,13 @@ printf "\033[?25h"
 rm -f /init
 clear
 
-export tty="/dev/tty"
-[ -e /dev/pts/0 ] && export tty="/dev/pts/0"
+export TTY1="/dev/tty1"
+export TTY2="/dev/tty2"
+export TTY3="/dev/tty4"
+[ -e /dev/pts/0 ] && export TTY1="/dev/pts/0" && export TTY2="/dev/pts/1" && export TTY3="/dev/pts/3"
 
 setsid -c test
 hostname aurora
 export needswifi=1
-exec <${tty} >>${tty} 2>&1
-exec bash -l /usr/share/aurora/aurora.sh <${tty} >>${tty} 2>&1
+exec <${TTY1} >>${TTY1} 2>&1
+exec bash -l /usr/share/aurora/aurora.sh <${TTY1} >>${TTY1} 2>&1

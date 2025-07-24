@@ -681,31 +681,11 @@ shimboot() {
                 chmod +x $sh1mmerfile
             fi
             if lsblk -o PARTLABEL $loop | grep "shimboot"; then
-                modprobe zram
-                echo 1024M > /sys/block/zram0/disksize
-                mkswap /dev/zram0
-                swapon /dev/zram0
-                export specialshim="shimboot"
-                echo -e "How much space would you like to allocate to Shimboot?\nThis can be changed at any time." | center
-                freespace=$(df -h / | tail -n1 | awk '{print $4}' | sed 's/G/ GB/')
-                echo -e "$freespace of free space" | center
-                read_center -d "Enter size to allocate: " shimbootsize
-                shimbootsize=$(echo "$shimbootsize" | sed -e 's/ //' -e 's/GB/G/I' -e 's/MB/M/I')
-                if echo $shimbootsize | grep -i "k"; then
-                    fail "No."
-                fi
-                umount $stateful || true
-                umount $loop_root || true
-                losetup -D
-
-                truncate -s +${shimbootsize} "$shim"
-                loop=$(losetup -Pf --show "$shim")
-                partprobe "$loop"
-
-                loop_root="$(cgpt find -l ROOT-A "$loop" | head -n1)"
-                stateful="$(cgpt find -l STATE "$loop" | head -n1)"
-                mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
-			    mount $stateful /stateful || fail "Failed to mount stateful!"
+                read_center "Reboot to boot into shimboot instead of Aurora from the initramfs? (Y/n): " bootshimboot
+                case $bootshimboot in
+                    n|N|no|No|NO) return 0 ;;
+                    *) reboot -f ;;
+                esac
             fi
 
 			copy_lsb
@@ -738,10 +718,6 @@ shimboot() {
             if [ -n "$specialshim" ]; then
                 rm -f /newroot/sbin/init
                 cp /usr/share/shims/${specialshim}init /newroot/sbin/init
-            fi
-            if [ "$specialshim" = "shimboot" ]; then
-                rm -f /newroot/bin/bootstrap.sh
-                cp /usr/share/shims/shimbootstrap.sh /newroot/bin/bootstrap.sh
             fi
 			pivot_root /newroot /newroot/tmp/aurora
 			echo "Successfully switched root. Starting init..."

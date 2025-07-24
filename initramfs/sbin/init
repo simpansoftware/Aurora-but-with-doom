@@ -1,5 +1,14 @@
 #!/bin/busybox sh
 
+clear
+export TTY1="/dev/tty1"
+export TTY2="/dev/tty2"
+export TTY3="/dev/tty4"
+[ -e /dev/pts/0 ] && export TTY1="/dev/pts/0" && export TTY2="/dev/pts/1" && export TTY3="/dev/pts/3"`
+/bin/busybox --install /bin || true
+exec /init < "$TTY1" >> "$TTY1" 2>&1 || sleep 1d
+exit 1
+
 echo "Making the newroot partition..."
 mkdir -p /newroot || sleep 10
 sleep 1
@@ -18,7 +27,7 @@ fi
 dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
 
 echo "Mounting device..."
-mount $dev_partition /newroot || mount /dev/sda4 /newroot || mount /dev/mmcblk1p4 /newroot # incase of thuggery from dev_partition
+mount $dev_partition /newroot
 
 echo "Moving mounts to /newroot"
 mkdir -p "/newroot/sys"
@@ -27,10 +36,6 @@ mkdir -p "/newroot/proc"
 mount -n -o move "/proc" "/newroot/proc"
 mkdir -p "/newroot/dev"
 mount -n -o move "/dev" "/newroot/dev"
-mkdir -p "/newroot/run"
-mount -n -o move "/run" "/newroot/run" 2>/dev/null || continue
-
-echo "exec switch_root"
-echo "this shouldn't take more than a few seconds"
-chmod +x /newroot/sbin/init
-exec switch_root /newroot /sbin/init -v --default-console output || sh
+mkdir -p /newroot/bootloader
+pivot_root /newroot /newroot/bootloader
+exec /sbin/init < "$TTY1" >> "$TTY1" 2>&1
