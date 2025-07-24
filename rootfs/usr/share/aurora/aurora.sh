@@ -996,8 +996,8 @@ setup() {
         case $setupuser in
             n) : ;;
             *) read_center -d "Username: " username
-               adduser $username
-               addgroup $username wheel ;;
+               adduser "$username"
+               addgroup "$username" wheel ;;
         esac
         read_center -d "Enter your timezone: " timezone
         timezone="*$(echo "$timezone" | sed 's/ \+/*/g')*"
@@ -1008,7 +1008,7 @@ setup() {
         read_center "Change Hostname? (y/N): " changehostname
         case $changehostname in
             y) read_center -d "Hostname: " hostname
-               hostname $hostname
+               hostname "$hostname"
                echo "$hostname" > /etc/hostname
                echo "127.0.0.1 localhost $hostname" >> /etc/hosts ;;
             *) : ;;
