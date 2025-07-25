@@ -957,7 +957,7 @@ if [ "$$" -ne 1 ]; then
     )
 
     menu_actions=(
-        "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
+        "clear && script -qfc 'export login=0 && stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
         "clear && installcros"
         "clear && wifi"
         "canwifi clear && download"
@@ -980,7 +980,7 @@ else
     )
 
     menu_actions=(
-        "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
+        "clear && script -qfc 'export login=0 && stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
         "clear && installcros"
         "clear && shimboot"
         "clear && wifi"
@@ -1116,7 +1116,6 @@ while true; do
     splash
     errormessage
     export errormsg=""
-    export login=0
     menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${menu_options[@]}"
     choice=$?
     echo ""
