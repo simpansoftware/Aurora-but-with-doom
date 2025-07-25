@@ -892,13 +892,13 @@ updateshim() {
     apk add git github-cli
     rm -rf /usr/share/aurora/aurora.sh
     if [ -d "/root/Aurora/.git" ]; then
+        git config --global submodule.recurse true
         git -C "/root/Aurora" pull origin alpine
-        git -C "/root/Aurora" submodule foreach git pull
     else
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
         gh auth status &>/dev/null || gh auth login || return
+        git config --global submodule.recurse true
         git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive
-        git -C "/root/Aurora" submodule foreach git pull origin main
     fi
     if [ ! -e /usr/share/aurora/.UNRESIZED ]; then
         rm -f /root/Aurora/rootfs/usr/share/aurora/.UNRESIZED
