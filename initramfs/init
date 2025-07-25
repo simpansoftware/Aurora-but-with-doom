@@ -21,7 +21,11 @@ auroraselected() {
     mount -n -o move "/proc" "/auroraroot/proc"
     mkdir -p "/auroraroot/dev"
     mount -n -o move "/dev" "/auroraroot/dev"
-    mkdir -p /auroraroot/initramfs
+    mkdir -p /auroraroot/initramfs || {
+        echo "Filesystem marked itself as read only. This is fixed with rebooting."
+        sleep 5
+        reboot -f
+    }
     chmod +x /auroraroot/sbin/init
     pivot_root /auroraroot /auroraroot/initramfs
     umount -l /initramfs
