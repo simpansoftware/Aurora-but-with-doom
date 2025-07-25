@@ -905,6 +905,7 @@ updateshim() {
     fi
     echo "Copying files"
     cp -Lar /root/Aurora/rootfs/. /
+    mkdir -p /usr/share/patches/rootfs/
     cp -Lar /root/Aurora/patches/rootfs/. /usr/share/patches/rootfs/
     chmod +x /usr/share/aurora/*
     initramfsmnt=$(mktemp -d)
