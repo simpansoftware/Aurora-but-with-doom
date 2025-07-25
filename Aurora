@@ -70,8 +70,8 @@ bash ./build.sh $shim $arch
 
 echo -e "${MAGENTA_B}Credits"
 echo -e "${PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Got Wifi"
-echo -e "${GEEN_B}xmb9${COLOR_RESET}: Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images"
 echo -e "${RED_B}Mariah Carey${COLOR_RESET}: Bugfixing and bugtesting"
+echo -e "${GEEN_B}xmb9${COLOR_RESET}: Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images"
 echo -e "${YELLOW_B}Synaptic${COLOR_RESET}: Emotional Support"
 echo -e "${CYAN_B}Simon${COLOR_RESET}: Brainstormed how to do wifi, helped with dhcpcd"
 echo -e "${BLUE_B}kraeb${COLOR_RESET}: QoL improvements and initial idea"
