@@ -28,6 +28,31 @@ auroraselected() {
     exec /sbin/init < "$TTY1" >> "$TTY1" 2>&1
 }
 
+splash() {
+    clear
+        echo -ne "$BLUE_B"
+    cat <<'EOF'
+╒════════════════════════════════════════╕
+│ .    . .    '    +   *       o    .    │
+│+  '.                    '   .-.     +  │
+│          +      .    +   .   ) )     ''│
+│                   '  .      '-´  *.    │
+│     .    \      .     .  .  +          │
+│         .-o-'       '    .o        o   │
+│  *        \      *            +'       │
+│                '       '               │
+│        .*       .       o   o      .   │
+│              o     . *.                │
+│ 'o*           .        .'    .         │
+│           ━┳━           ┏━┏━     *     │
+│     .*     ┃ ┏┓▪╋┏┓┏┓┏┳┓┣╸┗┓  . \      │
+│     o     ━┻━┛┗┻┻┛ ┗┻┛┗┗┛ ━┛     +     │
+╘════════════════════════════════════════╛
+              Initramfs Menu
+EOF
+    echo -e "${COLOR_RESET}\n"
+}
+
 shimbootselected() {
     shimboot_partition=$(blkid | grep 'PARTLABEL="shimboot_rootfs' | awk -F: '{print $1}' | head -n1 || true)
     if [ -n "$shimboot_partition" ]; then
@@ -185,8 +210,9 @@ manageshimboot() {
     shimboot_partition=$(blkid | grep "$dev" | grep 'PARTLABEL="shimboot_rootfs' | awk -F: '{print $1}' | head -n1)
     shimboot_partnum=$(echo "$shimboot_partition" | grep -o '[0-9]*$')
     dev_partnum=$(echo "$dev_partition" | grep -o '[0-9]*$')
+    splash
     echo -e "1. Delete Shimboot partition"
-    echo -e "2. Return to manage menu\n"
+    echo -e "2. Return to menu\n"
     echo -ne "${GEEN_B}(shimboot)> ${COLOR_RESET}"
     read initselection
     case $initselection in
@@ -202,8 +228,9 @@ manageaurora() {
     shimboot_partition=$(blkid | grep "$dev" | grep 'PARTLABEL="shimboot_rootfs' | awk -F: '{print $1}' | head -n1)
     shimboot_partnum=$(echo "$shimboot_partition" | grep -o '[0-9]*$')
     dev_partnum=$(echo "$dev_partition" | grep -o '[0-9]*$')
+    splash
     echo -e "No current options for Aurora"
-    echo -e "1. Return to manage menu\n"
+    echo -e "1. Return to menu\n"
     echo -ne "${GEEN_B}(aurora)> ${COLOR_RESET}"
     read initselection
     case $initselection in
@@ -216,7 +243,7 @@ manage() {
     dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' | head -n1)
     dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
     shimboot_partition=$(blkid | grep "$dev" | grep 'PARTLABEL="shimboot_rootfs' | awk -F: '{print $1}' | head -n1)
-
+    splash
     if [ -z "$dev_partition" ] && [ -z "$shimboot_partition" ]; then
         echo "No Aurora or Shimboot partitions. How on earth did this happen? Ask yourself that question. What were you thinking???"
         sleep 15
@@ -274,31 +301,10 @@ fi
 echo "Mounting device..."
 mount $dev_partition /auroraroot
 while true; do
-    clear
-        echo -ne "$BLUE_B"
-    cat <<'EOF'
-╒════════════════════════════════════════╕
-│ .    . .    '    +   *       o    .    │
-│+  '.                    '   .-.     +  │
-│          +      .    +   .   ) )     ''│
-│                   '  .      '-´  *.    │
-│     .    \      .     .  .  +          │
-│         .-o-'       '    .o        o   │
-│  *        \      *            +'       │
-│                '       '               │
-│        .*       .       o   o      .   │
-│              o     . *.                │
-│ 'o*           .        .'    .         │
-│           ━┳━           ┏━┏━     *     │
-│     .*     ┃ ┏┓▪╋┏┓┏┓┏┳┓┣╸┗┓  . \      │
-│     o     ━┻━┛┗┻┻┛ ┗┻┛┗┗┛ ━┛     +     │
-╘════════════════════════════════════════╛
-              Initramfs Menu
-EOF
-    echo -e "${COLOR_RESET}\n"
+    splash
     echo -e "1. Aurora (${YELLOW_B}${dev_partition}${COLOR_RESET})"
     echo -e "2. Shimboot (If you have it)"
-    echo -e "3. Manage partitions\n"
+    echo -e "3. Manage partitions"
     echo -e "4. Shell\n"
     echo -ne "${GEEN_B}(initramfs)> ${COLOR_RESET}"
     read initselection
