@@ -1,5 +1,5 @@
-./*.bin
-./*.Zone:*
+*.bin
+*.Zone:*
 build/rootfs
 build/initramfs
 build/alpine-minirootfs*
