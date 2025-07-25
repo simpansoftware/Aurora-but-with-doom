@@ -64,9 +64,9 @@ echo_c "Architecture: ($arch)" BLUE_B
 echo_c "Shim: ($shim)" "BLUE_B"
 cd ./build/
 echo_c "Creating Rootfs and Initramfs" "BLUE_B"
-bash ./rootfs.sh ../$shim $arch
+bash ./rootfs.sh $shim $arch
 echo_c "Building the Shim" "BLUE_B"
-bash ./build.sh ../$shim $arch
+bash ./build.sh $shim $arch
 
 echo -e "${MAGENTA_B}Credits"
 echo -e "${PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Got Wifi"
