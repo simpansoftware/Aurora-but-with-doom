@@ -56,8 +56,11 @@ unmount() {
 trap unmount EXIT
 cp -Lar $rootfs/. $initramfs/
 cp -r ../initramfs/. $initramfs/
+cp -r ../patches/initramfs/. "$initramfs/"
 chroot "$initramfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_initramfs_alpine.sh && /opt/setup_initramfs_alpine.sh $arch"
 cp -r ../rootfs/. $rootfs/
+mkdir -p $rootfs/usr/share/patches/rootfs/
+cp -r ../patches/rootfs/. "$rootfs/usr/share/patches/rootfs/"
 chroot "$rootfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_rootfs_alpine.sh && /opt/setup_rootfs_alpine.sh $arch"
 
 if [ "$NOWIFI" = true ]; then

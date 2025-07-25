@@ -1,8 +1,8 @@
 Modified BSD License
 ====================
 
-_Copyright © 2025, Ethereal Workshop_  
-_All rights reserved._
+© 2025, Ethereal Workshop  
+All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
@@ -26,3 +26,10 @@ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
 ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+---
+
+### Submodules
+
+This repository includes the submodule `patches/` that is maintained independently and is licensed under different terms.  
+Please refer to [https://github.com/EtherealWorkshop/patches](https://github.com/EtherealWorkshop/patches?tab=GPL-3.0-1-ov-file#) for the respective license.

@@ -692,7 +692,7 @@ shimboot() {
             if lsblk -o PARTLABEL $loop | grep "SH1MMER"; then
                 sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
                 for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
-                cp /usr/share/shims/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
+                cp /usr/share/patches/rootfs/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
                 chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
                 chmod +x $sh1mmerfile
             fi
@@ -732,10 +732,10 @@ shimboot() {
 			clear
 
 			mkdir -p /newroot/tmp/aurora
-            chmod +x /usr/share/shims/*
+            chmod +x /usr/share/patches/rootfs/*
             if [ -n "$specialshim" ]; then
                 rm -f /newroot/sbin/init
-                cp /usr/share/shims/${specialshim}init /newroot/sbin/init
+                cp /usr/share/patches/rootfs/${specialshim}init /newroot/sbin/init
             fi
 			pivot_root /newroot /newroot/tmp/aurora
 			echo "Successfully switched root. Starting init..."
@@ -896,6 +896,9 @@ updateshim() {
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
         gh auth status &>/dev/null || gh auth login || return
         git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora
+        cd /root/Aurora
+        git submodule update --init --recursive
+        cd /
     fi
     if [ ! -e /usr/share/aurora/.UNRESIZED ]; then
         rm -f /root/Aurora/rootfs/usr/share/aurora/.UNRESIZED
