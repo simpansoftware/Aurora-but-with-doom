@@ -21,6 +21,8 @@ if [[ "$(basename "$(pwd)")" =~ ^(build|website|lib)$ ]]; then
     echo "Please run in the base directory. (Aurora/)"
     exit 1
 fi
+git submodule update --init --recursive
+cd patches && git pull && cd ../
 if [ "$EUID" -ne 0 ]; then
     echo "Please run as root."
     exit 1
@@ -56,7 +58,7 @@ checkarch() {
 }
 checkarch
 
-source ./build/utils/functions.sh
+source ./patches/functions.sh
 
 shim=$(realpath -m "$1")
 

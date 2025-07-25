@@ -17,7 +17,7 @@
 
 shim="$1"
 arch="$2"
-source ./utils/functions.sh
+source ../patches/functions.sh
 
 initramfs=$(realpath -m "./initramfs")
 rootfs=$(realpath -m "./rootfs")

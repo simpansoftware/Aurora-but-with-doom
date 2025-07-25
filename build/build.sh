@@ -17,7 +17,7 @@
 
 shim=$1
 
-source ./utils/functions.sh
+source ../patches/functions.sh
 
 aurorashim="../$(basename "${shim}")-aurora.bin"
 if [ -z $shim ]; then
