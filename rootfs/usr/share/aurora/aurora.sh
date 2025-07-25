@@ -322,6 +322,15 @@ funText() {
         "Hi there. I'm SmallAnt1."
         "Man I sure do love InitramF5"
         "If a gay bomb was dropped - Zack D Films"
+        "do not drink the tasty depression that\nsays jim beam - sophia"
+        "@Synaptic bad girl\ndown\nno biting!\ngo in your crate"
+        "swiss cheese yo ahhh"
+        "you keep using that word\ni do not think it means what you think it means."
+        "give me andrew"
+        "I am not fanqyxl. -Fanqyxl"
+        "it runs the demon - OlyB"
+        "GOOD MANNERS\n1 Wait your turn\n2 Use polite words\n3 Listen Carefully"
+        "crazy ant [..] 👍"
         ) #              cen-><-ter" 
 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
