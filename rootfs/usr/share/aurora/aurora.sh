@@ -947,53 +947,44 @@ payloads() {
     fi
 }
 
-if [ "$$" -ne 1 ]; then
-    menu_options=(
-        "1. Open Terminal"
-        "2. Install a ChromeOS recovery image"
-        "3. Connect to WiFi"
-        "4. Download a ChromeOS recovery image/shim"
-        "5. Payloads Menu"
-        "6. Update shim"
-        "7. Build Environment Shell"
-        "8. Exit and Reboot"
-    )
-
-    menu_actions=(
-        "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
-        "clear && installcros"
-        "clear && wifi"
-        "canwifi clear && download"
-        "clear && payloads"
-        "canwifi updateshim"
-        "canwifi aurorabuildenv"
-        "reboot -f"
-    )
-else
-    menu_options=(
-        "1. Open Terminal"
-        "2. Install a ChromeOS recovery image"
-        "3. Boot a Shim"
-        "4. Connect to WiFi"
-        "5. Download a ChromeOS recovery image/shim"
-        "6. Payloads Menu"
-        "7. Update shim"
-        "8. Build Environment Shell"
-        "9. Exit and Reboot"
-    )
-
-    menu_actions=(
-        "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
-        "clear && installcros"
-        "clear && shimboot"
-        "clear && wifi"
-        "canwifi clear && download"
-        "clear && payloads"
-        "canwifi updateshim"
-        "canwifi aurorabuildenv"
-        "reboot -f"
-    )
+pid1=false
+if [ "$$" -eq 1 ]; then
+    pid1=true
 fi
+
+menu_options=(
+    "1. Open Terminal"
+    "2. Install a ChromeOS recovery image"
+)
+
+menu_actions=(
+    "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
+    "clear && installcros"
+)
+
+if $pid1; then
+    menu_options+=("3. Boot a Shim")
+    menu_actions+=("clear && shimboot")
+fi
+
+menu_options+=(
+    "$( [ $pid1 = false ] && echo "3" || echo "4" ). Connect to WiFi"
+    "$( [ $pid1 = false ] && echo "4" || echo "5" ). Download a ChromeOS recovery image/shim"
+    "$( [ $pid1 = false ] && echo "5" || echo "6" ). Payloads Menu"
+    "$( [ $pid1 = false ] && echo "6" || echo "7" ). Update shim"
+    "$( [ $pid1 = false ] && echo "7" || echo "8" ). Build Environment Shell"
+    "$( [ $pid1 = false ] && echo "8" || echo "9" ). Exit and Reboot"
+)
+
+menu_actions+=(
+    "clear && wifi"
+    "canwifi clear && download"
+    "clear && payloads"
+    "canwifi updateshim"
+    "canwifi aurorabuildenv"
+    "reboot -f"
+)
+
 
 errormessage() {
     if [ -n "$errormsg" ]; then 
