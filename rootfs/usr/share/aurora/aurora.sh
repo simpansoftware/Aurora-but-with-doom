@@ -957,7 +957,7 @@ if [ "$$" -ne 1 ]; then
     )
 
     menu_actions=(
-        "clear && script -qfc 'export login=0 && stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
+        "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
         "clear && installcros"
         "clear && wifi"
         "canwifi clear && download"
@@ -980,7 +980,7 @@ else
     )
 
     menu_actions=(
-        "clear && script -qfc 'export login=0 && stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
+        "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
         "clear && installcros"
         "clear && shimboot"
         "clear && wifi"
@@ -1112,6 +1112,7 @@ while true; do
     stty $stty
     eval "setup"
     clear
+    hostname $(cat /etc/hostname)
     export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
     splash
     errormessage
