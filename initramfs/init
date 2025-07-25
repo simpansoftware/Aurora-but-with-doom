@@ -265,7 +265,7 @@ manage() {
         n=$((n + 1))
     fi
 
-    echo "$n. Return to menu"
+    echo -e "$n. Return to menu\n"
     menu=$n
 
     echo -ne "${GEEN_B}(manage)> ${COLOR_RESET}"
