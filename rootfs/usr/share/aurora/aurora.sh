@@ -646,6 +646,15 @@ shimboot() {
 		echo -e "Searching for ROOT-A on shim" | center
 		loop=$(losetup -Pf --show $shim)
 		export loop
+        if lsblk -o PARTLABEL $loop | grep "shimboot"; then
+            touch /etc/shimboot
+            sync
+            read_center "Reboot to boot into shimboot instead of Aurora from the initramfs? (Y/n): " bootshimboot
+            case $bootshimboot in
+                n|N|no|No|NO) return 0 ;;
+                *) losetup -D && reboot -f ;;
+            esac
+        fi
 
 		loop_root="$(cgpt find -l ROOT-A "$loop" | head -n1)"
         if [ -z "$loop_root" ]; then
@@ -695,15 +704,6 @@ shimboot() {
                 cp /usr/share/patches/rootfs/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
                 chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
                 chmod +x $sh1mmerfile
-            fi
-            if lsblk -o PARTLABEL $loop | grep "shimboot"; then
-                touch /etc/shimboot
-                sync
-                read_center "Reboot to boot into shimboot instead of Aurora from the initramfs? (Y/n): " bootshimboot
-                case $bootshimboot in
-                    n|N|no|No|NO) return 0 ;;
-                    *) reboot -f ;;
-                esac
             fi
 
 			copy_lsb
