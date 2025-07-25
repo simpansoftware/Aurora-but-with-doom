@@ -22,7 +22,9 @@ alias toilet="figlet" # those who know
 echo ""
 if [ -z "$login" ]; then
   cat /etc/motd
+  stty intr ''
   read -p "$(hostname) login: " USER
+  stty intr '^C'
   export login=1
   exec sudo -u "$USER" login=1 bash -l
 fi
