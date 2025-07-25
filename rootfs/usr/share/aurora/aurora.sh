@@ -18,6 +18,7 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 stty sane
 stty erase '^H'
 stty intr ''
@@ -892,13 +893,12 @@ updateshim() {
     rm -rf /usr/share/aurora/aurora.sh
     if [ -d "/root/Aurora/.git" ]; then
         git -C "/root/Aurora" pull origin alpine
+        git -C "/root/Aurora" submodule foreach git pull
     else
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
         gh auth status &>/dev/null || gh auth login || return
         git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive
-        cd /root/Aurora
-        git submodule update --init --recursive
-        cd /
+        git -C "/root/Aurora" submodule foreach git pull
     fi
     if [ ! -e /usr/share/aurora/.UNRESIZED ]; then
         rm -f /root/Aurora/rootfs/usr/share/aurora/.UNRESIZED
