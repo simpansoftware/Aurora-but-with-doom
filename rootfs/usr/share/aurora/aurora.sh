@@ -898,7 +898,7 @@ updateshim() {
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
         gh auth status &>/dev/null || gh auth login || return
         git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive
-        git -C "/root/Aurora" submodule foreach git pull
+        git -C "/root/Aurora" submodule foreach git pull origin main
     fi
     if [ ! -e /usr/share/aurora/.UNRESIZED ]; then
         rm -f /root/Aurora/rootfs/usr/share/aurora/.UNRESIZED
