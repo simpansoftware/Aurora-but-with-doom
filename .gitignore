@@ -1,3 +1,5 @@
-priism/*.bin
-aurora/*.bin
-irs/*.bin
+./*.bin
+./*.Zone:*
+build/rootfs
+build/initramfs
+build/alpine-minirootfs*
