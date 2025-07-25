@@ -22,12 +22,9 @@ if [ -z "$login" ]; then
 
   echo ""
   cat /etc/motd
-
-  if [ "$USER" = "root" ]; then
-    read -p "$(hostname) login: " TARGETUSER
-    export login=1
-    exec sudo -u "$TARGETUSER" login=1 bash -l
-  fi
+  read -p "$(hostname) login: " USER
+  export login=1
+  exec sudo -u "$USER" login=1 bash -l
 fi
 EOF
 
