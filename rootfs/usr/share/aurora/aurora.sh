@@ -1022,10 +1022,10 @@ setup() {
         read_center "Change Hostname? (y/N): " changehostname
         case $changehostname in
             y) read_center -d "Hostname: " hostname
-               echo "$hostname" > /etc/customhostname
+               hostname $hostname
                echo "$hostname" > /etc/hostname
                echo "127.0.0.1 localhost $hostname" >> /etc/hosts ;;
-            *) echo "Aurora" > /etc/customhostname
+            *) hostname Aurora
                echo "Aurora" > /etc/hostname
                echo "127.0.0.1 localhost Aurora" >> /etc/hosts ;;
         esac
@@ -1111,7 +1111,6 @@ while true; do
     tput cnorm
     stty $stty
     eval "setup"
-    hostname "$(cat /etc/customhostname)" # so it doesnt reset upon boot
     clear
     export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
     splash
