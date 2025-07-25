@@ -147,7 +147,7 @@ shimbootselected() {
                 sleep 1
             done
 
-            mkfs.ext4 "$shimboot_partition" -F # or, i could do yes | mkfs.ext4 "$shimboot_partition" (but im not a dumbass)
+            mkfs.ext4 -F "$shimboot_partition" # or, i could do yes | mkfs.ext4 "$shimboot_partition" (but im not a dumbass)
             mkdir -p /mnt/shimloop /mnt/newshim
             mount "$looprootpart" /mnt/shimloop
             mount "$shimboot_partition" /mnt/newshim
