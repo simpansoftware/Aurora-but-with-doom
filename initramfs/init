@@ -61,6 +61,7 @@ shimbootselected() {
             a_free_kb=$(df -k /auroraroot | awk 'NR==2 {print $4}')
             a_free_bytes=$((a_free_kb * 1024))
             echo "Available: $(numfmt --to=iec "$a_free_bytes")"
+            echo -e "${RED_B}WARNING: THE SHIMBOOT PARTITION CAN NOT BE RESIZED LATER!${COLOR_RESET}"
             echo -n "Enter size to allocate to shimboot rootfs [Ex: 1G]: "
             read size
 
@@ -168,10 +169,96 @@ shimbootselected() {
     fi
 }
 
+confirmation() {
+    echo -ne "Confirm $1? (Y/n) "
+    shift
+    read confirm
+    case $confirm in
+    n|N|no|NO|No) return 0 ;;
+    *) $@ ;;
+    esac
+}
+
+manageshimboot() {
+    dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' | head -n1)
+    dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
+    shimboot_partition=$(blkid | grep "$dev" | grep 'PARTLABEL="shimboot_rootfs' | awk -F: '{print $1}' | head -n1)
+    shimboot_partnum=$(echo "$shimboot_partition" | grep -o '[0-9]*$')
+    dev_partnum=$(echo "$dev_partition" | grep -o '[0-9]*$')
+    echo -e "1. Delete Shimboot partition"
+    echo -e "2. Return to manage menu\n"
+    echo -ne "${GEEN_B}(shimboot)> ${COLOR_RESET}"
+    read initselection
+    case $initselection in
+        1) confirmation "deletion of Shimboot partition on $shimboot_partition" "sgdisk --delete=\"$shimboot_partnum\" $dev" ;;
+        2) return 0 ;;
+        *) echo "Invalid Option" ;;
+    esac
+}
+
+manageaurora() {
+    dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' | head -n1)
+    dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
+    shimboot_partition=$(blkid | grep "$dev" | grep 'PARTLABEL="shimboot_rootfs' | awk -F: '{print $1}' | head -n1)
+    shimboot_partnum=$(echo "$shimboot_partition" | grep -o '[0-9]*$')
+    dev_partnum=$(echo "$dev_partition" | grep -o '[0-9]*$')
+    echo -e "No current options for Aurora"
+    echo -e "1. Return to manage menu\n"
+    echo -ne "${GEEN_B}(aurora)> ${COLOR_RESET}"
+    read initselection
+    case $initselection in
+        1) return 0 ;;
+        *) echo "Invalid Option" ;;
+    esac
+}
+
+manage() {
+    dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' | head -n1)
+    dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
+    shimboot_partition=$(blkid | grep "$dev" | grep 'PARTLABEL="shimboot_rootfs' | awk -F: '{print $1}' | head -n1)
+
+    if [ -z "$dev_partition" ] && [ -z "$shimboot_partition" ]; then
+        echo "No Aurora or Shimboot partitions. How on earth did this happen? Ask yourself that question. What were you thinking???"
+        sleep 15
+        return 1
+    fi
+
+    echo -e "Select a partition to manage"
+    n=1
+
+    if [ -n "$dev_partition" ]; then
+        echo "$n. Manage Aurora on ${dev_partition}"
+        manageaurora=$n
+        n=$((n + 1))
+    fi
+
+    if [ -n "$shimboot_partition" ]; then
+        echo "$n. Manage Shimboot on ${shimboot_partition}"
+        manageshimboot=$n
+        n=$((n + 1))
+    fi
+
+    echo "$n. Return to menu"
+    menu=$n
+
+    echo -ne "${GEEN_B}(manage)> ${COLOR_RESET}"
+    read manageselection
+
+    if [ "$manageselection" = "$manageaurora" ]; then
+        manageaurora || sleep 5
+    elif [ "$manageselection" = "$manageshimboot" ]; then
+        manageshimboot || sleep 5
+    elif [ "$manageselection" = "$menu" ]; then
+        return 0
+    else
+        echo "Invalid Option"
+    fi
+}
+
 clear
 echo "Making the auroraroot partition..."
 mkdir -p /auroraroot || sleep 10
-dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' || true)
+dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' | head -n1 || true)
 dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
 if [ -z "$dev_partition" ]; then
     echo "failed to find aurora partition"
@@ -211,13 +298,15 @@ EOF
     echo -e "${COLOR_RESET}\n"
     echo -e "1. Aurora (${YELLOW_B}${dev_partition}${COLOR_RESET})"
     echo -e "2. Shimboot (If you have it)"
-    echo -e "3. Shell\n"
+    echo -e "3. Manage partitions\n"
+    echo -e "4. Shell\n"
     echo -ne "${GEEN_B}(initramfs)> ${COLOR_RESET}"
     read initselection
     case $initselection in
-        1) auroraselected ;;
+        1) auroraselected || sleep 5 ;;
         2) shimbootselected || sleep 5 ;;
-        3) clear && script -qfc 'stty sane && stty erase '^H' && exec busybox sh -l' /dev/null ;;
+        3) manage || sleep 5 ;;
+        4) clear && script -qfc 'stty sane && stty erase '^H' && exec busybox sh -l' /dev/null ;;
         *) echo "Invalid Option" ;;
     esac
 done
