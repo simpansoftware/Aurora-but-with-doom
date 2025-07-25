@@ -69,7 +69,7 @@ sgdisk --zap-all "$dev"
 
 sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev"
 sgdisk -n 2:10240:75775    "$dev"
-sgdisk -n 3:75776:152575 -c 3:"ROOT-A" "$dev"
+sgdisk -n 3:75776:152575 -c 3:"cheeseburger" "$dev"
 sgdisk -n 4:152576:0     -c 4:"Aurora" "$dev"
 
 
@@ -95,7 +95,7 @@ root_a="${dev}p3"
 root_b="${dev}p4"
 
 echo -e "y\n" | mkfs.ext4 "$state" -L STATE
-echo -e "y\n" | mkfs.ext4 "$root_a" -L ROOT-A
+echo -e "y\n" | mkfs.ext4 "$root_a" -L cheeseburger
 echo -e "y\n" | mkfs.ext4 "$root_b" -L Aurora
 
 statemount=$(mktemp -d)
