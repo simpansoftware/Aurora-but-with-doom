@@ -227,8 +227,6 @@ fail() {
         echo "$dontunmount" | grep -qx "$mountpoint" && continue
         umount "$mountpoint"
     done
-
-    umount -a
 	losetup -D
     for arg in "$@"; do
         if [ "$arg" = "--fatal" ]; then
