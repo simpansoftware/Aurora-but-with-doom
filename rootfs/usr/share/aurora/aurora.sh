@@ -874,7 +874,7 @@ downloadshim() {
         *) fail "Invalid choice (somehow?????)" ;;
 	esac
     shimtype=$(echo $FINALSHIM_URL | awk -F. '{print $NF}')
-    if [ -n "$shimtype" ]; then
+    if [ -z "$shimtype" ]; then
         fail "Invalid Shim URL"
     fi
     shimfile=$(echo $FINALSHIM_URL | awk -F/ '{print $NF}')
