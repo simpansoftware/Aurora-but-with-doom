@@ -243,6 +243,17 @@ manageaurora() {
     esac
 }
 
+dboot() {
+    echo $1 > /auroraroot/etc/initramfs.defaultboot 
+    echo -n "Enter timeout length before booting (seconds): "
+    read timeout
+    if [ -z $timeout ]; then
+        echo "No timeout specified. Defaulting to 5 Seconds"
+        timeout="5"
+    fi
+    echo $timeout >> /auroraroot/etc/initramfs.defaultboot
+}
+
 manage() {
     dev_partition=$(blkid | grep 'LABEL="Aurora"' | awk -F: '{print $1}' | head -n1)
     dev=$(echo "$dev_partition" | sed -E 's/p?[0-9]+$//')
@@ -268,6 +279,9 @@ manage() {
         manageshimboot=$n
         n=$((n + 1))
     fi
+    echo -e "$n. Set default boot target"
+    setdefaultboot=$n
+    n=$((n + 1))
 
     echo -e "$n. Return to menu\n"
     menu=$n
@@ -281,6 +295,20 @@ manage() {
         manageshimboot || sleep 5
     elif [ "$manageselection" = "$menu" ]; then
         return 0
+    elif [ "$manageselection" = "$setdefaultboot" ]; then
+        splash
+        echo -e "Set default boot:"
+        echo -e "1. Aurora"
+        echo -e "2. Shimboot"
+        echo -e "3. Clear default boot"
+        echo -ne "${GEEN_B}(default)> ${COLOR_RESET}"
+        read defaultchoice
+        case $defaultchoice in
+            1) dboot "Aurora" ;;
+            2) dboot "Shimboot" ;;
+            3) rm -f /auroraroot/etc/initramfs.defaultboot ;;
+            *) echo "Invalid Option" ;;
+        esac
     else
         echo "Invalid Option"
     fi
@@ -304,6 +332,23 @@ if [ -f "/.UNRESIZED" ]; then
 fi
 echo "Mounting device..."
 mount $dev_partition /auroraroot
+
+defaultboot="/auroraroot/etc/initramfs.defaultboot"
+if [ -f "$defaultboot" ]; then
+    timeout=$(cat "$defaultboot" | tail -n1)
+    defaultboot=$(cat "$defaultboot" | head -n1)
+    echo -e "${YELLOW_B}Booting $defaultboot in $timeout seconds... Press any key to cancel.${COLOR_RESET}"
+    read -t $timeout -n1 key && cancel=true
+    if [ -z "$cancel" ]; then
+        case "$defaultboot" in
+            Aurora) auroraselected ;;
+            Shimboot) shimbootselected ;;
+            *) echo "Invalid default boot entry (what did you do)" ;;
+        esac
+        sleep 5
+    fi
+fi
+
 while true; do
     splash
     echo -e "1. Aurora (${YELLOW_B}${dev_partition}${COLOR_RESET})"
