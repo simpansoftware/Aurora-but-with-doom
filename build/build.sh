@@ -65,7 +65,7 @@ else
     exit
 fi
 
-sgdisk --zap-all "$dev"
+sgdisk --zap-all "$dev" # haha 69
 
 sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev"
 sgdisk -n 2:10240:75775    "$dev"

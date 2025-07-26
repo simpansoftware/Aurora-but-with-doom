@@ -39,7 +39,6 @@ tar -xf alpine-minirootfs.tar.gz -C $rootfs
 rm -f $rootfs/sbin/init
 
 echo "nameserver 8.8.8.8" > $rootfs/etc/resolv.conf
-# haha 69
 for arg in "$@"; do
     case "$arg" in
         --nowifi|-nw)
@@ -67,7 +66,7 @@ if [ "$NOWIFI" = true ]; then
     echo_c "Flag 'nowifi' set. Skipping firmware download..." YELLOW_B
 else
     echo_c "Downloading firmware..." GEEN_B
-    git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware $rootfs/lib/firmware/
+    git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware $rootfs/lib/firmware/ # haha 69
 fi
 
 rm -rf $(find $rootfs/lib/firmware/* -not -path "*wifi*")

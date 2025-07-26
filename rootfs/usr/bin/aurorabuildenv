@@ -16,10 +16,8 @@ export board_name=${release_board%%-*}
 
 downloadrawshim() {
     if [ ! -f "${aroot}/build/.${board_name}.bin" ]; then
-        curl --progress-bar -Lk "https://dl.cros.download/files/$board_name/$board_name.zip" -o "$aroot/build/.$board_name.zip"
-        unzip $aroot/build/.$board_name.zip
-        mv "$(unzip -Z1 $aroot/build/.$board_name.zip)" $aroot/build/.$board_name.bin 2>/dev/null
-        rm $aroot/build/.$board_name.zip
+        echo "Downloading Raw Shim for $board_name [ https://ddl.fanqyxl.net/ChromeOS/Raw%20Shims/${board_name}-raw.bin ]"
+        curl --progress-bar -Lk "https://ddl.fanqyxl.net/ChromeOS/Raw%20Shims/${board_name}-raw.bin" -o "$aroot/build/.$board_name.bin"
         export basebuildshim="$aroot/build/.$board_name.bin"
     fi
 }
@@ -53,6 +51,7 @@ aurorabuildenv-list() {
     find $aroot/build/ -type f -name .exists | awk -F/ '{print $7}'
 }
 aurorabuildenv-create() {
+    downloadrawshim
     mkdir -p "$alpinebuild" "$crosbuild" "$debianbuild" "$archbuild"
     local buildenvname=""
     case "$1" in
@@ -95,7 +94,6 @@ EOF
     if [ "${buildenvname}" = "cros" ]; then
         if [ ! -e "${aroot}/build/env/${buildenvname}/etc/.exists" ]; then
             export crosbuild="$aroot/build/env/cros"
-            downloadrawshim
             crosbuildloopdev=$(losetup -Pf --show "$basebuildshim")
             crosbuildlooproota=$(lsblk -pro NAME,PARTLABEL "$crosbuildloopdev" | grep "ROOT-A" | awk '{print $1}')
             crosbuildtempdir=$(mktemp -d)

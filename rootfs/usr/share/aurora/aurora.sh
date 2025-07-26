@@ -48,7 +48,6 @@ export MAGENTA_B="\033[1;35m"
 export PINK_B="\x1b[1;38;2;235;170;238m"
 export CYAN_B="\033[1;36m"
 export PS1='\e[1;34m\]\u@\h \e[1;33m\]$(date +"%H:%M %b %d")\e[1;32m\] \w/\[\e[0m\] '
-
 alias ls='ls --color=auto'
 alias dir='dir --color=auto'
 alias grep='grep --color=auto'
@@ -67,12 +66,13 @@ VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]} - \"${VERSION["REL
 ####################
 ## BASE FUNCTIONS ##
 ####################
+# haha 69
 echo_c() {
     local text="$1"
     local color_variable="$2"
     local color="${!color_variable}"
     echo -e "${color}${text}${COLOR_RESET}"
-} # haha 69
+}
 
 center() {
     local width=$(tput cols)
