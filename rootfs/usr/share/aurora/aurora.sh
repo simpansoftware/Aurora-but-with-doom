@@ -1094,7 +1094,7 @@ for wifi in iwlwifi iwlmvm ccm 8021q; do
     modprobe "$wifi" 2>/dev/null
 done
 export needswifi=0
-echo "Connecting to wifi" | center
+echo -e "[${GEEN_B}+${COLOR_RESET}] Connecting to wifi" | center
 if [ -f "/etc/wpa_supplicant.conf" ]; then
     export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
     wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
@@ -1109,7 +1109,7 @@ if [ -f "/etc/wpa_supplicant.conf" ]; then
     done
 
     if [ $connected -eq 0 ]; then
-        echo "No nearby saved networks found" | center
+        echo -e "[${RED_B}-${COLOR_RESET}] No nearby saved networks found" | center
     fi
 fi
 release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
