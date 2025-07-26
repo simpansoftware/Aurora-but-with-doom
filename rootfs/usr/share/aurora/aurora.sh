@@ -222,11 +222,8 @@ fail() {
     export errormsg="$1"
 	sync
     cd /
-    dontunmount="/ /proc /sys /dev /dev/pts /sys/kernel/debug"
-    for mountpoint in $(awk '{print $2}' /proc/mounts | tac); do
-        echo "$dontunmount" | grep -qx "$mountpoint" && continue
-        umount "$mountpoint"
-    done
+    umount /dev/loop*p* 2>/dev/null
+    umount /dev/loop* 2>/dev/null
 	losetup -D
     for arg in "$@"; do
         if [ "$arg" = "--fatal" ]; then
