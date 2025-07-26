@@ -933,7 +933,7 @@ updateshim() {
 ##################
 
 payloads() {
-    mapfile -t payloadchoose < <(find "$aroot/payloads" -maxdepth 1 -type 2>/dev/null)
+    mapfile -t payloadchoose < <(find "$aroot/payloads" -maxdepth 1 -type f 2>/dev/null)
     options_payload=()
     for f in "${payloadchoose[@]}"; do
         options_payload+=("$(basename "$f")")
