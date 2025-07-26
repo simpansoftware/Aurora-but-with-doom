@@ -1070,11 +1070,12 @@ if [ "$$" -eq 1 ]; then
 EOF
     echo -e "${COLOR_RESET}"
 
-    echo "Starting udevd" | center
-    /sbin/udevd --daemon | center || :
+    echo "[${GEEN_B}+${COLOR_RESET}] Starting udevd" | center
+    /sbin/udevd --daemon | center || {
+        echo "[${RED_B}-${COLOR_RESET}] Error: failed to start udevd" | center
+    }
     udevadm trigger | center || :
     udevadm settle | center || :
-    echo "Done" | center
 
     chmod +x /usr/share/aurora/aurora.sh
     for tty in 1 3; do
