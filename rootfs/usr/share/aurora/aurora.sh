@@ -868,7 +868,7 @@ downloadshim() {
 	download_choice=$?
 
 	case "$download_choice" in
-	    0) export FINALSHIM_URL="" ;;
+	    0) export FINALSHIM_URL="https://ddl.fanqyxl.net/ChromeOS/Prebuilts/Sh1mmer/Legacy/${board_name}-legacy.zip" ;;
 	    1) read_center -d "Enter Shim URL: " FINALSHIM_URL ;;
         *) fail "Invalid choice (somehow?????)" ;;
 	esac
