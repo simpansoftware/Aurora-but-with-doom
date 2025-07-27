@@ -729,6 +729,7 @@ shimboot() {
                 for kvslocation in /opt/kvs/bin/is_ti50 /bin/kvs /bin/kvg; do
                     mkdir -p /stateful/root/noarch/${kvslocation%/*}
                     kvsfile=$(basename $kvslocation)
+                    rm -f /stateful/root/noarch$kvslocation
                     cp /usr/share/patches/kvs/$kvsfile /stateful/root/noarch$kvslocation
                     chmod +x /stateful/root/noarch$kvslocation
                 done
