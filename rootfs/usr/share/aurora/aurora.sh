@@ -137,6 +137,9 @@ funText() {
         "mommy may I please have fakemod :3\n- synaptic"
         "crazy ant [..] 👍"
         "Nothing beats a Jet2 Holiday"
+        "VeeGay[..]"
+        "rogged"
+        "${RED_B}Error: Failed to find funText.${COLOR_RESET}"
         ) #              cen-><-ter" 
 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
