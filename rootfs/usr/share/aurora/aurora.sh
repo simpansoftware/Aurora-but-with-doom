@@ -723,6 +723,12 @@ shimboot() {
                 for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
                 cp /usr/share/patches/rootfs/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
                 chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
+                for kvslocation in /opt/kvs/bin/is_ti50 /bin/kvs /bin/kvg; do
+                    kvsfile=$(basename $kvslocation)
+                    cp /usr/share/patches/kvs/$kvsfile $kvslocation
+                    chmod +x $kvslocation
+                done
+                sync
                 chmod +x $sh1mmerfile
             fi
 

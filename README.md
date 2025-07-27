@@ -65,11 +65,12 @@ Coming soon to viewers like you!<br><br>
 > Aurora, Priism, and IRS are all made for recovering and booting shims. They serve no purpose on a non-ChromeOS Machine ~~yet~~
 
 # Credits
-- [Sophia](https://discord.com/users/1012095822957133976) - Lead developer of Aurora, Got Wifi
-- [Mariah Carey](https://discord.com/users/555864478504189956) - Bugfixing and bugtesting
-- [xmb9](https://discord.com/users/988950574387068968) - Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images
-- [Synaptic](https://discord.com/users/405896057139232778) - Emotional Support
-- [OlyB](https://discord.com/users/476169716998733834) - Help with PID1
-- [Simon](https://discord.com/users/1001820177731686500) - Brainstormed how to do wifi, helped with determining wireless interface
-- [Evie](https://discord.com/users/917886650951008276) - Literally nothing
+- [Sophia](https://github.com/soap-phia) - Lead developer of Aurora, Got Wifi
+- [Mariah Carey](https://github.com/xXMariahScaryXx) - Bugfixing and bugtesting
+- [xmb9](https://github.com/xmb9) - Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images
+- [Synaptic](https://github.com/Synaptic-1234) - Emotional Support
+- [OlyB](https://github.com/BinBashBanana) - Help with PID1
+- [Simon](https://github.com/simpansoftware) - Brainstormed how to do wifi, helped with determining wireless interface
+- [Evie](https://github.com/AC3GT) - Literally nothing
 - [Rainestorme](https://github.com/rainestorme) - Murkmod's version finder
+- [kxtz](https://github.com/kxtzownsu) - KVS

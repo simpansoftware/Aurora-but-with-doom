@@ -58,8 +58,9 @@ cp -r ../initramfs/. $initramfs/
 cp -r ../patches/initramfs/. "$initramfs/"
 chroot "$initramfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_initramfs_alpine.sh && /opt/setup_initramfs_alpine.sh $arch"
 cp -r ../rootfs/. $rootfs/
-mkdir -p $rootfs/usr/share/patches/rootfs/
+mkdir -p $rootfs/usr/share/patches/rootfs $rootfs/usr/share/patches/kvs
 cp -r ../patches/rootfs/. "$rootfs/usr/share/patches/rootfs/"
+cp -r ../kvs/$arch/bin/. "$rootfs/usr/share/patches/kvs/"
 chroot "$rootfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_rootfs_alpine.sh && /opt/setup_rootfs_alpine.sh $arch"
 
 if [ "$NOWIFI" = true ]; then
