@@ -763,7 +763,7 @@ shimboot() {
                 for kvslocation in /opt/kvs/bin/is_ti50 /bin/kvs /bin/kvg; do
                     kvsfile=$(basename $kvslocation)
                     cp /usr/share/patches/kvs/$kvsfile /newroot/$kvslocation
-                    chmod +x $kvslocation
+                    chmod +x /newroot/$kvslocation
                 done
             fi
 			pivot_root /newroot /newroot/tmp/aurora
