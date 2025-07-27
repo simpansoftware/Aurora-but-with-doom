@@ -3,3 +3,5 @@
 build/rootfs
 build/initramfs
 build/alpine-minirootfs*
+ggp
+GGP.py
