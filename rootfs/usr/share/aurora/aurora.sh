@@ -936,7 +936,7 @@ updateshim() {
     mkdir -p /usr/share/patches/rootfs/
     mkdir -p /usr/share/patches/kvs/
     cp -Lar /root/Aurora/patches/rootfs/. /usr/share/patches/rootfs/
-    cp -Lar /root/Aurora/patches/kvs/. /usr/share/patches/kvs/
+    cp -Lar /root/Aurora/kvs/$(uname -m)/bin/. /usr/share/patches/kvs/
     chmod +x /usr/share/aurora/*
     initramfsmnt=$(mktemp -d)
     mount ${device}3 $initramfsmnt
