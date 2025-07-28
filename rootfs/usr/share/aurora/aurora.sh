@@ -765,6 +765,7 @@ shimboot() {
 #!/bin/bash
 /bin/kvs
 EOF
+            fi
             chmod +x /newroot/sbin/init
 			pivot_root /newroot /newroot/tmp/aurora
 			echo "Successfully switched root. Starting init..."
