@@ -16,15 +16,15 @@ crc8() {
     local -n bytes=$1
     local crc=0
     for byte in "${bytes[@]}"; do
-        crc=$((crc ^ (byte <\< 8)))
+        crc=$((crc ^ (byte << 8)))
         for _ in {1..8}; do
             if ((crc & 0x8000)); then
-                crc=$((crc ^ (0x1070 <\< 3)))
+                crc=$((crc ^ (0x1070 << 3)))
             fi
-            crc=$((crc <\< 1))
+            crc=$((crc << 1))
         done
     done
-    echo $(( (crc >\> 8) & 0xFF ))
+    echo $(( (crc >> 8) & 0xFF ))
 }
 
 convert_to_u32() {
@@ -74,14 +74,14 @@ if [[ "$ver" == "0" ]]; then
     reserved=(0x00 0x00 0x00)
     buffer=(
         $structver
-        $(( (uid >\>  0) & 0xFF ))
-        $(( (uid >\>  8) & 0xFF ))
-        $(( (uid >\> 16) & 0xFF ))
-        $(( (uid >\> 24) & 0xFF ))
-        $(( (kvarg >\>  0) & 0xFF ))
-        $(( (kvarg >\>  8) & 0xFF ))
-        $(( (kvarg >\> 16) & 0xFF ))
-        $(( (kvarg >\> 24) & 0xFF ))
+        $(( (uid >>  0) & 0xFF ))
+        $(( (uid >>  8) & 0xFF ))
+        $(( (uid >> 16) & 0xFF ))
+        $(( (uid >> 24) & 0xFF ))
+        $(( (kvarg >>  0) & 0xFF ))
+        $(( (kvarg >>  8) & 0xFF ))
+        $(( (kvarg >> 16) & 0xFF ))
+        $(( (kvarg >> 24) & 0xFF ))
         "${reserved[@]}"
     )
     crc=$(crc8 buffer)
@@ -96,10 +96,10 @@ elif [[ "$ver" == "1" ]]; then
         $structsize
         0x00
         $flags
-        $(( (kvarg >\>  0) & 0xFF ))
-        $(( (kvarg >\>  8) & 0xFF ))
-        $(( (kvarg >\> 16) & 0xFF ))
-        $(( (kvarg >\> 24) & 0xFF ))
+        $(( (kvarg >>  0) & 0xFF ))
+        $(( (kvarg >>  8) & 0xFF ))
+        $(( (kvarg >> 16) & 0xFF ))
+        $(( (kvarg >> 24) & 0xFF ))
     )
     for _ in $(seq 1 32); do
         buffer+=(0x00)
