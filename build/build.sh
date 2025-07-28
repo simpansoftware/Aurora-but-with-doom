@@ -64,6 +64,8 @@ if [ -d $tempmount/lib/modules ]; then
     mkdir -p ./rootfs/mount/usr/bin ./rootfs/mount/lib64
     cp $tempmount/lib64/* ./rootfs/mount/lib64 -r
     cp $tempmount/usr/bin/tpmc ./rootfs/mount/usr/bin/tpmc
+    cp $tempmount/bin/sh ./rootfs/mount/usr/bin/sh
+    cp $tempmount/bin/cat ./rootfs/mount/usr/bin/cat
     cp ../lib/$arch/kvg ./rootfs/mount/usr/bin/kvg
     umount $tempmount
 else
