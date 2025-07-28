@@ -11,8 +11,27 @@ export BLUE_B="\033[1;34m"
 export MAGENTA_B="\033[1;35m"
 export PINK_B="\x1b[1;38;2;235;170;238m"
 export CYAN_B="\033[1;36m"
+
+lsbval() {
+  local key="$1"
+  local lsbfile="${2:-/etc/lsb-release}"
+
+  if ! echo "${key}" | grep -Eq '^[a-zA-Z0-9_]+$'; then
+    return 1
+  fi
+
+  sed -E -n -e \
+    "/^[[:space:]]*${key}[[:space:]]*=/{
+      s:^[^=]+=[[:space:]]*::
+      s:[[:space:]]+$::
+      p
+    }" "${lsbfile}"
+}
+
 release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
 export board_name=${release_board%%-*}
+
+
 
 downloadrawshim() {
     if [ ! -f "${aroot}/build/.${board_name}.bin" ]; then
