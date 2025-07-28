@@ -1,37 +1,33 @@
 #!/bin/bash
 
-VB2_SHA256_DIGEST_SIZE=32
+=32
 MAX_HEX_LENGTH=10
 
-print_usage() {
-    echo "USAGE: $0 <kernver> <optional flags>"
-    echo "e.g.: $0 0x00010001 --raw"
-    echo "--raw        - prints the output as raw hex bytes"
-    echo "--ver=<0/1>  - specifies the kernver struct version to use"
-    echo "--help       - shows this message"
-    echo "KVG was created by kxtzownsu"
-    echo "(made in bash by sophia)"
-    exit 0
+usage() {
+    cat <<EOF
+USAGE: $0 <kernver> <optional flags>
+--raw        - prints the output as raw hex bytes
+--ver=<0/1>  - specifies the kernver struct version to use
+--help       - shows this message
+KVG was created by kxtzownsu
+(made in bash by sophia)
+EOF
+    exit
 }
 
-vb2_crc8() {
+crc8() {
     local -n bytes=$1
     local crc=0
-
     for byte in "${bytes[@]}"; do
-        crc=$((crc ^ (byte << 8)))
+        crc=$((crc ^ (byte <\< 8)))
         for _ in {1..8}; do
             if ((crc & 0x8000)); then
-                crc=$((crc ^ (0x1070 << 3)))
+                crc=$((crc ^ (0x1070 <\< 3)))
             fi
-            crc=$((crc << 1))
+            crc=$((crc <\< 1))
         done
     done
-    echo $(( (crc >> 8) & 0xFF ))
-}
-
-is_valid_hex() {
-    [[ "$1" =~ ^0x[0-9a-fA-F]+$ ]] && ((${#1} <= MAX_HEX_LENGTH))
+    echo $(( (crc >\> 8) & 0xFF ))
 }
 
 convert_to_u32() {
@@ -45,18 +41,17 @@ print_hex() {
     echo
 }
 
-[[ "$1" == "--help" || $# -lt 1 ]] && print_usage
+[[ "$1" == "--help" || $# -lt 1 ]] && usage
 
 kernver="$1"
 shift
 
-if ! is_valid_hex "$kernver"; then
-    echo "The entered kernver: $kernver, wasn't valid hexadecimal (max 10 characters)." >&2
+if ! [[ "$kernver" =~ ^0x[0-9a-fA-F]+$ ]] && ((${#1} <= 10)) ; then
+    echo "$kernver: Invalid kernver. Max 10 Characters, Hex format. [e.g. 0x12345678]" >&2
     exit 1
 fi
 
 kvarg=$((kernver))
-
 ver="1"
 raw_out=0
 
@@ -77,50 +72,43 @@ fi
 buffer=()
 
 if [[ "$ver" == "0" ]]; then
-    struct_version=0x02
+    structver=0x02
     uid=$((0x4752574c))
     reserved=(0x00 0x00 0x00)
-
     buffer=(
-        $struct_version
-        $(( (uid >>  0) & 0xFF ))
-        $(( (uid >>  8) & 0xFF ))
-        $(( (uid >> 16) & 0xFF ))
-        $(( (uid >> 24) & 0xFF ))
-        $(( (kvarg >>  0) & 0xFF ))
-        $(( (kvarg >>  8) & 0xFF ))
-        $(( (kvarg >> 16) & 0xFF ))
-        $(( (kvarg >> 24) & 0xFF ))
+        $structver
+        $(( (uid >\>  0) & 0xFF ))
+        $(( (uid >\>  8) & 0xFF ))
+        $(( (uid >\> 16) & 0xFF ))
+        $(( (uid >\> 24) & 0xFF ))
+        $(( (kvarg >\>  0) & 0xFF ))
+        $(( (kvarg >\>  8) & 0xFF ))
+        $(( (kvarg >\> 16) & 0xFF ))
+        $(( (kvarg >\> 24) & 0xFF ))
         "${reserved[@]}"
     )
-
-    crc=$(vb2_crc8 buffer)
+    crc=$(crc8 buffer)
     buffer+=($crc)
-
 elif [[ "$ver" == "1" ]]; then
-    struct_version=0x10
-    struct_size=$((3 + 1 + 4 + VB2_SHA256_DIGEST_SIZE)) # 40
+    structver=0x10
+    structsize=$((3 + 1 + 4 + 32))
     crc8=0
     flags=0x00
-
     buffer=(
-        $struct_version
-        $struct_size
+        $structver
+        $structsize
         0x00
         $flags
-        $(( (kvarg >>  0) & 0xFF ))
-        $(( (kvarg >>  8) & 0xFF ))
-        $(( (kvarg >> 16) & 0xFF ))
-        $(( (kvarg >> 24) & 0xFF ))
+        $(( (kvarg >\>  0) & 0xFF ))
+        $(( (kvarg >\>  8) & 0xFF ))
+        $(( (kvarg >\> 16) & 0xFF ))
+        $(( (kvarg >\> 24) & 0xFF ))
     )
-
-    for _ in $(seq 1 $VB2_SHA256_DIGEST_SIZE); do
+    for _ in $(seq 1 32); do
         buffer+=(0x00)
     done
-
     crc_input=("${buffer[@]:3}")
-    crc=$(vb2_crc8 crc_input)
-
+    crc=$(crc8 crc_input)
     buffer[2]=$crc
 fi
 
