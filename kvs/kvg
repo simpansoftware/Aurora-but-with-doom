@@ -52,7 +52,7 @@ case "$1" in
             exit 1
         }
 
-        IFS=' ' read -r -a kernver_bytes <<< "$(to_u32_bytes $1)"
+        IFS=' ' read -r -a kernver_bytes <<< "$(to_u32_bytes $2)"
 
         if [[ "$version" == "0" ]]; then
 
