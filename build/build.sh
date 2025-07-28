@@ -16,6 +16,7 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 shim=$1
+arch=$2
 
 source ../patches/functions.sh
 
@@ -59,6 +60,11 @@ if [ -d $tempmount/lib/modules ]; then
     cp -ar $tempmount/lib/modules ./rootfs/lib/
     cp -ar $tempmount/etc/lsb-release ./rootfs/etc/lsb-release
     export boardname=$(lsbval CHROMEOS_RELEASE_BOARD)
+    # the skiddiest thing i've EVER written (but it works :3)
+    mkdir -p ./rootfs/mount/usr/bin ./rootfs/mount/lib64
+    cp $tempmount/lib64/* ./rootfs/mount/lib64 -r
+    cp $tempmount/usr/bin/tpmc ./rootfs/mount/usr/bin/tpmc
+    cp ../lib/$arch/kvg ./rootfs/mount/usr/bin/kvg
     umount $tempmount
 else
     echo_c "Please run on a raw shim." RED_B
