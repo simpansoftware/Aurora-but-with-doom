@@ -40,7 +40,11 @@ usage() {
 }
 
 if [[ $# -lt 2 ]]; then usage; fi
-version=$(tpmc read 0x1008 1)
+if [[ $(tpmc read 0x1008) == *2* ]]; then
+    version=0
+else
+    version=1
+fi
 case "$1" in
     -e)
         [[ "$2" != 0x* || "${#2}" -gt 10 ]] && {
