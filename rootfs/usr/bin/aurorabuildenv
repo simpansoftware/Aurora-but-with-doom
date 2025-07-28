@@ -35,9 +35,14 @@ export board_name=${release_board%%-*}
 
 downloadrawshim() {
     export basebuildshim="$aroot/build/.$board_name.bin"
+    export basebuildzip="$aroot/build/.$board_name.zip"
     if [ ! -f "$basebuildshim" ]; then
-        echo "Downloading Raw Shim for $board_name [ https://ddl.fanqyxl.net/ChromeOS/Raw%20Shims/${board_name}-raw.bin ]"
-        curl --progress-bar -Lk "https://ddl.fanqyxl.net/ChromeOS/Raw%20Shims/${board_name}-raw.bin" -o "$basebuildshim"
+        echo "Downloading Raw Shim for $board_name [ https://ddl.fanqyxl.net/ChromeOS/Raw%20Shims/${board_name}-raw.zip ]"
+        curl --progress-bar -Lk "https://ddl.fanqyxl.net/ChromeOS/Raw%20Shims/${board_name}-raw.zip" -o "$basebuildzip"
+        buildshim=$(unzip -Z1 "$basebuildzip")
+        unzip $basebuildzip
+        mv $(unzip -Z1 "$basebuildzip") $basebuildshim
+        rm $basebuildzip
     fi
 }
 export alpinebuild="$aroot/build/env/alpine"
@@ -244,3 +249,9 @@ while true; do
         *) aurorabuildenv-help ;;
     esac
 done
+
+# kvs - alpine - {
+# apk add git curl build-base linux-headers
+# curl https://sh.rustup.rs -sSf | sh -s -- -y && source $HOME/.cargo/env
+# git clone https://github.com/kxtzownsu/kvs
+#
