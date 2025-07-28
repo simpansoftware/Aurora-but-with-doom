@@ -797,10 +797,12 @@ kvs() {
         fi
         echo "Struct ver: $ver"
         break=1
+        set -x
         chroot /mount sh -c 'tpmc write 0x1008 $(kvg 0x'"$kernver"' --ver='"$ver"')' || {
             echo "Invalid Kernver. Maximum 8 characters after 0x [eg: 0x00000001]"
             break=0
         }
+        set +x
         for mnt in /dev /proc /sys; do
             umount "/mount$mnt"
         done
