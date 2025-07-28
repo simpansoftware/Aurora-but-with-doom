@@ -384,6 +384,8 @@ splash() {
 EOF
     echo -e "$verstring" | center
     echo -e "$build" | center
+    kernelver=$(crossystem tpm_kernver)
+    echo -e "$kernelver" | center
     echo -e "${COLOR_RESET}" | center
     echo -e "https://github.com/EtherealWorkshop/Aurora" | center
     funText | center
@@ -794,11 +796,15 @@ kvs() {
             break
         fi
         echo "Struct ver: $ver"
-        chroot /mount sh -c "tpmc write 0x1008 \$(kvg 0x${kernver} --ver=$ver)"
-        echo "Invalid Kernver. Maximum 8 characters after 0x [eg: 0x00000001]"
+        break=1
+        chroot /mount sh -c "tpmc write 0x1008 \$(kvg 0x${kernver} --ver=$ver)" || {
+            echo "Invalid Kernver. Maximum 8 characters after 0x [eg: 0x00000001]"
+            break=0
+        }
         for mnt in /dev /proc /sys; do
             umount "/mount$mnt"
         done
+        if [ "$break" = "1" ]; then break; fi
     done
     sync
     kernelver=$(crossystem tpm_kernver)
