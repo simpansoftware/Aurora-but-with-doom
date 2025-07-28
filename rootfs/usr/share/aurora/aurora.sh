@@ -790,6 +790,7 @@ kvs() {
             ver=1
         fi
         if [ ! -n "$ver" ]; then
+            echo "$vercheck"
             break
         fi
         echo "Struct ver: $ver"
