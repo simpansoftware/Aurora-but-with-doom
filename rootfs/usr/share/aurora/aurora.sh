@@ -726,7 +726,7 @@ shimboot() {
                 for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
                 cp /usr/share/patches/rootfs/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
                 chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
-                for kvslocation in /opt/kvs/bin/is_ti50 /bin/kvs /bin/kvg; do
+                for kvslocation in /bin/kvs /bin/kvg; do
                     mkdir -p /stateful/root/noarch/${kvslocation%/*}
                     kvsfile=$(basename $kvslocation)
                     rm -f /stateful/root/noarch$kvslocation
@@ -938,7 +938,7 @@ updateshim() {
     mkdir -p /usr/share/patches/rootfs/
     mkdir -p /usr/share/patches/kvs/
     cp -Lar /root/Aurora/patches/rootfs/. /usr/share/patches/rootfs/
-    cp -Lar /root/Aurora/kvs/$(uname -m)/bin/. /usr/share/patches/kvs/
+    cp -Lar /root/Aurora/kvs/. /usr/share/patches/kvs/
     chmod +x /usr/share/aurora/*
     initramfsmnt=$(mktemp -d)
     mount ${device}3 $initramfsmnt

@@ -1,99 +1,137 @@
 #!/bin/bash
 
-crc8() {
-    local -n bytes=$1
-    local crc=0
-    for byte in "${bytes[@]}"; do
-        crc=$(( crc ^ (byte << 8) ))
-        for _ in {1..8}; do
-            if ((crc & 0x8000)); then
-                crc=$((crc ^ 0x8380))
-            fi
-            crc=$(( (crc << 1) & 0xFFFF ))
-        done
-    done
-    echo $(( (crc >> 8) & 0xFF ))
+VB2_SHA256_DIGEST_SIZE=32
+MAX_HEX_LENGTH=10
+
+print_usage() {
+    echo "USAGE: $0 <kernver> <optional flags>"
+    echo "e.g.: $0 0x00010001 --raw"
+    echo "--raw        - prints the output as raw hex bytes"
+    echo "--ver=<0/1>  - specifies the kernver struct version to use"
+    echo "--help       - shows this message"
+    echo "KVG was created by kxtzownsu"
+    echo "(made in bash by sophia)"
+    exit 0
 }
 
-to_u32_bytes() {
-    local hex_str=$1
-    local hex=$((hex_str))
-    printf "%d %d %d %d" \
-        $(( (hex >> 0) & 0xFF )) \
-        $(( (hex >> 8) & 0xFF )) \
-        $(( (hex >> 16) & 0xFF )) \
-        $(( (hex >> 24) & 0xFF ))
+vb2_crc8() {
+    local -n bytes=$1
+    local crc=0
+
+    for byte in "${bytes[@]}"; do
+        crc=$((crc ^ (byte <\< 8)))
+        for _ in {1..8}; do
+            if ((crc & 0x8000)); then
+                crc=$((crc ^ (0x1070 <\< 3)))
+            fi
+            crc=$((crc <\< 1))
+        done
+    done
+    echo $(( (crc >\> 8) & 0xFF ))
+}
+
+is_valid_hex() {
+    [[ "$1" =~ ^0x[0-9a-fA-F]+$ ]] && ((${#1} <= MAX_HEX_LENGTH))
+}
+
+convert_to_u32() {
+    printf "%d\n" "$1"
 }
 
 print_hex() {
-    for byte in "$@"; do
-        printf "%02x " "$byte"
+    for b in "${buffer[@]}"; do
+        printf "%02x " "$b"
     done
     echo
 }
 
-usage() {
-    echo "Usage:"
-    echo "  kvg -e <kernver>     Encode kernver to bytes"
-    echo "  kvg -d <bytes>       Decode bytes to kernver"
+# Parse args
+[[ "$1" == "--help" || $# -lt 1 ]] && print_usage
+
+kernver="$1"
+shift
+
+if ! is_valid_hex "$kernver"; then
+    echo "The entered kernver: $kernver, wasn't valid hexadecimal (max 10 characters)." >&2
     exit 1
-}
-
-if [[ $# -lt 2 ]]; then usage; fi
-if [[ $(tpmc read 0x1008 1) == *2* ]]; then
-    version=0
-else
-    version=1
 fi
-case "$1" in
-    -e)
-        [[ "$2" != 0x* || "${#2}" -gt 10 ]] && {
-            echo "Invalid kernver. Must be hex string like 0x00012345"
-            exit 1
-        }
 
-        IFS=' ' read -r -a kernver_bytes <<< "$(to_u32_bytes $2)"
+kvarg=$((kernver))
 
-        if [[ "$version" == "0" ]]; then
+ver="1"  # default
+raw_out=0
 
-            output=(0x02 0x4c 0x57 0x52 0x47)
-            output+=("${kernver_bytes[@]}")
-            output+=(0x00 0x00 0x00)
-            crc=$(crc8 output)
-            output+=($crc)
+for arg in "$@"; do
+    case "$arg" in
+        --ver=0) ver="0" ;;
+        --ver=1) ver="1" ;;
+        --raw) raw_out=1 ;;
+        *) ;;
+    esac
+done
 
-            print_hex "${output[@]}"
-        else
+if [[ "$ver" != "0" && "$ver" != "1" ]]; then
+    echo "Invalid struct version: $ver" >&2
+    exit 1
+fi
 
-            output=(0x10 0x28 0x00 0x00)
-            output+=("${kernver_bytes[@]}")
-            for i in {1..32}; do output+=(0x00); done
-            crc_data=("${output[@]:3:37}")
-            crc=$(crc8 crc_data)
-            output[2]=$crc
+buffer=()
 
-            print_hex "${output[@]}"
-        fi
-        ;;
+if [[ "$ver" == "0" ]]; then
+    # Vb2SecdataKernelV0
+    struct_version=0x02
+    uid=$((0x4752574c))
+    reserved=(0x00 0x00 0x00)
 
-    -d)
-        bytes=("$@")
-        if [[ "$version" == "0" ]]; then
-            v0=$((0x${bytes[5]}))
-            v1=$((0x${bytes[6]}))
-            v2=$((0x${bytes[7]}))
-            v3=$((0x${bytes[8]}))
-        else
-            v0=$((0x${bytes[4]}))
-            v1=$((0x${bytes[5]}))
-            v2=$((0x${bytes[6]}))
-            v3=$((0x${bytes[7]}))
-        fi
+    buffer=(
+        $struct_version
+        $(( (uid >\>  0) & 0xFF ))
+        $(( (uid >\>  8) & 0xFF ))
+        $(( (uid >\> 16) & 0xFF ))
+        $(( (uid >\> 24) & 0xFF ))
+        $(( (kvarg >\>  0) & 0xFF ))
+        $(( (kvarg >\>  8) & 0xFF ))
+        $(( (kvarg >\> 16) & 0xFF ))
+        $(( (kvarg >\> 24) & 0xFF ))
+        "${reserved[@]}"
+    )
 
-        kernver_val=$(( (v0 << 0) | (v1 << 8) | (v2 << 16) | (v3 << 24) ))
-        printf "0x%08x\n" "$kernver_val"
-        ;;
-    *)
-        usage
-        ;;
-esac
+    crc=$(vb2_crc8 buffer)
+    buffer+=($crc)
+
+elif [[ "$ver" == "1" ]]; then
+    # Vb2SecdataKernelV1
+    struct_version=0x10
+    struct_size=$((3 + 1 + 4 + VB2_SHA256_DIGEST_SIZE)) # 40
+    crc8=0
+    flags=0x00
+
+    buffer=(
+        $struct_version
+        $struct_size
+        0x00
+        $flags
+        $(( (kvarg >\>  0) & 0xFF ))
+        $(( (kvarg >\>  8) & 0xFF ))
+        $(( (kvarg >\> 16) & 0xFF ))
+        $(( (kvarg >\> 24) & 0xFF ))
+    )
+
+    for _ in $(seq 1 $VB2_SHA256_DIGEST_SIZE); do
+        buffer+=(0x00)
+    done
+
+    # CRC over buffer[3..]
+    crc_input=("${buffer[@]:3}")
+    crc=$(vb2_crc8 crc_input)
+
+    buffer[2]=$crc
+fi
+
+if ((raw_out)); then
+    for b in "${buffer[@]}"; do
+        printf "\\x%02x" "$b"
+    done
+else
+    print_hex
+fi
