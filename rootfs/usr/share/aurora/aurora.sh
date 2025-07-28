@@ -777,18 +777,18 @@ shimboot() {
 
 kvs() {
     while true; do
-        vercheck=$(chroot /mount tpmc read 0x1008 1 | tr -d '\r\n[:space:]')
-        if [ "$vercheck" = "*2" ]; then
-            ver=0
-        elif [ "$vercheck" = "10" ]; then
-            ver=1
-        fi
         read_center -d "Enter Kernver[Max 8 characters after 0x]: 0x" kernver
         mount --bind /mount /mount
         for mnt in /dev /proc /sys; do
             mkdir -p /mount$mnt
             mount --bind "$mnt" "/mount$mnt"
         done
+        vercheck=$(chroot /mount tpmc read 0x1008 1 | tr -d '\r\n[:space:]')
+        if [ "$vercheck" = "*2" ]; then
+            ver=0
+        elif [ "$vercheck" = "10" ]; then
+            ver=1
+        fi
         chroot /mount sh -c "tpmc write 0x1008 \$(kvg 0x${kernver} --ver=$ver)"
         echo "Invalid Kernver. Maximum 8 characters after 0x [eg: 0x00000001]"
         for mnt in /dev /proc /sys; do
