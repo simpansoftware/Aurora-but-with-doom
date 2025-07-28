@@ -803,6 +803,7 @@ kvs() {
     sync
     kernelver=$(crossystem tpm_kernver)
     echo "Kernver is: $kernelver" | center # i forget how center does with variables so the variable is 10 chars
+    read_center "Press Enter to return to the main menu"
 }
 
 ##########
