@@ -777,40 +777,6 @@ shimboot() {
 	fi
 }
 
-kvs() {
-    while true; do
-        read_center -d "Enter Kernver[Max 8 characters after 0x]: 0x" kernver
-        mount --bind /mount /mount
-        for mnt in /dev /proc /sys; do
-            mkdir -p /mount$mnt
-            mount --bind "$mnt" "/mount$mnt"
-        done
-        vercheck=$(chroot /mount tpmc read 0x1008 1 | tr -d '\r\n[:space:]')
-        if [[ "$vercheck" == *2 ]]; then
-            ver=0
-        elif [ "$vercheck" = "10" ]; then
-            ver=1
-        fi
-        if [ ! -n "$ver" ]; then
-            echo "$vercheck"
-            break
-        fi
-        echo "Struct ver: $ver"
-        break=1
-        set -x
-        chroot /mount sh -c 'tpmc write 0x1008 $(kvg 0x'"$kernver"' --ver='"$ver"')' || {
-            echo "Invalid Kernver. Maximum 8 characters after 0x [eg: 0x00000001]"
-            break=0
-        }
-        set +x
-        for mnt in /dev /proc /sys; do
-            umount "/mount$mnt"
-        done
-        if [ "$break" = "1" ]; then break; fi
-    done
-    sync
-}
-
 ##########
 ## WIFI ##
 ##########
@@ -967,7 +933,7 @@ updateshim() {
     cp -Lar /root/Aurora/rootfs/. /
     mkdir -p /usr/share/patches/rootfs/
     cp -Lar /root/Aurora/patches/rootfs/. /usr/share/patches/rootfs/
-    chmod +x /usr/share/aurora/* /usr/bin/aurorabuildenv /sbin/init
+    chmod +x /usr/share/aurora/* /usr/bin/* /sbin/init
     initramfsmnt=$(mktemp -d)
     mount ${device}3 $initramfsmnt
     cp -Lar /root/Aurora/initramfs/. $initramfsmnt/
@@ -1038,7 +1004,7 @@ menu_options+=(
 )
 
 menu_actions+=(
-    "kvs"
+    "script -qfc 'stty sane && stty erase '^H' && exec /usr/bin/kvs' "
     "clear && wifi"
     "canwifi clear && download"
     "clear && payloads"
