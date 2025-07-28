@@ -1,0 +1,71 @@
+#!/bin/bash
+
+crc8() {
+    local -n bytes=$1
+    local crc=0
+    for byte in "${bytes[@]}"; do
+        crc=$(( crc ^ (byte << 8) ))
+        for _ in {1..8}; do
+            if ((crc & 0x8000)); then
+                crc=$((crc ^ 0x8380))
+            fi
+            crc=$(( (crc << 1) & 0xFFFF ))
+        done
+    done
+    echo $(( (crc >> 8) & 0xFF ))
+}
+
+to_u32_bytes() {
+    local hex_str=$1
+    local hex=$((hex_str))
+    printf "%d %d %d %d" \
+        $(( (hex >> 0) & 0xFF )) \
+        $(( (hex >> 8) & 0xFF )) \
+        $(( (hex >> 16) & 0xFF )) \
+        $(( (hex >> 24) & 0xFF ))
+}
+
+print_hex() {
+    for byte in "$@"; do
+        printf "%02x " "$byte"
+    done
+    echo
+}
+
+usage() {
+    echo "Usage:"
+    echo "  kvg -e <kernver>     Encode kernver to bytes"
+    echo "  kvg -d <bytes>       Decode bytes to kernver"
+    exit 1
+}
+
+if [[ $# -lt 2 ]]; then usage; fi
+
+case "$1" in
+    -e)
+        [[ "$2" != 0x* || "${#2}" -gt 10 ]] && {
+            echo "Invalid kernver. Must be hex string like 0x00012345"
+            exit 1
+        }
+        kvdec=$(( "$2" ))
+        output=(0x02 0x4c 0x57 0x52 0x47)
+        IFS=' ' read -r -a kv_bytes <<< "$(to_u32_bytes $kvdec)"
+        output+=("${kv_bytes[@]}" 0x00 0x00 0x00)
+        crc=$(crc8 output)
+        output+=($crc)
+        print_hex "${output[@]}"
+        ;;
+    -d)
+        shift
+        bytes=("$@")
+        v0=$((0x${bytes[5]}))
+        v1=$((0x${bytes[6]}))
+        v2=$((0x${bytes[7]}))
+        v3=$((0x${bytes[8]}))
+        version=$(( (v3 << 24) | (v2 << 16) | (v1 << 8) | v0 ))
+        printf "0x%08x\n" "$version"
+        ;;
+    *)
+        usage
+        ;;
+esac
