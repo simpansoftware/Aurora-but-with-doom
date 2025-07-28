@@ -779,6 +779,7 @@ kvs() {
     read_center -d "Enter Kernver[Max 8 characters after 0x]: 0x" kernver
     mount --bind /mount /mount
     for mnt in /dev /proc /sys; do
+        mkdir -p /mount$mnt
         mount --bind "$mnt" "/mount$mnt"
     done
     while true; do
