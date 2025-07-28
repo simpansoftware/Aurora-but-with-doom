@@ -789,6 +789,10 @@ kvs() {
         elif [ "$vercheck" = "10" ]; then
             ver=1
         fi
+        if [ ! -n "$ver" ]; then
+            break
+        fi
+        echo "Struct ver: $ver"
         chroot /mount sh -c "tpmc write 0x1008 \$(kvg 0x${kernver} --ver=$ver)"
         echo "Invalid Kernver. Maximum 8 characters after 0x [eg: 0x00000001]"
         for mnt in /dev /proc /sys; do
@@ -797,7 +801,7 @@ kvs() {
     done
     sync
     kernelver=$(crossystem tpm_kernver)
-    echo "New kernver is: $kernelver" | center # i forget how center does with variables so the variable is 10 chars
+    echo "Kernver is: $kernelver" | center # i forget how center does with variables so the variable is 10 chars
 }
 
 ##########
