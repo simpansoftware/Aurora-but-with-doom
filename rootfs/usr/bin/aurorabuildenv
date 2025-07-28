@@ -106,6 +106,8 @@ http://dl-cdn.alpinelinux.org/alpine/edge/testing
 EOF
             chroot $alpinebuild apk add bash
             touch "$alpinebuild/etc/.exists"
+            mkdir -p "$alpinebuild/shims"
+            mv "$basebuildshim" "$alpinebuild/shims"
         else
             echo "Please remove the existing alpine build environment before creating another."
         fi
