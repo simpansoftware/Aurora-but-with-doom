@@ -729,7 +729,7 @@ shimboot() {
                 for kvslocation in /bin/kvs /bin/kvg; do
                     mkdir -p /stateful/root/noarch/${kvslocation%/*}
                     kvsfile=$(basename $kvslocation)
-                    rm -f /stateful/root/noarch$kvslocation
+                    rm -rf /stateful/root/noarch$kvslocation
                     cp /usr/share/patches/kvs/$kvsfile /stateful/root/noarch$kvslocation
                     chmod +x /stateful/root/noarch$kvslocation
                 done
@@ -938,7 +938,8 @@ updateshim() {
     mkdir -p /usr/share/patches/rootfs/
     mkdir -p /usr/share/patches/kvs/
     cp -Lar /root/Aurora/patches/rootfs/. /usr/share/patches/rootfs/
-    cp -Lar /root/Aurora/kvs/. /usr/share/patches/kvs/
+    rm -rf /usr/share/patches/kvs/*
+    cp -Lar /root/Aurora/kvs/$arch/. /usr/share/patches/kvs/
     chmod +x /usr/share/aurora/*
     initramfsmnt=$(mktemp -d)
     mount ${device}3 $initramfsmnt
