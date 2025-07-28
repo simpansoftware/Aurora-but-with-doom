@@ -45,7 +45,6 @@ print_hex() {
     echo
 }
 
-# Parse args
 [[ "$1" == "--help" || $# -lt 1 ]] && print_usage
 
 kernver="$1"
@@ -58,7 +57,7 @@ fi
 
 kvarg=$((kernver))
 
-ver="1"  # default
+ver="1"
 raw_out=0
 
 for arg in "$@"; do
@@ -78,7 +77,6 @@ fi
 buffer=()
 
 if [[ "$ver" == "0" ]]; then
-    # Vb2SecdataKernelV0
     struct_version=0x02
     uid=$((0x4752574c))
     reserved=(0x00 0x00 0x00)
@@ -100,7 +98,6 @@ if [[ "$ver" == "0" ]]; then
     buffer+=($crc)
 
 elif [[ "$ver" == "1" ]]; then
-    # Vb2SecdataKernelV1
     struct_version=0x10
     struct_size=$((3 + 1 + 4 + VB2_SHA256_DIGEST_SIZE)) # 40
     crc8=0
@@ -121,7 +118,6 @@ elif [[ "$ver" == "1" ]]; then
         buffer+=(0x00)
     done
 
-    # CRC over buffer[3..]
     crc_input=("${buffer[@]:3}")
     crc=$(vb2_crc8 crc_input)
 
