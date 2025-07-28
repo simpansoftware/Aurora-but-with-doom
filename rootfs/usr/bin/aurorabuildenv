@@ -112,7 +112,7 @@ EOF
             chroot $alpinebuild apk add bash
             touch "$alpinebuild/etc/.exists"
             mkdir -p "$alpinebuild/shims"
-            cp "$basebuildshim" "$alpinebuild/shims"
+            cp "$basebuildshim" "$alpinebuild/shims/$board_name.bin"
         else
             echo "Please remove the existing alpine build environment before creating another."
         fi
@@ -231,6 +231,37 @@ aurorabuildenv-start() {
         echo "Please create ${dist} environment first"
     fi
 }
+
+aurorabuildenv-build() {
+    local thing=""
+    case "$1" in
+        -k|--kvs) dist=alpine 
+                  thing=kvs ;;
+        *)
+            echo "Usage: build [-k | --kvs ]"
+            return 1
+            ;;
+    esac
+    if [ -e "${aroot}/build/env/${dist}/etc/.exists" ]; then
+        for mountpoint in /dev /proc /sys; do
+            mount --bind "$mountpoint" "${!build}${mountpoint}"
+        done
+        clear
+        cp /usr/share/build/kvs.sh ${!build}/kvs.sh
+        chmod +x ${!build}/kvs.sh
+        chroot "${!build}" /kvs.sh
+
+        for mountpoint in /dev /proc /sys; do
+            umount "${!build}${mountpoint}"
+        done
+        clear
+        echo -e "${BLUE_B}aurorabuildenv 1.0 ${YELLOW_B}[$(uname -m)]${COLOR_RESET}"
+        echo "'help' to display commands"
+    else
+        echo "Please create ${dist} environment first"
+    fi
+}
+
 clear
 echo -e "${BLUE_B}aurorabuildenv 1.0 ${YELLOW_B}[$(uname -m)]${COLOR_RESET}"
 echo "'help' to display commands"
@@ -241,6 +272,7 @@ while true; do
     flags="${aurora_args[@]:1}"
     case $cmd in
         start) aurorabuildenv-start $flags ;;
+        build) aurorabuildenv-build $flags ;;
         create) aurorabuildenv-create $flags ;;
         delete) aurorabuildenv-delete $flags ;;
         help) aurorabuildenv-help ;;
@@ -249,10 +281,3 @@ while true; do
         *) aurorabuildenv-help ;;
     esac
 done
-
-# kvs - alpine - {
-# apk add git curl build-base linux-headers partx bash coreutils e2fsprogs e2fsprogs-extra util-linux sgdisk gptfdisk parted file grep sed findutils
-# curl https://sh.rustup.rs -sSf | sh -s -- -y && source $HOME/.cargo/env
-# git clone https://github.com/kxtzownsu/kvs
-# cd kvs && make
-# }
