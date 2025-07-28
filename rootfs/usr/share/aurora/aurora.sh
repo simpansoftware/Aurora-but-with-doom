@@ -781,7 +781,10 @@ kvs() {
     for mnt in /dev /proc /sys; do
         mount --bind "$mnt" "/mount$mnt"
     done
-    chroot /mount tpmc write 0x1008 $(kvg 0x${kernver} --ver=$ver)
+    while true; do
+        chroot /mount tpmc write 0x1008 $(kvg 0x${kernver} --ver=$ver) && break
+        echo "Invalid Kernver."
+    done
     for mnt in /dev /proc /sys; do
         umount "/mount$mnt"
     done
