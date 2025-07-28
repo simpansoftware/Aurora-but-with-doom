@@ -242,6 +242,7 @@ aurorabuildenv-build() {
             return 1
             ;;
     esac
+    build="${dist}build"
     if [ -e "${aroot}/build/env/${dist}/etc/.exists" ]; then
         for mountpoint in /dev /proc /sys; do
             mount --bind "$mountpoint" "${!build}${mountpoint}"
