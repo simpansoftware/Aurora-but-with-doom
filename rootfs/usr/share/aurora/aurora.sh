@@ -601,7 +601,7 @@ installcros() {
   		local cros_dev="$(get_largest_cros_blockdev)"
 		cgpt add -i 2 $cros_dev -P 15 -T 15 -S 1 -R 1 || echo -e "${YELLOW_B}Failed to set kernel priority! Continuing anyway${COLOR_RESET}"
 		echo -e "${GEEN_B}Recovery finished. Press any key to reboot."
-        read -p ""
+        read_center ""
 		reboot -f
 		sleep 3
         fail "Reboot failed." --fatal
@@ -760,11 +760,6 @@ shimboot() {
             if [ -n "$specialshim" ]; then
                 rm -f /newroot/sbin/init
                 cp /usr/share/patches/rootfs/${specialshim}init /newroot/sbin/init
-            elif [ -f "/newroot/bin/kvs" ]; then
-                cat <<EOF >> /newroot/sbin/init
-#!/bin/bash
-/bin/kvs
-EOF
             fi
             chmod +x /newroot/sbin/init
 			pivot_root /newroot /newroot/tmp/aurora
@@ -780,15 +775,22 @@ EOF
 	fi
 }
 
+kvs() {
+    read_center -d "Enter Kernver[Max 8 characters after 0x]: 0x" kernver
+    arch=x86_64
+    
+    eval "${arch}-kvs 0x${kernver} --ver=$ver"
+}
+
 ##########
 ## WIFI ##
 ##########
 
 connect() {
     echo "Enter your network SSID" | center
-    read -p "" ssid
+    read_center -d "" ssid
     echo "Enter your network password (leave blank if none)" | center
-    read -p "" psk
+    read_center -d "" psk
     conf="/etc/wpa_supplicant.conf"
     if grep -q "ssid=\"$ssid\"" "$conf" 2>/dev/null; then
         echo "Network (${ssid}) already configured." | center
@@ -820,7 +822,7 @@ wifi() {
     if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
         echo "Currently connected to a network." | center
         echo "Connect to a different network? (y/N): " | center
-        read -p "" connectornah
+        read_center -d "" connectornah
         case $connectornah in
             y|Y|yes|Yes) connect ;;
             *) ;;
