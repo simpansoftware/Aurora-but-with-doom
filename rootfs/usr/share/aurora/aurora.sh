@@ -783,7 +783,7 @@ kvs() {
     done
     while true; do
         chroot /mount tpmc write 0x1008 $(kvg 0x${kernver} --ver=$ver) && break
-        echo "Invalid Kernver."
+        echo "Invalid Kernver. Maximum 8 characters after 0x [eg: 0x00000001]"
     done
     for mnt in /dev /proc /sys; do
         umount "/mount$mnt"
