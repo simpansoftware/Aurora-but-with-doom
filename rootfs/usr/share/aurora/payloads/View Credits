@@ -9,6 +9,5 @@ echo -e "${CYAN_B}Simon${COLOR_RESET}: Brainstormed how to do wifi, helped with 
 echo -e "${BLUE_B}kraeb${COLOR_RESET}: QoL improvements and initial idea"
 echo -e "${MAGNETA_B}AC3${COLOR_RESET}: Literally nothing"
 echo -e "${GEEN_B}Rainestorme${COLOR_RESET}: Murkmod's version finder"
-echo -e "${RED_B}kxtz:${COLOR_RESET} KVS"
 echo -e " "
 read -p "Press Enter to return to the main menu..."

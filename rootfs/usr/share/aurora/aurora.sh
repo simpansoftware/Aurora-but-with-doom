@@ -726,13 +726,6 @@ shimboot() {
                 for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
                 cp /usr/share/patches/rootfs/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
                 chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
-                for kvslocation in /bin/kvs /bin/kvg; do
-                    mkdir -p /stateful/root/noarch/${kvslocation%/*}
-                    kvsfile=$(basename $kvslocation)
-                    rm -rf /stateful/root/noarch$kvslocation
-                    cp /usr/share/patches/kvs/$kvsfile /stateful/root/noarch$kvslocation
-                    chmod +x /stateful/root/noarch$kvslocation
-                done
                 sync
                 chmod +x $sh1mmerfile
             fi
@@ -767,7 +760,12 @@ shimboot() {
             if [ -n "$specialshim" ]; then
                 rm -f /newroot/sbin/init
                 cp /usr/share/patches/rootfs/${specialshim}init /newroot/sbin/init
-            fi
+            elif [ -f "/newroot/bin/kvs" ]; then
+                cat <<EOF >> /newroot/sbin/init
+#!/bin/bash
+/bin/kvs
+EOF
+            chmod +x /newroot/sbin/init
 			pivot_root /newroot /newroot/tmp/aurora
 			echo "Successfully switched root. Starting init..."
 			exec /sbin/init || {
@@ -936,10 +934,7 @@ updateshim() {
     echo "Copying files"
     cp -Lar /root/Aurora/rootfs/. /
     mkdir -p /usr/share/patches/rootfs/
-    mkdir -p /usr/share/patches/kvs/
     cp -Lar /root/Aurora/patches/rootfs/. /usr/share/patches/rootfs/
-    rm -rf /usr/share/patches/kvs/*
-    cp -Lar /root/Aurora/kvs/$arch/. /usr/share/patches/kvs/
     chmod +x /usr/share/aurora/*
     initramfsmnt=$(mktemp -d)
     mount ${device}3 $initramfsmnt

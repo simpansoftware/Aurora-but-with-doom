@@ -1,10 +1,5 @@
 #!/bin/bash
-checkkvs() {
-	if [ -f "/bin/kvs" ]; then
-		/bin/kvs
-	fi
-	exit
-}
+
 if cat /mnt/shimroot/sbin/bootstrap.sh | grep "│ Shimboot OS Selector" --quiet; then
 	echo -e "${COLOR_YELLOW_B}Shimboot (unpatched) detected. Please use shimboot-priism.${COLOR_RESET}"
 	umount /mnt/shimroot

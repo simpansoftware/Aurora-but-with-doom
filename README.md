@@ -27,10 +27,10 @@ You can then either download recovery images or shims in the shim, or put them o
   2. Priism and IRS - Aurora is quite literally a merger of these two.
   3. Aurora(?) - I'll try to make it work for the funny
 - Here's a list of shims that we've tested and they work:
-  1. SH1MMER
+  1. SH1MMER (contains cryptosmite and icarus)
+  2. Shimboot (:3)
+  3. KVS
 - Here's a list of shims we're gonna make work and test:
-  1. KVS
-  2. Shimboot
   3. Any future shims that are made
 
 # WSL (Windows Subsystem for Linux)
@@ -73,4 +73,3 @@ Coming soon to viewers like you!<br><br>
 - [Simon](https://github.com/simpansoftware) - Brainstormed how to do wifi, helped with determining wireless interface
 - [Evie](https://github.com/AC3GT) - Literally nothing
 - [Rainestorme](https://github.com/rainestorme) - Murkmod's version finder
-- [kxtz](https://github.com/kxtzownsu) - KVS
