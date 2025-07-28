@@ -90,7 +90,7 @@ case "$1" in
             v3=$((0x${bytes[7]}))
         fi
 
-        kernver_val=$(( (v3 << 24) | (v2 << 16) | (v1 << 8) | v0 ))
+        kernver_val=$(( (v0 << 0) | (v1 << 8) | (v2 << 16) | (v3 << 24) ))
         printf "0x%08x\n" "$kernver_val"
         ;;
     *)
