@@ -935,7 +935,7 @@ updateshim() {
     cp -Lar /root/Aurora/rootfs/. /
     mkdir -p /usr/share/patches/rootfs/
     cp -Lar /root/Aurora/patches/rootfs/. /usr/share/patches/rootfs/
-    chmod +x /usr/share/aurora/* /usr/bin/aurorabuildenv
+    chmod +x /usr/share/aurora/* /usr/bin/aurorabuildenv /sbin/init
     initramfsmnt=$(mktemp -d)
     mount ${device}3 $initramfsmnt
     cp -Lar /root/Aurora/initramfs/. $initramfsmnt/
