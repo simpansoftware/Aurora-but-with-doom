@@ -1,8 +1,5 @@
 #!/bin/bash
 
-=32
-MAX_HEX_LENGTH=10
-
 usage() {
     cat <<EOF
 USAGE: $0 <kernver> <optional flags>
