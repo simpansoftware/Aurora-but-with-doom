@@ -784,7 +784,7 @@ kvs() {
             mount --bind "$mnt" "/mount$mnt"
         done
         vercheck=$(chroot /mount tpmc read 0x1008 1 | tr -d '\r\n[:space:]')
-        if [ "$vercheck" = "*2" ]; then
+        if [[ "$vercheck" == *2 ]]; then
             ver=0
         elif [ "$vercheck" = "10" ]; then
             ver=1
