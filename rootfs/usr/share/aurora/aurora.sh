@@ -277,6 +277,9 @@ splash() {
 	local build=${VERSION["BUILDDATE"]}
 	local version_pad=$(( (width - ${#verstring}) / 2 ))
     local build_pad=$(( (width - ${#build}) / 2 ))
+if [ "$rogged" -eq 69 ]; then
+    grug
+else
     echo -ne "$BLUE_B"
     cat <<'EOF' | center
 ╒════════════════════════════════════════╕
@@ -295,9 +298,10 @@ splash() {
 │     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
 │     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
 ╘════════════════════════════════════════╛
-
 EOF
-    echo -e "$verstring" | center
+fi
+    echo -ne "$BLUE_B"
+    echo -e "\n$verstring" | center
     echo -e "$build" | center
     kernelver=$(getkv)
     if [ -f /etc/kernverpending ]; then
