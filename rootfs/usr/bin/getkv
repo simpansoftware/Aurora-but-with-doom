@@ -8,10 +8,6 @@ getkv() {
     done
     local cmd_output
     cmd_output=$(chroot /mount tpmc read 0x1008 9 2>/dev/null)
-    for mnt in /dev /proc /sys; do
-        umount "/mount$mnt" 2>/dev/null
-    done
-    umount /mount
 
     if [[ -z "$cmd_output" ]]; then
         echo "Please boot Aurora in recovery [Esc+Ref+Pwr] to see kernver."
@@ -35,5 +31,9 @@ getkv() {
     fi
 
     printf "0x%08x\n" "$kernver"
+    for mnt in /dev /proc /sys; do
+        umount "/mount$mnt" 2>/dev/null
+    done
+    umount /mount 2>/dev/null
 }
 getkv
