@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string, send_from_directory, abort
+from flask import Flask, request, render_template_string, send_from_directory, abort, session
 import os
 from os.path import dirname
 import bcrypt
@@ -81,22 +81,27 @@ def main():
     if request.method == "POST":
         pw = request.form.get("password", "")
         if validpass(pw):
+            session['authenticated'] = True
             return browse("", pw)
         else:
             return passprompt("Invalid password, try again")
     return passprompt()
+def check_auth():
+    if not session.get('authenticated'):
+        return False
+    return True
+    
+@app.route("/logout")
+def logout():
+    session.clear()
+    return passprompt("Logged out. Please login again.")
 
 @app.route("/browse/", defaults={"path": ""}, methods=["GET", "POST"])
 @app.route("/browse/<path:path>", methods=["GET", "POST"])
 def browse(path, password=None):
-    now = datetime.now().strftime("%H:%M %b %d")
-    if request.method == "POST":
-        password = request.form.get("password", "")
-    elif not password:
-        password = request.args.get("password", "")
-
-    if not password or not validpass(password):
+    if not check_auth():
         return passprompt("Authentication required")
+    now = datetime.now().strftime("%H:%M %b %d")
 
     fullpath = os.path.join("/", path)
     if not os.path.exists(fullpath):
@@ -150,7 +155,6 @@ def browse(path, password=None):
                     <label for="file-input">Upload a File</label>
                 </li>
             </ul>
-            <input type="hidden" name="password" value="{{password}}">
         </form>
 
         <pre class="ps1">Aurora <span class="time">{{current_time}}</span> <span class="path">/{{path}}/</span> ls -a</pre>
@@ -217,8 +221,7 @@ def browse(path, password=None):
 
 @app.route("/edit/<path:path>", methods=["GET", "POST"])
 def edit(path):
-    pw = request.form.get("password", "") if request.method == "POST" else request.args.get("password", "")
-    if not pw or not validpass(pw):
+    if not check_auth():
         return passprompt("Authentication required")
 
     fullpath = os.path.join("/", path)
@@ -275,7 +278,6 @@ def edit(path):
         </div>
 
         <form id="editor-form" method="post" style="display:none;">
-            <input type="hidden" name="password" value="{{ password }}">
             <input type="hidden" name="content" id="content-input">
             <input type="hidden" name="action" id="form-action" value="save">
         </form>
@@ -320,8 +322,7 @@ def edit(path):
 
 @app.route("/upload/<path:path>", methods=["POST"])
 def upload(path):
-    pw = request.form.get("password", "")
-    if not pw or not validpass(pw):
+    if not check_auth():
         return passprompt("Authentication required")
 
     fullpath = os.path.join("/", path)
