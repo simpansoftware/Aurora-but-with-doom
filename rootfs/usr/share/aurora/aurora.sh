@@ -882,8 +882,6 @@ aftggp() {
     read_center -d "Enter Password for AFT: " readpassword
     export readpassword
     python3 /.ggp/GGP.py > $LOGTTY 2>&1 &
-    echo "Logs available at $LOGTTY."
-    echo "AFT can be accessed from any device at $(ip a | grep wlan0 | grep inet | awk '{print $2}' | sed 's|/.*||'):6969"
     touch /etc/aftggp
 }
 
