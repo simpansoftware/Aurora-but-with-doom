@@ -8,7 +8,7 @@ tput cup 0 0
 for frame in $(ls grug/frame_*.txt | sort); do
     tput cup 0 0
     cat "$frame" | center
-    sleep 0.01
+    sleep 0.001
 done
 tput cnorm
 cd /
