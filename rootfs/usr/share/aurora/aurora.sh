@@ -22,7 +22,6 @@
 stty sane
 stty erase '^H'
 stty intr ''
-export TERM=xterm-direct
 export stty=$(stty -g)
 export tty="/dev/tty"
 [ -e /dev/pts/0 ] && export tty="/dev/pts/0"
@@ -46,7 +45,7 @@ export YELLOW="\033[0;33m"
 export YELLOW_B="\033[1;33m"
 export BLUE_B="\033[1;34m"
 export MAGENTA_B="\033[1;35m"
-export PINK_B="\x1b[1;38;2;235;170;238m"
+export PINK_B="\x1b[1;38;5;212m"
 export CYAN_B="\033[1;36m"
 export PS1='\e[1;34m\]\u@\h \e[1;33m\]$(date +"%H:%M %b %d")\e[1;32m\] \w/\[\e[0m\] '
 alias ls='ls --color=auto'
@@ -1052,6 +1051,7 @@ for chmod in /usr/bin/aurorabuildenv; do
 done
 clear
 while true; do
+    export TERM=xterm-direct
     tput cnorm
     stty $stty
     eval "setup"
