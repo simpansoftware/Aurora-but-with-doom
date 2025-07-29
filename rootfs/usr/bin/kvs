@@ -27,7 +27,7 @@ kvs() {
             umount "/mount$mnt"
         done
         if [ "$break" = "1" ]; then break; fi
-        export kernverpending=1
+        touch /etc/kernverpending
     done
     sync
 }

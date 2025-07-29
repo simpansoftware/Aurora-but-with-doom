@@ -56,7 +56,7 @@ mkdir -p $aroot/build
 mkdir -p $aroot/images/recovery
 mkdir -p $aroot/images/gurt
 declare -A VERSION
-export kernverpending=0
+rm -f /etc/kernverpending
 
 VERSION["BRANCH"]="dev-alpine"
 VERSION["NUMBER"]="3.0"
@@ -386,7 +386,7 @@ EOF
     echo -e "$verstring" | center
     echo -e "$build" | center
     kernelver=$(crossystem tpm_kernver)
-    if [ "$kernverpending" = "1" ]; then
+    if [ -f /etc/kernverpending ]; then
         echo -e "$kernelver ${YELLOW_B}(pending changes)" | center
     else
         echo -e "$kernelver" | center
