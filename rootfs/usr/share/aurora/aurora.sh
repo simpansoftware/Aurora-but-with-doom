@@ -855,8 +855,8 @@ updateshim() {
     else
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
         gh auth status || gh auth login || return
-        git config --global submodule.recurse true
         git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive
+        git config --global submodule.recurse true
     fi
     if [ ! -e /usr/share/aurora/.UNRESIZED ]; then
         rm -f /root/Aurora/rootfs/usr/share/aurora/.UNRESIZED
