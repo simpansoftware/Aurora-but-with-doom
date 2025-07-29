@@ -2,7 +2,7 @@
 
 cd /
 if [ ! -n "$rogged" ]; then rogged=$((RANDOM % 100)); fi
-if [ "$rogged" -eq 0 ]; then
+if [ "$rogged" -eq 69 ]; then
     tar xzf .nothingbeatsajeff2holiday.tar.gz
     tput civis
     tput cup 0 0
