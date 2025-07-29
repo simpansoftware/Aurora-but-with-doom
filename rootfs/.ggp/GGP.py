@@ -8,6 +8,7 @@ from pathlib import Path
 import hashlib
 
 app = Flask(__name__)
+app.permanent_session_lifetime = timedelta(minutes=30)
 
 def binarycheck(filepath, blocksize=512):
     try:
@@ -82,7 +83,8 @@ def main():
         pw = request.form.get("password", "")
         if validpass(pw):
             session['authenticated'] = True
-            return browse("", pw)
+            session.permanent = True
+            return redirect(url_for("browse"))
         else:
             return passprompt("Invalid password, try again")
     return passprompt()
@@ -90,7 +92,7 @@ def check_auth():
     if not session.get('authenticated'):
         return False
     return True
-    
+
 @app.route("/logout")
 def logout():
     session.clear()
@@ -204,7 +206,6 @@ def browse(path, password=None):
 
             const formData = new FormData();
             formData.append('file', file);
-            formData.append('password', password);
 
             xhr.send(formData);
         }
