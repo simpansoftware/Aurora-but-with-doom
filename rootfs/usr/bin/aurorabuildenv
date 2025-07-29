@@ -129,6 +129,8 @@ EOF
             umount "$crosbuildlooproota"
             rm -f "$crosbuild/sbin/init"
             touch "$crosbuild/etc/.exists"
+            mkdir -p "$crosbuild/shims"
+            cp "$basebuildshim" "$crosbuild/shims/$board_name.bin"
         else
             echo "Please remove the existing cros build environment before creating another." 
         fi
@@ -145,6 +147,8 @@ EOF
             esac
             debootstrap --arch="$dbsarch" bookworm "$debianbuild" http://deb.debian.org/debian
             touch "$debianbuild/etc/.exists"
+            mkdir -p "$debianbuild/shims"
+            cp "$basebuildshim" "$debianbuild/shims/$board_name.bin"
         else
             echo "Please remove the existing debian build environment before creating another."
         fi
@@ -157,6 +161,8 @@ EOF
             chmod +x arch-bootstrap.sh
             ./arch-bootstrap.sh "$archbuild"
             touch "$archbuild/etc/.exists"
+            mkdir -p "$archbuild/shims"
+            cp "$basebuildshim" "$archbuild/shims/$board_name.bin"
         else
             echo "Please remove the existing arch build environment before creating another."
         fi
