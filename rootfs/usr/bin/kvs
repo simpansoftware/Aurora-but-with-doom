@@ -31,4 +31,8 @@ kvs() {
     done
     sync
 }
-kvs
+if [ "$(crossystem mainfw_type)" = "recovery" ]; then
+    kvs
+else
+    fail "Please boot Aurora in recovery [Esc+Ref+Pwr] to use KVS."
+fi

@@ -315,6 +315,7 @@ fail() {
     done
     return 1
 }
+export -f fail
 
 hang() {
 	tput civis
