@@ -262,6 +262,10 @@ get_largest_cros_blockdev() {
 }
 
 splash() {
+    if [ "$rogged" -eq 69 ]; then
+        grug
+        tput cup 0 0
+    fi
     if [ "$(cat /sys/devices/virtual/dmi/id/product_name)" = "Barla" ]; then
         echo -e "${RED_B}Barla wifi unsupported. Please contact @kxtzownsu on discord${COLOR_RESET}"
     else
@@ -277,10 +281,6 @@ splash() {
 	local build=${VERSION["BUILDDATE"]}
 	local version_pad=$(( (width - ${#verstring}) / 2 ))
     local build_pad=$(( (width - ${#build}) / 2 ))
-if [ "$rogged" -eq 69 ]; then
-    grug
-    tput cup 0 0
-fi
     echo -ne "$BLUE_B"
     cat <<'EOF' | center
 ╒════════════════════════════════════════╕
