@@ -7,8 +7,16 @@ from datetime import datetime
 from pathlib import Path
 from flask import session
 import hashlib
+import mimetypes
 
 app = Flask(__name__)
+
+
+def binarycheck(filepath):
+    mimetype, _ = mimetypes.guess_type(filepath)
+    if mimetype is None:
+        return True
+    return not mimetype.startswith("text")
 
 def gethashpass():
     pw = os.environ.get("readpassword")
@@ -109,12 +117,20 @@ def browse(path, password=None):
         entries = []
 
     for entry in sorted(entries):
-        if entry in (".", ".."):
-            continue
-        entrypath = os.path.join(path, entry)
-        entrypathfull = os.path.join(fullpath, entry)
-        is_dir = os.path.isdir(entrypathfull)
-        items.append({"name": entry, "path": entrypath, "is_dir": is_dir})
+    if entry in (".", ".."):
+        continue
+    entrypath = os.path.join(path, entry)
+    entrypathfull = os.path.join(fullpath, entry)
+    is_dir = os.path.isdir(entrypathfull)
+    is_binary = False
+    if not is_dir:
+        is_binary = is_binary_file(entrypathfull)
+    items.append({
+        "name": entry,
+        "path": entrypath,
+        "is_dir": is_dir,
+        "is_binary": is_binary
+    })
 
     return render_template_string('''
     <!DOCTYPE html>
@@ -142,9 +158,7 @@ def browse(path, password=None):
 
         <div class="file-list" role="list">
         {% for item in items %}
-        <a href="{% if item.is_dir %}/browse/{{item.path}}?password={{password}}{% else %}/edit/{{item.path}}?password={{password}}{% endif %}" role="listitem"class="{{ 'dir' if item.is_dir else '' }}">
-        {{item.name}}{{ '/' if item.is_dir and not item.name.endswith('/') else '' }}
-        </a>
+        <a href="{% if item.is_dir %}/browse/{{item.path}}?password={{password}}{% elif not item.is_binary %}/edit/{{item.path}}?password={{password}}{% else %}/browse/{{item.path}}?password={{password}}{% endif %}" role="listitem" class="{% if item.is_dir %}dir{% elif not item.is_binary %}file{% endif %}">{{ item.name }}{{ '/' if item.is_dir and not item.name.endswith('/') else '' }}</a>
         {% endfor %}
         </div>
         <pre class="ps1">Aurora <span class="time">{{current_time}}</span> <span class="path">/{{path}}/</span></pre>
