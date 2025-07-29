@@ -1,6 +1,12 @@
+source /usr/share/aurora/centering
+read_center -d "Do you want to continue? this will take time to install and some space on the drive. (y/N)" jet2holidayyesno
+case $jet2holidayyesno in
+    y|Y) ;;
+    *) return ;;
+esac
 cd /
-python3 -m venv nothingbeatsajet2holiday
 apk add --no-cache build-base python3 py3-pip python3-dev ffmpeg py3-numpy libjpeg-turbo-dev libpng-dev tiff-dev
+python3 -m venv nothingbeatsajet2holiday
 source nothingbeatsajet2holiday/bin/activate
 pip install opencv-python-headless pillow numpy
 cd /nothingbeatsajet2holiday
