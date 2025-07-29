@@ -30,6 +30,7 @@ kvs() {
         for mnt in /dev /proc /sys; do
             umount "/mount$mnt"
         done
+        kernver=$(printf "%08s" "$kernver" | tr ' ' '0')
         echo "0x$kernver" > /etc/kernverpending
         if [ "$break" = "1" ]; then break; fi
     done
