@@ -12,6 +12,7 @@ if [ "$rogged" -eq 69 ]; then
         sleep 0.01
     done
     tput cnorm
+    echo "Nothing beats a Jeff2 Holiday." | center
     rm -rf /nothingbeatsajeff2holiday
 else
     source /usr/share/aurora/centering
@@ -24,6 +25,6 @@ else
         sleep 0.01
     done
     tput cnorm
-    echo "Nothing beats a Jet2 Holiday."
+    echo "Nothing beats a Jet2 Holiday." | center
     rm -rf /nothingbeatsajet2holiday
 fi
