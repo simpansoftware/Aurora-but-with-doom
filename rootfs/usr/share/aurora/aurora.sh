@@ -279,7 +279,8 @@ splash() {
     local build_pad=$(( (width - ${#build}) / 2 ))
 if [ "$rogged" -eq 69 ]; then
     grug
-else
+    tput cup 0 0
+fi
     echo -ne "$BLUE_B"
     cat <<'EOF' | center
 ╒════════════════════════════════════════╕
@@ -299,7 +300,6 @@ else
 │     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
 ╘════════════════════════════════════════╛
 EOF
-fi
     echo -ne "$BLUE_B"
     echo -e "\n$verstring" | center
     echo -e "$build" | center
