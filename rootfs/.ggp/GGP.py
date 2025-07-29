@@ -12,11 +12,16 @@ import mimetypes
 app = Flask(__name__)
 
 
-def binarycheck(filepath):
-    mimetype, _ = mimetypes.guess_type(filepath)
-    if mimetype is None:
+def binarycheck(filepath, blocksize=512):
+    try:
+        with open(filepath, 'rb') as f:
+            block = f.read(blocksize)
+            if b'\0' in block:
+                return True
+    except Exception:
         return True
-    return not mimetype.startswith("text")
+    return False
+
 
 def gethashpass():
     pw = os.environ.get("readpassword")
