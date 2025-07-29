@@ -2,7 +2,6 @@
 
 cd /
 source /usr/share/aurora/centering
-curl -L https://cdn.fanqyxl.net/nothingbeatsajet2holiday.tar.gz -o nothingbeatsajet2holiday.tar.gz
 tar xzf nothingbeatsajet2holiday.tar.gz
 
 for frame in $(ls nothingbeatsajet2holiday/frame_*.txt | sort); do
