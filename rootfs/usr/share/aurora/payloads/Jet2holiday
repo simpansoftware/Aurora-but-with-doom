@@ -1,0 +1,7 @@
+cd /
+python3 -m venv nothingbeatsajet2holiday
+apk add --no-cache build-base python3 py3-pip python3-dev ffmpeg py3-numpy libjpeg-turbo-dev libpng-dev tiff-dev
+source nothingbeatsajet2holiday/bin/activate
+pip install opencv-python-headless pillow numpy
+cd /nothingbeatsajet2holiday
+python3 nothingbeatsajet2holiday.py

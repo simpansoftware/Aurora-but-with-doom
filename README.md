@@ -67,9 +67,10 @@ Coming soon to viewers like you!<br><br>
 # Credits
 - [Sophia](https://github.com/soap-phia) - Lead developer of Aurora, Got Wifi
 - [Mariah Carey](https://github.com/xXMariahScaryXx) - Bugfixing and bugtesting
-- [xmb9](https://github.com/xmb9) - Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images
+- [xmb9](https://github.com/xmb9) - [PRIISM] Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images
 - [Synaptic](https://github.com/Synaptic-1234) - Emotional Support
-- [Simon](https://github.com/simpansoftware) - Brainstormed how to do wifi, helped with determining wireless interface
+- [Simon](https://github.com/simpansoftware) - [IRS] Brainstormed how to do wifi, helped with determining wireless interface
+- [kraeb](https://github.com/DyingHynixMLC) - [IRS] QoL improvements and initial idea
 - [Evie](https://github.com/AC3GT) - Literally nothing
 - [Rainestorme](https://github.com/rainestorme) - Murkmod's version finder
 - [kxtz](https://github.com/kxtzownsu) - KVG
