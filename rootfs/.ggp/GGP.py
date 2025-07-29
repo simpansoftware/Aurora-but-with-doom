@@ -206,7 +206,6 @@ def browse(path, password=None):
 
             const formData = new FormData();
             formData.append('file', file);
-
             xhr.send(formData);
         }
 
