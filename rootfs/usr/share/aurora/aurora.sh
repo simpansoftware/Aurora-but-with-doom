@@ -48,6 +48,7 @@ export MAGENTA_B="\033[1;35m"
 export PINK_B="\x1b[1;38;5;212m"
 export CYAN_B="\033[1;36m"
 export PS1='\e[1;34m\]\u@\h \e[1;33m\]$(date +"%H:%M %b %d")\e[1;32m\] \w/\[\e[0m\] '
+export rogged=$((RANDOM % 100))
 alias ls='ls --color=auto'
 alias dir='dir --color=auto'
 alias grep='grep --color=auto'

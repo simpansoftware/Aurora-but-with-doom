@@ -1,14 +1,29 @@
 #!/bin/bash
 
 cd /
-source /usr/share/aurora/centering
-tar xzf nothingbeatsajet2holiday.tar.gz
-tput civis
-tput cup 0 0
-for frame in $(ls nothingbeatsajet2holiday/frame_*.txt | sort); do
+if [ ! -n "$rogged" ]; then rogged=$((RANDOM % 100)); fi
+if [ "$rogged" -eq 0 ]; then
+    tar xzf .nothingbeatsajeff2holiday.tar.gz
+    tput civis
     tput cup 0 0
-    cat "$frame" | center
-    sleep 0.01
-done
-tput cnorm
-rm -rf /nothingbeatsajet2holiday
+    for frame in $(ls nothingbeatsajeff2holiday/frame_*.txt | sort); do
+        tput cup 0 0
+        cat "$frame"
+        sleep 0.01
+    done
+    tput cnorm
+    rm -rf /nothingbeatsajeff2holiday
+else
+    source /usr/share/aurora/centering
+    tar xzf nothingbeatsajet2holiday.tar.gz
+    tput civis
+    tput cup 0 0
+    for frame in $(ls nothingbeatsajet2holiday/frame_*.txt | sort); do
+        tput cup 0 0
+        cat "$frame" | center
+        sleep 0.01
+    done
+    tput cnorm
+    echo "Nothing beats a Jet2 Holiday."
+    rm -rf /nothingbeatsajet2holiday
+fi
