@@ -69,7 +69,6 @@ Coming soon to viewers like you!<br><br>
 - [Mariah Carey](https://github.com/xXMariahScaryXx) - Bugfixing and bugtesting
 - [xmb9](https://github.com/xmb9) - Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images
 - [Synaptic](https://github.com/Synaptic-1234) - Emotional Support
-- [OlyB](https://github.com/BinBashBanana) - Help with PID1
 - [Simon](https://github.com/simpansoftware) - Brainstormed how to do wifi, helped with determining wireless interface
 - [Evie](https://github.com/AC3GT) - Literally nothing
 - [Rainestorme](https://github.com/rainestorme) - Murkmod's version finder
