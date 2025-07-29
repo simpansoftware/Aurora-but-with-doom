@@ -56,7 +56,7 @@ mkdir -p $aroot/build
 mkdir -p $aroot/images/recovery
 mkdir -p $aroot/images/gurt
 declare -A VERSION
-export kernverpending=1
+export kernverpending=0
 
 VERSION["BRANCH"]="dev-alpine"
 VERSION["NUMBER"]="3.0"
