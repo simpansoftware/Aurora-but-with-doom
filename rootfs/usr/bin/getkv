@@ -1,0 +1,41 @@
+#!/bin/bash
+
+source /usr/share/aurora/centering
+
+getkv() {
+    mount --bind /mount /mount
+    for mnt in /dev /proc /sys; do
+        mkdir -p /mount$mnt
+        mount --bind "$mnt" "/mount$mnt"
+    done
+    local cmd_output
+    cmd_output=$(chroot /mount tpmc read 0x1008 9)
+    for mnt in /dev /proc /sys; do
+        umount "/mount$mnt"
+    done
+    umount /mount
+    
+    if [[ -z "$cmd_output" ]]; then
+        echo "Not found."
+        return
+    fi
+
+    cmd_output=$(echo "$cmd_output" | tr -d '\n')
+
+    local kernver=0
+    local b1 b2 b3 b4
+
+    if [[ "${cmd_output:0:2}" == "10" ]]; then
+        read b1 b2 b3 b4 < <(echo "$cmd_output" | cut -c13- | awk '{print $1, $2, $3, $4}')
+        kernver=$(( 0x$b1 + (0x$b2 << 8) + (0x$b3 << 16) + (0x$b4 << 24) ))
+    elif [[ "${cmd_output:0:1}" == "2" ]]; then
+        read b1 b2 b3 b4 < <(echo "$cmd_output" | cut -c15- | awk '{print $1, $2, $3, $4}')
+        kernver=$(( 0x$b1 + (0x$b2 << 8) + (0x$b3 << 16) + (0x$b4 << 24) ))
+    else
+        echo "Not found."
+        return
+    fi
+
+    printf "0x%08x\n" "$kernver" | center
+}
+getkv

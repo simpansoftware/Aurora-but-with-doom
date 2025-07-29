@@ -298,7 +298,7 @@ splash() {
 EOF
     echo -e "$verstring" | center
     echo -e "$build" | center
-    kernelver=$(crossystem tpm_kernver)
+    kernelver=$(getkv)
     if [ -f /etc/kernverpending ]; then
         kernelver=$(cat /etc/kernverpending)
         echo -e "Kernver: $kernelver ${YELLOW_B}(pending reboot)" | center

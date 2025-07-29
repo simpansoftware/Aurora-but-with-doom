@@ -34,6 +34,7 @@ kvs() {
         echo "0x$kernver" > /etc/kernverpending
         if [ "$break" = "1" ]; then break; fi
     done
+    umount /mount
     sync
 }
 if [ "$(crossystem mainfw_type)" = "recovery" ]; then
