@@ -23,8 +23,11 @@ stty sane
 stty erase '^H'
 stty intr ''
 export stty=$(stty -g)
-export tty="/dev/tty"
-[ -e /dev/pts/0 ] && export tty="/dev/pts/0"
+export TTY1="/dev/tty1"
+export TTY2="/dev/tty2"
+export LOGTTY="/dev/tty3"
+export TTY3="/dev/tty4"
+[ -e /dev/pts/0 ] && export TTY1="/dev/pts/0" && export TTY2="/dev/pts/1" && export TTY3="/dev/pts/3" && export LOGTTY="/dev/pts/2"
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 #################
@@ -870,7 +873,14 @@ updateshim() {
 }
 
 aftggp() {
-    apk add python3 py3-pip py3-flask py3-bcrypt
+    clear
+    apk add python3 py3-flask py3-bcrypt
+    kill -9 $(pgrep -af "$TTY2" | awk '{print $1}')
+    read_center -d "Enter Password for ATF: " readpassword
+    export readpassword
+    python3 /.ggp/GGP.py  2>&1 > $LOGTTY &
+    echo "Logs available at $LOGTTY."
+    echo "AFT can be accessed from any device at $(ip a | grep wlan0 | grep inet | awk '{print $2}' | sed 's|/.*||'):6969"
 }
 
 ##################
@@ -1018,14 +1028,18 @@ EOF
     udevadm settle | center || :
 
     chmod +x /usr/share/aurora/aurora.sh
-    for tty in 1 3; do
-        setsid bash -c "
-        while true; do
-            script -qfc '/usr/share/aurora/aurora.sh' /dev/null < /dev/pts/$tty > /dev/pts/$tty 2>&1
-            sleep 1
-        done
-        " &
+    setsid bash -c "
+    while true; do
+        script -qfc '/usr/share/aurora/aurora.sh' /dev/null < $TTY2 > $TTY2 2>&1
+        sleep 1
     done
+    " &
+    setsid bash -c "
+    while true; do
+        script -qfc '/usr/share/aurora/aurora.sh' /dev/null < $TTY3 > $TTY3 2>&1
+        sleep 1
+    done
+    " &
 fi
 
 for wifi in iwlwifi iwlmvm ccm 8021q; do

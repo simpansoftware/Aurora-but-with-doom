@@ -11,10 +11,12 @@ import hashlib
 app = Flask(__name__)
 
 def gethashpass():
-    import getpass
-    pw = getpass.getpass("Set a password for Aurora File Transfer: ").encode()
-    hashed_pw = bcrypt.hashpw(pw, bcrypt.gensalt())
-    secret_key = hashlib.sha256(pw).digest()
+    pw = os.environ.get("readpassword")
+    if not pw:
+        raise RuntimeError("password not set")
+    pw_bytes = pw.encode()
+    hashed_pw = bcrypt.hashpw(pw_bytes, bcrypt.gensalt())
+    secret_key = hashlib.sha256(pw_bytes).digest()
     return hashed_pw, secret_key
 
 passhash, secret_key = gethashpass()
