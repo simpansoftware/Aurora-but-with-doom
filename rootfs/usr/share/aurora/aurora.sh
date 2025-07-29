@@ -913,7 +913,7 @@ if $pid1; then
 fi
 
 menu_options+=(
-    "$( [ $pid1 = false ] && echo "3" || echo "4" ). KVS"
+    "$( [ $pid1 = false ] && echo "3" || echo "4" ). Kernel Version Switcher"
     "$( [ $pid1 = false ] && echo "4" || echo "5" ). Connect to WiFi"
     "$( [ $pid1 = false ] && echo "5" || echo "6" ). Download a ChromeOS recovery image/shim"
     "$( [ $pid1 = false ] && echo "6" || echo "7" ). Payloads Menu"

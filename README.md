@@ -73,3 +73,4 @@ Coming soon to viewers like you!<br><br>
 - [Simon](https://github.com/simpansoftware) - Brainstormed how to do wifi, helped with determining wireless interface
 - [Evie](https://github.com/AC3GT) - Literally nothing
 - [Rainestorme](https://github.com/rainestorme) - Murkmod's version finder
+- [kxtz](https://github.com/kxtzownsu) - KVG
