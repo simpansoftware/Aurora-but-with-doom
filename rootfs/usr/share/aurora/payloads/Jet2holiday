@@ -4,8 +4,9 @@ cd /
 source /usr/share/aurora/centering
 tar xzf nothingbeatsajet2holiday.tar.gz
 tput civis
+tput cup 0 0
 for frame in $(ls nothingbeatsajet2holiday/frame_*.txt | sort); do
-    clear
+    tput cup 0 0
     cat "$frame" | center
     sleep 0.01
 done
