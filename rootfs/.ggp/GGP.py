@@ -117,20 +117,20 @@ def browse(path, password=None):
         entries = []
 
     for entry in sorted(entries):
-    if entry in (".", ".."):
-        continue
-    entrypath = os.path.join(path, entry)
-    entrypathfull = os.path.join(fullpath, entry)
-    is_dir = os.path.isdir(entrypathfull)
-    is_binary = False
-    if not is_dir:
-        is_binary = is_binary_file(entrypathfull)
-    items.append({
-        "name": entry,
-        "path": entrypath,
-        "is_dir": is_dir,
-        "is_binary": is_binary
-    })
+        if entry in (".", ".."):
+            continue
+        entrypath = os.path.join(path, entry)
+        entrypathfull = os.path.join(fullpath, entry)
+        is_dir = os.path.isdir(entrypathfull)
+        is_binary = False
+        if not is_dir:
+            is_binary = binarycheck(entrypathfull)
+        items.append({
+            "name": entry,
+            "path": entrypath,
+            "is_dir": is_dir,
+            "is_binary": is_binary
+        })
 
     return render_template_string('''
     <!DOCTYPE html>
