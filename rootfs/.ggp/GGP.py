@@ -5,12 +5,9 @@ import bcrypt
 from werkzeug.utils import secure_filename
 from datetime import datetime
 from pathlib import Path
-from flask import session
 import hashlib
-import mimetypes
 
 app = Flask(__name__)
-
 
 def binarycheck(filepath, blocksize=512):
     try:
@@ -21,7 +18,6 @@ def binarycheck(filepath, blocksize=512):
     except Exception:
         return True
     return False
-
 
 def gethashpass():
     pw = os.environ.get("readpassword")
@@ -157,13 +153,11 @@ def browse(path, password=None):
             <input type="hidden" name="password" value="{{password}}">
         </form>
 
-
-
         <pre class="ps1">Aurora <span class="time">{{current_time}}</span> <span class="path">/{{path}}/</span> ls</pre>
 
         <div class="file-list" role="list">
         {% for item in items %}
-        <a href="{% if item.is_dir %}/browse/{{item.path}}?password={{password}}{% elif not item.is_binary %}/edit/{{item.path}}?password={{password}}{% else %}/browse/{{item.path}}?password={{password}}{% endif %}" role="listitem" class="{% if item.is_dir %}dir{% elif not item.is_binary %}file{% endif %}">{{ item.name }}{{ '/' if item.is_dir and not item.name.endswith('/') else '' }}</a>
+        <a href="{% if item.is_dir %}/browse/{{item.path}}{% elif not item.is_binary %}/edit/{{item.path}}{% else %}/browse/{{item.path}}{% endif %}" role="listitem" class="{% if item.is_dir %}dir{% elif not item.is_binary %}file{% endif %}">{{ item.name }}{{ '/' if item.is_dir and not item.name.endswith('/') else '' }}</a>
         {% endfor %}
         </div>
         <pre class="ps1">Aurora <span class="time">{{current_time}}</span> <span class="path">/{{path}}/</span></pre>
@@ -238,7 +232,7 @@ def edit(path):
             with open(fullpath, "w", encoding="utf-8") as f:
                 f.write(content)
             if action == "save_exit":
-                return f'<script>window.location.href="/browse/{dirname(path)}?password={pw}";</script>'
+                return f'<script>window.location.href="/browse/{dirname(path)}";</script>'
             return "", 204
         except Exception as e:
             return f'Error saving file: {e}', 500
@@ -250,6 +244,7 @@ def edit(path):
         filecontent = f"Error reading file: {e}"
 
     language = getlang(path)
+    pathdir = dirname(path)
 
     return render_template_string('''
     <!DOCTYPE html>
@@ -270,10 +265,10 @@ def edit(path):
             <span style="margin-left:auto;">
             {%- set parts = path.strip('/').split('/') -%}
             {%- set cumulative_path = '' -%}
-            <a href="/browse/?password={{ password|urlencode }}">/</a>
+            <a href="/browse/">/</a>
             {%- for part in parts[:-1] %}
                 {%- set cumulative_path = cumulative_path + '/' + part -%}
-                <a href="/browse{{ cumulative_path }}?password={{ password|urlencode }}">{{ part }}</a> /
+                <a href="/browse{{ cumulative_path }}">{{ part }}</a> /
             {%- endfor %}
             {{ parts[-1] }}
             </span>
@@ -316,12 +311,12 @@ def edit(path):
         }
 
         function exitWithoutSaving() {
-            window.location.href = "/browse/{{ path_dir }}?password={{ password }}";
+            window.location.href = "/browse/{{ pathdir }}";
         }
         </script>
     </body>
     </html>
-    ''', path=path, password=pw, filecontent=filecontent, language=language)
+    ''', path=path, password=pw, filecontent=filecontent, language=language, pathdir=pathdir)
 
 @app.route("/upload/<path:path>", methods=["POST"])
 def upload(path):
@@ -334,6 +329,7 @@ def upload(path):
     if file:
         filename = secure_filename(file.filename)
         file.save(os.path.join(fullpath, filename))
+    return '', 204
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=6969)
