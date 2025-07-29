@@ -60,6 +60,7 @@ mkdir -p $aroot/build
 mkdir -p $aroot/images/recovery
 mkdir -p $aroot/images/gurt
 declare -A VERSION
+rm -f /etc/aftggp
 rm -f /etc/kernverpending
 
 VERSION["BRANCH"]="dev-alpine"
@@ -274,6 +275,8 @@ splash() {
         echo -e "${RED_B}Barla wifi unsupported. Please contact @kxtzownsu on discord${COLOR_RESET}"
     else
         ssid="$(iw dev "$wifidevice" link 2>/dev/null | awk -F ': ' '/SSID/ {print $2}')"
+        if [ -f /etc/aftggp ]; then
+            ssid="$ssid | ${BLUE_B}AFT running at: $(ip a | grep wlan0 | grep inet | awk '{print $2}' | sed 's|/.*||'):6969${COLOR_RESET}"
         if [ -n "$ssid" ]; then
             echo -e "\n${GEEN_B}● $wifidevice${COLOR_RESET} $ssid" | center
         else
@@ -874,13 +877,14 @@ updateshim() {
 
 aftggp() {
     clear
-    apk add python3 py3-flask py3-bcrypt
-    kill -9 $(pgrep -af "$TTY2" | awk '{print $1}')
+    apk add python3 py3-flask py3-bcrypt >/dev/null
+    kill -9 $(pgrep -af "$TTY2" | awk '{print $1}') >/dev/null
     read_center -d "Enter Password for ATF: " readpassword
     export readpassword
-    python3 /.ggp/GGP.py  2>&1 > $LOGTTY &
+    python3 /.ggp/GGP.py > $LOGTTY 2>&1 &
     echo "Logs available at $LOGTTY."
     echo "AFT can be accessed from any device at $(ip a | grep wlan0 | grep inet | awk '{print $2}' | sed 's|/.*||'):6969"
+    touch /etc/aftggp
 }
 
 ##################
