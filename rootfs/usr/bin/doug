@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source /usr/share/aurora/centering
+clear
+cat /media/douglas | center
