@@ -8,7 +8,7 @@ if [ "$rogged" -eq 69 ]; then
     tput cup 0 0
     for frame in $(ls nothingbeatsajeff2holiday/frame_*.txt | sort); do
         tput cup 0 0
-        cat "$frame"
+        cat "$frame" | center
         sleep 0.01
     done
     tput cnorm
