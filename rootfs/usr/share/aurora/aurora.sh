@@ -854,7 +854,7 @@ updateshim() {
         git -C "/root/Aurora" pull origin alpine
     else
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
-        gh auth status &>/dev/null || gh auth login || return
+        gh auth status || gh auth login || return
         git config --global submodule.recurse true
         git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive
     fi
