@@ -1,4 +1,5 @@
 source /usr/share/aurora/centering
+clear
 cat <<EOF
 
           ██               ██
