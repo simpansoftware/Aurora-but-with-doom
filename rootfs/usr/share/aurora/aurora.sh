@@ -869,6 +869,10 @@ updateshim() {
     sync
 }
 
+aftggp() {
+    apk add python3 py3-pip py3-flask py3-bcrypt
+}
+
 ##################
 ## OPTIONS MENU ##
 ##################
@@ -921,18 +925,18 @@ fi
 menu_options+=(
     "$( [ $pid1 = false ] && echo "3" || echo "4" ). Connect to WiFi"
     "$( [ $pid1 = false ] && echo "4" || echo "5" ). Download a ChromeOS recovery image/shim"
-    "$( [ $pid1 = false ] && echo "5" || echo "6" ). Payloads Menu"
-    "$( [ $pid1 = false ] && echo "6" || echo "7" ). Update shim"
-    "$( [ $pid1 = false ] && echo "7" || echo "8" ). Build Environment Shell"
+    "$( [ $pid1 = false ] && echo "5" || echo "6" ). Aurora File Transfer - GGP"
+    "$( [ $pid1 = false ] && echo "6" || echo "7" ). Payloads Menu"
+    "$( [ $pid1 = false ] && echo "7" || echo "8" ). Update shim"
     "$( [ $pid1 = false ] && echo "8" || echo "9" ). Exit and Reboot"
 )
 
 menu_actions+=(
     "clear && wifi"
     "canwifi clear && download"
+    "canwifi aftggp"
     "clear && payloads"
     "canwifi updateshim"
-    "canwifi aurorabuildenv"
     "reboot -f"
 )
 

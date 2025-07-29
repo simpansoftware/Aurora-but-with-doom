@@ -3,6 +3,3 @@
 build/rootfs
 build/initramfs
 build/alpine-minirootfs*
-ggp
-GGP.py
-rootfs/.ggp/static/style.css
