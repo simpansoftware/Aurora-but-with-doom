@@ -30,8 +30,8 @@ kvs() {
         for mnt in /dev /proc /sys; do
             umount "/mount$mnt"
         done
-        if [ "$break" = "1" ]; then break; fi
         echo "0x$kernver" > /etc/kernverpending
+        if [ "$break" = "1" ]; then break; fi
     done
     sync
 }
