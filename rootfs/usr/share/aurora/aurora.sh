@@ -950,13 +950,12 @@ setup() {
         clear
         splash
         echo -e "\nSetup Aurora" | center
-        sed -i '/%wheel ALL=.*NOPASSWD.*/d' /etc/sudoers
         read_center "Setup a user? (Y/n) " setupuser
         case $setupuser in
             n) : ;;
             *) read_center -d "Username: " username
                adduser "$username"
-               addgroup "$username" wheel ;;
+               echo "$username ALL=(ALL:ALL) ALL" >> /etc/sudoers ;;
         esac
         read_center -d "Enter your timezone: " timezone
         timezone="*$(echo "$timezone" | sed 's/ /*/g')*"
