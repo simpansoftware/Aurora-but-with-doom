@@ -387,7 +387,8 @@ EOF
     echo -e "$build" | center
     kernelver=$(crossystem tpm_kernver)
     if [ -f /etc/kernverpending ]; then
-        echo -e "$kernelver ${YELLOW_B}(pending changes)" | center
+        kernelver=$(cat /etc/kernverpending)
+        echo -e "Kernver: $kernelver ${YELLOW_B}(pending reboot)" | center
     else
         echo -e "$kernelver" | center
     fi
