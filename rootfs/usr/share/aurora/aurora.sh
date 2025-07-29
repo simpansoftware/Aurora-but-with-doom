@@ -22,6 +22,7 @@
 stty sane
 stty erase '^H'
 stty intr ''
+export TERM=xterm-direct
 export stty=$(stty -g)
 export tty="/dev/tty"
 [ -e /dev/pts/0 ] && export tty="/dev/pts/0"
