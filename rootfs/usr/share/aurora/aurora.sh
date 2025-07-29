@@ -265,6 +265,7 @@ splash() {
     if [ "$rogged" -eq 69 ]; then
         grug
         tput cup 0 0
+        clear
     fi
     if [ "$(cat /sys/devices/virtual/dmi/id/product_name)" = "Barla" ]; then
         echo -e "${RED_B}Barla wifi unsupported. Please contact @kxtzownsu on discord${COLOR_RESET}"
