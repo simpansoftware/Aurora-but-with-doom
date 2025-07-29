@@ -11,6 +11,5 @@ for frame in $(ls grug/frame_*.txt | sort); do
     sleep 0.01
 done
 tput cnorm
-echo "Nothing beats a Jet2 Holiday." | center
 cd /
 rm -rf /media/grug
