@@ -26,7 +26,8 @@ getkv() {
         read b1 b2 b3 b4 < <(echo "$cmd_output" | cut -c15- | awk '{print $1, $2, $3, $4}')
         kernver=$(( 0x$b1 + (0x$b2 << 8) + (0x$b3 << 16) + (0x$b4 << 24) ))
     else
-        echo "Please boot Aurora in recovery [Esc+Ref+Pwr] to see kernver."
+        echo "$(crossystem tpm_kernver)"
+        echo "Please boot Aurora in recovery [Esc+Ref+Pwr] to see proper kernver"
         return
     fi
 
