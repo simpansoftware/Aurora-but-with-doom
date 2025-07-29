@@ -919,17 +919,15 @@ if $pid1; then
 fi
 
 menu_options+=(
-    "$( [ $pid1 = false ] && echo "3" || echo "4" ). Kernel Version Switcher"
-    "$( [ $pid1 = false ] && echo "4" || echo "5" ). Connect to WiFi"
-    "$( [ $pid1 = false ] && echo "5" || echo "6" ). Download a ChromeOS recovery image/shim"
-    "$( [ $pid1 = false ] && echo "6" || echo "7" ). Payloads Menu"
-    "$( [ $pid1 = false ] && echo "7" || echo "8" ). Update shim"
-    "$( [ $pid1 = false ] && echo "8" || echo "9" ). Build Environment Shell"
-    "$( [ $pid1 = false ] && echo "9" || echo "10" ). Exit and Reboot"
+    "$( [ $pid1 = false ] && echo "3" || echo "4" ). Connect to WiFi"
+    "$( [ $pid1 = false ] && echo "4" || echo "5" ). Download a ChromeOS recovery image/shim"
+    "$( [ $pid1 = false ] && echo "5" || echo "6" ). Payloads Menu"
+    "$( [ $pid1 = false ] && echo "6" || echo "7" ). Update shim"
+    "$( [ $pid1 = false ] && echo "7" || echo "8" ). Build Environment Shell"
+    "$( [ $pid1 = false ] && echo "8" || echo "9" ). Exit and Reboot"
 )
 
 menu_actions+=(
-    "script -qfc 'stty sane && stty erase '^H' && exec /usr/bin/kvs' "
     "clear && wifi"
     "canwifi clear && download"
     "clear && payloads"
