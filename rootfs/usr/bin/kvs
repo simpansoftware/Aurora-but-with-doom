@@ -1,6 +1,6 @@
 kvs() {
+    clear
     while true; do
-        clear
         read -p "Enter Kernver[Max 8 characters after 0x]: 0x" kernver
         mount --bind /mount /mount
         for mnt in /dev /proc /sys; do
