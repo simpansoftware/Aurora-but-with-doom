@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source /usr/share/aurora/centering
 cd /
 if [ ! -n "$rogged" ]; then rogged=$((RANDOM % 100)); fi
 if [ "$rogged" -eq 69 ]; then
@@ -15,7 +16,6 @@ if [ "$rogged" -eq 69 ]; then
     echo "Nothing beats a Jeff2 Holiday." | center
     rm -rf /nothingbeatsajeff2holiday
 else
-    source /usr/share/aurora/centering
     tar xzf nothingbeatsajet2holiday.tar.gz
     tput civis
     tput cup 0 0
