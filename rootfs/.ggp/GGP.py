@@ -153,7 +153,7 @@ def browse(path, password=None):
             <input type="hidden" name="password" value="{{password}}">
         </form>
 
-        <pre class="ps1">Aurora <span class="time">{{current_time}}</span> <span class="path">/{{path}}/</span> ls</pre>
+        <pre class="ps1">Aurora <span class="time">{{current_time}}</span> <span class="path">/{{path}}/</span> ls -a</pre>
 
         <div class="file-list" role="list">
         {% for item in items %}
