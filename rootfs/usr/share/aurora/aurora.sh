@@ -879,7 +879,7 @@ updateshim() {
 aftggp() {
     clear
     apk add python3 py3-flask py3-bcrypt >/dev/null
-    read_center -d "Enter Password for ATF: " readpassword
+    read_center -d "Enter Password for AFT: " readpassword
     export readpassword
     python3 /.ggp/GGP.py > $LOGTTY 2>&1 &
     echo "Logs available at $LOGTTY."
