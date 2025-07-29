@@ -1,14 +1,13 @@
 #!/bin/bash
-
-echo -e "${MAGENTA_B}Credits (project in brackets)"
-echo -e "${PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Got Wifi"
-echo -e "${RED_B}Mariah Carey${COLOR_RESET}: Bugfixing and bugtesting"
-echo -e "${GEEN_B}xmb9${COLOR_RESET}: [PRIISM] Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images"
-echo -e "${YELLOW_B}Synaptic${COLOR_RESET}: Emotional Support"
-echo -e "${CYAN_B}Simon${COLOR_RESET}: [IRS] Brainstormed how to do wifi, helped with dhcpcd"
-echo -e "${BLUE_B}kraeb${COLOR_RESET}: [IRS] QoL improvements and initial idea"
-echo -e "${MAGNETA_B}AC3${COLOR_RESET}: [N/A] Literally nothing"
-echo -e "${GEEN_B}Rainestorme${COLOR_RESET}: [Murkmod] Version finder"
-echo -e "${YELLOW_B}kxtz${COLOR_RESET}: [KVS] KVG"
+source /usr/share/aurora/centering
+echo -e "${MAGENTA_B}Credits(project in brackets)" | center
+echo -e "${PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Got Wifi" | center
+echo -e "${RED_B}Mariah Carey${COLOR_RESET}: Bugfixing and bugtesting" | center
+echo -e "${GEEN_B}xmb9${COLOR_RESET}: [PRIISM]  Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images" | center
+echo -e "${YELLOW_B}Synaptic${COLOR_RESET}: Emotional Support :3" | center
+echo -e "${CYAN_B}Simon${COLOR_RESET}: [IRS] Brainstormed how to do wifi, helped with dhcpcd" | center
+echo -e "${BLUE_B}kraeb${COLOR_RESET}: [IRS] QoL improvements and initial idea" | center
+echo -e "${MAGNETA_B}AC3${COLOR_RESET}: [N/A] Literally nothing" | center
+echo -e "${GEEN_B}Rainestorme${COLOR_RESET}: [Murkmod] Recovery version finder" | center
+echo -e "${YELLOW_B}kxtz${COLOR_RESET}: [KVS]  KVG" | center
 echo -e " "
-read -p "Press Enter to return to the main menu..."
