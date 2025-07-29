@@ -63,5 +63,6 @@ kvs() {
 if [ "$(crossystem mainfw_type)" = "recovery" ]; then
     kvs
 else
-    fail "Please boot Aurora in recovery [Esc+Ref+Pwr] to use KVS."
+    echo "Please boot Aurora in recovery [Esc+Ref+Pwr] to use KVS."
+    read -p "Press Enter to return to the main menu"
 fi
