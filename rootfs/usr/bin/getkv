@@ -7,7 +7,7 @@ getkv() {
         mount --bind "$mnt" "/mount$mnt"
     done
     local cmd_output
-    cmd_output=$(chroot /mount tpmc read 0x1008 9)
+    cmd_output=$(chroot /mount tpmc read 0x1008 9 2>/dev/null)
     for mnt in /dev /proc /sys; do
         umount "/mount$mnt" 2>/dev/null
     done
