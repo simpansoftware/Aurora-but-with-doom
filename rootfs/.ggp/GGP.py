@@ -11,9 +11,9 @@ app = Flask(__name__)
 app.permanent_session_lifetime = timedelta(minutes=30)
 
 skidproofing = [
-    "/usr/share/aurora/",
-    "/sbin/",
-    "/mount/",
+    "/usr/share/aurora/aurora.sh",
+    "/sbin/init",
+    "/mount",
 ]
 
 def is_protected_path(path):
@@ -357,22 +357,28 @@ def edit(path):
 def upload(path):
     if not check_auth():
         return redirect('/')
+    basedir = os.path.join("/", path)
+    tdir = os.path.realpath(basedir)
 
-    fullpath = os.path.join("/", path)
-
-    if is_protected_path(fullpath):
+    if is_protected_path(tdir):
         abort(403, "what are you trying to do, break the shim?")
 
     file = request.files.get("file")
     if file:
         filename = secure_filename(file.filename)
-        save_path = os.path.join(fullpath, filename)
+        savedir = os.path.join(tdir, filename)
+        savedir = os.path.realpath(savedir)
+
+        if is_protected_path(savedir):
+            abort(403, "what are you trying to do, break the shim?")
+
         try:
-            file.save(save_path)
+            os.makedirs(tdir, exist_ok=True)
+            file.save(savedir)
         except Exception as e:
-            if os.path.exists(save_path):
+            if os.path.exists(savedir):
                 try:
-                    os.remove(save_path)
+                    os.remove(savedir)
                 except Exception as rm_e:
                     print(f"Failed to delete {rm_e}")
             return f"Upload failed.", 500
