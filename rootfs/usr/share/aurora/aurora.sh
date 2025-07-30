@@ -376,10 +376,17 @@ versions() {
     else
         export url="https://raw.githubusercontent.com/MercuryWorkshop/chromeos-releases-data/refs/heads/main/data.json"
         export json=$(curl -ks "$url")
-        cros_json=$(echo "$json" | jq --arg ver "$chromeVersion" '.$board_name.images.[] | select((.chrome_version | tostring) | test("^" + $ver))')
-        cros_platform=$(echo "$cros_json" | jq -r '.platform_version')
+        cros_json=$(curl $url | jq --arg ver "$chromeVersion" '.$board_name.images.[] | select((.chrome_version | tostring) | test("^" + $ver))')
+        if [[ -z "$cros_json" ]]; then return; fi
+        echo "$cros_json" | jq -r '.platform_version'| head -1 
+        read -p
+        cros_platform=$(echo "$cros_json" | jq -r '.platform_version'| head -1 )
+        echo "$cros_json" | jq -r '.url' | head -1
+        read -p
         cros_url=$(echo "$cros_json" | jq -r '.url' | head -1 )
-        last_modified=$(echo "$cros_json" | jq -r '.last_modified')
+        echo "$cros_json" | jq -r '.last_modified' | head -1
+        read -p
+        last_modified=$(echo "$cros_json" | jq -r '.last_modified' | head -1 )
         MATCH_FOUND=0
         if [[ -n "$cros_url" ]]; then
             echo "Found a $chromeVersion match on platform $cros_platform from $last_modified." | center
