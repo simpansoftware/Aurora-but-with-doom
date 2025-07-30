@@ -61,8 +61,13 @@ pre.ps1 .time {
     color: #FFD700;
 }
 
-pre.ps1 .path {
+pre.ps1 .path, pre.ps1 .path a {
     color: #00FF00;
+    text-decoration: none;
+}
+
+pre.ps1 .path a:hover {
+    text-decoration: underline;
 }
 
 #main pre {
