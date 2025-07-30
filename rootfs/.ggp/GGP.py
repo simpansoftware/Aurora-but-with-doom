@@ -318,7 +318,7 @@ def edit(path):
         </script>
     </body>
     </html>
-    ''', path=path, password=pw, filecontent=filecontent, language=language, pathdir=pathdir)
+    ''', path=path, filecontent=filecontent, language=language, pathdir=pathdir)
 
 @app.route("/upload/<path:path>", methods=["POST"])
 def upload(path):
