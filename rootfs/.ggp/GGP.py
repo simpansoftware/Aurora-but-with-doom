@@ -182,7 +182,7 @@ def browse(path, password=None):
             </ul>
         </form>
 
-        <pre class="ps1">Aurora <span class="time">{{current_time}}</span> <span class="path">{% set parts = path.strip('/').split('/') if path else [] %}<a href="/browse/">/</a>{% set cum=[] %}{% for part in parts %}{% set _ = cum.append(part) %}<a href="/browse/{{ '/'.join(cum) }}">{{ part }}</a>{% if not loop.last %}/{% endif %}{% endfor %}/</span> ls -a</pre>
+        <pre class="ps1">Aurora <span class="time">{{current_time}}</span> <span class="path">{% set parts = path.strip('/').split('/') if path else [] %}<a href="/browse/">/</a>{% set cum=[] %}{% for part in parts %}{% set _ = cum.append(part) %}<a href="/browse/{{ '/'.join(cum) }}">{{ part }}</a>/ {% endfor %}</span>ls -a</pre>
 
         <div class="file-list" role="list">
         {% for item in items %}
