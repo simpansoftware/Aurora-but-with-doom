@@ -534,8 +534,15 @@ installcros() {
 		chroot ./ /usr/sbin/chromeos-install --payload_image="${loop}" --yes || fail "Failed during chroot!"
   		local cros_dev="$(get_largest_cros_blockdev)"
 		cgpt add -i 2 $cros_dev -P 15 -T 15 -S 1 -R 1 || echo -e "${YELLOW_B}Failed to set kernel priority! Continuing anyway${COLOR_RESET}"
-		echo -e "${GEEN_B}Recovery finished. Press any key to reboot."
-        read_center ""
+		read -p "${GEEN_B}Recovery finished!! Would you like to block updates? (Y/n): " blockupdates
+        case $blockupdates in
+            n|N) ;;
+            *) cgpt add $cros_dev -i 2 -P 10 -T 5 -S 1
+               mkfs.ext4 -F ${cros_dev}p1
+               parted $cros_dev --script rm 4 rm 5 ;;
+        esac
+        read "Press any key to reboot."
+        read -n1
 		reboot -f
 		sleep 3
         fail "Reboot failed." --fatal
