@@ -754,6 +754,7 @@ download() {
     	options_download=(
 	    "ChromeOS recovery image"
 	    "ChromeOS Shim"
+        "Exit"
 	)
 
 	menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${options_download[@]}"
@@ -762,6 +763,7 @@ download() {
 	case "$download_choice" in
 	    0) downloadreco ;;
 	    1) downloadshim ;;
+        2) return 0 ;;
         *) fail "Invalid choice (somehow?????)" ;; 
 	esac
 }
@@ -974,6 +976,16 @@ errormessage() {
     echo -e "${COLOR_RESET}"
 }
 
+setupuser() {
+    read_center -d "Username: " username
+    stty -echo
+    read_center -d "Password: " password
+    stty echo 
+    adduser -D "$username"
+    echo "$username:$password" | chpasswd
+    echo "$username ALL=(ALL:ALL) ALL" >> /etc/sudoers
+}
+
 setup() {
     if [ ! -f /etc/setup ]; then
         clear
@@ -981,17 +993,19 @@ setup() {
         echo -e "\nSetup Aurora" | center
         read_center "Setup a user? (Y/n) " setupuser
         case $setupuser in
-            n) : ;;
-            *) read_center -d "Username: " username
-               adduser "$username"
-               echo "$username ALL=(ALL:ALL) ALL" >> /etc/sudoers ;;
+            n|N) ;;
+            *) setupuser ;;
         esac
-        read_center -d "Enter your timezone: " timezone
-        timezone="*$(echo "$timezone" | sed 's/ /*/g')*"
-        timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -n 1 | awk -F/ '{print $NF}')
-        rm -f /etc/localtime /etc/timezone
-        echo "${timezonefile#/usr/share/zoneinfo/}" > /etc/timezone
-        ln -s "$timezonefile" /etc/localtime 
+        while true; do
+            read_center -d "Enter your timezone: " timezone
+            timezone="*$(echo "$timezone" | sed 's/ /*/g')*"
+            timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -n 1 | awk -F/ '{print $NF}')
+            if [[ -z "$timezonefile" ]]; then echo "Invalid timezone" | center; continue; fi
+            rm -f /etc/localtime /etc/timezone
+            echo "${timezonefile#/usr/share/zoneinfo/}" > /etc/timezone
+            ln -s "$timezonefile" /etc/localtime
+            break
+        done
         read_center "Change Hostname? (y/N): " changehostname
         case $changehostname in
             y) read_center -d "Hostname: " hostname
