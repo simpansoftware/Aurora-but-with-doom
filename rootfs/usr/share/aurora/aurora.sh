@@ -376,7 +376,7 @@ versions() {
     else
         export url="https://raw.githubusercontent.com/MercuryWorkshop/chromeos-releases-data/refs/heads/main/data.json"
         export json=$(curl -ks "$url")
-        cros_json=$(echo $json | jq --arg ver "$chromeVersion" '.$board_name.images.[] | select((.chrome_version | tostring) | test("^" + $ver))')
+        cros_json=$(echo "$json" | jq --arg ver "$chromeVersion" '.$board_name.images.[] | select((.chrome_version | tostring) | test("^" + $ver))')
         cros_platform=$(echo "$cros_json" | jq -r '.platform_version')
         cros_url=$(echo "$cros_json" | jq -r '.url' | head -1 )
         last_modified=$(echo "$cros_json" | jq -r '.last_modified')
