@@ -11,9 +11,9 @@ app = Flask(__name__)
 app.permanent_session_lifetime = timedelta(minutes=30)
 
 skidproofing = [
-    "/usr/share/aurora/aurora.sh",
-    "/sbin/init",
-    "/mount",
+    "/usr/share/aurora/",
+    "/sbin/",
+    "/mount/",
 ]
 
 def is_protected_path(path):
