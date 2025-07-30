@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template_string, send_from_directory, abort, session, redirect, url_for
+from flask import Flask, request, render_template_string, send_from_directory, abort, session, redirect, url_for, after_this_request
 import os
 from os.path import dirname
 import bcrypt
@@ -110,6 +110,14 @@ def browse(path, password=None):
         abort(404)
 
     if os.path.isfile(fullpath):
+        @after_this_request
+        def cleanup(response):
+            try:
+                if fullpath.startswith("/tmp/") and os.path.exists(fullpath):
+                    os.remove(fullpath)
+            except Exception:
+                pass
+            return response
         return send_from_directory(os.path.dirname(fullpath), os.path.basename(fullpath))
 
     items = []
@@ -334,8 +342,19 @@ def upload(path):
     file = request.files.get("file")
     if file:
         filename = secure_filename(file.filename)
-        file.save(os.path.join(fullpath, filename))
+        save_path = os.path.join(fullpath, filename)
+        try:
+            file.save(save_path)
+        except Exception as e:
+            if os.path.exists(save_path):
+                try:
+                    os.remove(save_path)
+                except Exception as rm_e:
+                    print(f"Failed to delete {rm_e}")
+            return f"Upload failed.", 500
+
     return '', 204
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=6969)
