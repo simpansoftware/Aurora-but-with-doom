@@ -1,2 +1,0 @@
-#!/bin/bash
-script -qfc 'stty sane && stty erase '^H' && exec /usr/bin/kvs'

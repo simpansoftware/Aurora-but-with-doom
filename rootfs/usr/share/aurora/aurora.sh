@@ -925,42 +925,68 @@ payloads() {
     fi
 }
 
+nextpage() {
+    export page=$(( page + 1 ))
+}
+
+prevpage() {
+    export page=$(( page - 1 ))
+}
+
 pid1=false
 if [ "$$" -eq 1 ]; then
     pid1=true
 fi
 
-menu_options=(
+menu1_options=(
     "1. Open Terminal"
     "2. Install a ChromeOS recovery image"
 )
 
-menu_actions=(
+menu2_options=(
+    "1. Open Terminal"
+)
+
+menu1_actions=(
     "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
     "clear && installcros"
 )
-
-if $pid1; then
-    menu_options+=("3. Boot a Shim")
-    menu_actions+=("clear && shimboot")
-fi
-
-menu_options+=(
-    "$( [ $pid1 = false ] && echo "3" || echo "4" ). Connect to WiFi"
-    "$( [ $pid1 = false ] && echo "4" || echo "5" ). Download a ChromeOS recovery image/shim"
-    "$( [ $pid1 = false ] && echo "5" || echo "6" ). Aurora File Transfer - GGP"
-    "$( [ $pid1 = false ] && echo "6" || echo "7" ). Payloads Menu"
-    "$( [ $pid1 = false ] && echo "7" || echo "8" ). Update shim"
-    "$( [ $pid1 = false ] && echo "8" || echo "9" ). Exit and Reboot"
+menu2_actions=(
+    "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
 )
 
-menu_actions+=(
+if $pid1; then
+    menu1_options+=("3. Boot a Shim")
+    menu1_actions+=("clear && shimboot")
+fi
+
+menu1_options+=(
+    "$( [ $pid1 = false ] && echo "3" || echo "4" ). Connect to WiFi"
+    "$( [ $pid1 = false ] && echo "4" || echo "5" ). Download a ChromeOS recovery image/shim"
+    "$( [ $pid1 = false ] && echo "5" || echo "6" ). Update shim"
+    "$( [ $pid1 = false ] && echo "6" || echo "7" ). Next Page"
+    "$( [ $pid1 = false ] && echo "7" || echo "8" ). Exit and Reboot"
+)
+menu2_options+=(
+    "$(echo "8" ). Payloads Menu"
+    "$(echo "9" ). AFTGGP [Aurora File Transfer]"
+    "$(echo "10" ). Build Environment"
+    "$(echo "11" ). KVS"
+    "$(echo "12" ). Previous Page"
+)
+menu1_actions+=(
     "clear && wifi"
     "canwifi clear && download"
-    "canwifi aftggp"
-    "clear && payloads"
     "canwifi updateshim"
+    "nextpage"
     "reboot -f"
+)
+menu2_actions+=(
+    "clear && payloads"
+    "canwifi aftggp"
+    "clear && canwifi aurorabuildenv"
+    "clear && kvs"
+    "prevpage"
 )
 
 
@@ -1084,6 +1110,7 @@ for chmod in /usr/bin/aurorabuildenv; do
     chmod +x $chmod
 done
 clear
+export page=1
 while true; do
     export TERM=xterm-direct
     tput cnorm
@@ -1096,14 +1123,19 @@ while true; do
     errormessage
     export errormsg=""
     export login=""
-    menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${menu_options[@]}"
+    menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${menu1_options[@]}"
     choice=$?
     echo ""
-    if [[ "${menu_actions[$choice]}" == *"bash -l"* ]]; then
-        eval "${menu_actions[$choice]}"
+    declare -n current_actions="menu${page}_actions"
+    declare -n current_options="menu${page}_options"
+    action="${current_actions[$choice]}"
+    option="${current_options[$choice]}"
+
+    if [[ "$action" == *"bash -l"* ]]; then
+        eval "$action"
     else
         stty $stty
-        eval "${menu_actions[$choice]}"
+        eval "$action"
     fi
     stty $stty
     sleep 1
