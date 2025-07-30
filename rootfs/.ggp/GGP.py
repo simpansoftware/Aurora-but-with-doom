@@ -262,7 +262,7 @@ def edit(path):
 
     if request.method == "POST":
         action = request.form.get("action", "save")
-        content = request.form.get("content", "")
+        content = request.form.get("content", "").replace('\r\n', '\n')
         try:
             with open(fullpath, "w", encoding="utf-8") as f:
                 f.write(content)
