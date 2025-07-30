@@ -26,7 +26,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 if [ -z "$1" ]; then
-    echo "Usage: sudo bash Aurora /path/to/rawshim.bin [cpu_architecture(x86_64 or aarch64)]"
+    echo "Usage: sudo bash Aurora /path/to/rawshim.bin [cpu_architecture(x86_64 or aarch64)] /path/to/payload/dir/"
     exit 1
 fi
 if [ -z "$2" ]; then
@@ -59,6 +59,8 @@ checkarch
 source ./patches/functions.sh
 
 shim=$(realpath -m "$1")
+payloads=""
+if [ -n "$3" ]; then payloads=$(realpath -m "$3"); fi
 
 echo_c "Architecture: ($arch)" BLUE_B
 echo_c "Shim: ($shim)" "BLUE_B"
@@ -66,7 +68,7 @@ cd ./build/
 echo_c "Creating Rootfs and Initramfs" "BLUE_B"
 bash ./rootfs.sh $shim $arch
 echo_c "Building the Shim" "BLUE_B"
-bash ./build.sh $shim $arch
+bash ./build.sh $shim $arch $payloads
 
 echo -e "${MAGENTA_B}Credits"
 echo -e "${PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Got Wifi"

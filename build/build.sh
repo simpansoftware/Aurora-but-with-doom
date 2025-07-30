@@ -17,6 +17,7 @@
 
 shim=$1
 arch=$2
+if [ -n "$3" ]; then payloads=$(realpath -m "$3"); fi
 
 source ../patches/functions.sh
 
@@ -118,6 +119,7 @@ mount $root_b $root_bmount
 echo_c "Copying rootfs to shim" "GEEN_B" 
 rm -f $rootfs/sbin/init
 cp ../rootfs/. $rootfs -ar
+if [ -n "$3" ]; then cp ${payloads}/. $rootfs; fi
 rsync -avH --info=progress2 --delete "$rootfs" "$root_bmount" &>/dev/null
 echo_c "Copying initramfs to shim" "GEEN_B" 
 rm -f $initramfs/bin/init
