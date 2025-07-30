@@ -712,7 +712,24 @@ EOF
     ip link set "$wifidevice" up
 
     wpa_supplicant -B -i "$wifidevice" -c "$conf"
-    udhcpc -i "$wifidevice" || fail "Corrupted wpa_supplicant.conf has been fixed. Please reconnect"
+
+    for i in {1..15}; do
+        if iw dev "$wifidevice" link | grep -q 'Connected'; then
+            echo "Connected!" | center
+            break
+        fi
+        sleep 1
+    done
+
+    if ! iw dev "$wifidevice" link | grep -q 'Connected'; then
+        killall wpa_supplicant 2>/dev/null
+        rm /etc/wpa_supplicant.conf
+        return 1
+    fi
+
+    udhcpc -i "$wifidevice" || {
+        return 1
+    }
 }
 
 wifi() {
@@ -723,11 +740,11 @@ wifi() {
         echo "Connect to a different network? (y/N): " | center
         read_center -d "" connectornah
         case $connectornah in
-            y|Y|yes|Yes) connect ;;
+            y|Y|yes|Yes) connect || fail "Failed to connect." ;;
             *) ;;
         esac
     else
-        connect
+        connect || fail "Failed to connect."
     fi
     sync
 }
