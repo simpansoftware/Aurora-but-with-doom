@@ -511,7 +511,7 @@ installcros() {
 		chroot ./ /usr/sbin/chromeos-install --payload_image="${loop}" --yes || fail "Failed during chroot!"
   		local cros_dev="$(get_largest_cros_blockdev)"
 		cgpt add -i 2 $cros_dev -P 15 -T 15 -S 1 -R 1 || echo -e "${YELLOW_B}Failed to set kernel priority! Continuing anyway${COLOR_RESET}"
-        read "Finished! Press any key to reboot."
+        echo "Finished! Press any key to reboot."
         read -n1
 		reboot -f
 		sleep 3
