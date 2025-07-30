@@ -189,7 +189,7 @@ def browse(path, password=None):
         <a href="{% if item.is_dir %}/browse/{{item.path}}{% elif not item.is_binary %}/edit/{{item.path}}{% else %}/browse/{{item.path}}{% endif %}" role="listitem" class="{% if item.is_dir %}dir{% elif not item.is_binary %}file{% endif %}">{{ item.name }}{{ '/' if item.is_dir and not item.name.endswith('/') else '' }}</a>
         {% endfor %}
         </div>
-        <pre class="ps1">Aurora <span class="time">{{current_time}}</span> <span class="path">/{{path}}/</span></pre>
+        <pre class="ps1">Aurora <span class="time">{{current_time}}</span> <span class="path">{% set parts = path.strip('/').split('/') if path else [] %}<a href="/browse/">/</a>{% set cum=[] %}{% for part in parts %}{% set _ = cum.append(part) %}<a href="/browse/{{ '/'.join(cum) }}">{{ part }}</a>/ {% endfor %}</span></pre>
         <pre id="upload-status"></pre>
 
         <script>
