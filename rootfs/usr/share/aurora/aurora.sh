@@ -748,18 +748,18 @@ wifi() {
 }
 
 canwifi() {
-  if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase
+  if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase!
     "$@"
   else
-    echo "Not connected to the internet, or Nebula Services is down."
-    if curl -Is https://example.com | head -n 1 | grep -q "HTTP/"; then # nebula got ddosed like a day ago
+    echo "Nebula Services is down. Trying example.com..." | center
+    if curl -Is https://example.com | head -n 1 | grep -q "HTTP/"; then
         "$@"
     else
         fail "Not connected to the internet"
     fi
   fi
 }
-export -f canwifi
+
 download() {
     	options_download=(
 	    "ChromeOS recovery image"
