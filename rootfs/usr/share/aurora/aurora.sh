@@ -370,6 +370,7 @@ versions() {
             echo "Falling back to the most recent version found." | center
             FINAL_URL=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.pushRecoveries | to_entries | sort_by(.key | tonumber) | .[-1].value")
         fi
+        if [ -z "$chromeVersion" ]; then fail "Failed finding Version"; fi
         export chromeVersion
         export FINAL_URL
     else
@@ -796,7 +797,7 @@ download() {
 	esac
 }
 downloadreco() {
-	versions
+	versions || fail "Failed to get version"
     curl --fail --progress-bar -k "$FINAL_URL" -o "$aroot/images/recovery/$chromeVersion.zip" || {
         fail "Failed to download ChromeOS recovery image."
     }
