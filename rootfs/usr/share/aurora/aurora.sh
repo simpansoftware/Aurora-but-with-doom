@@ -485,10 +485,13 @@ installcros() {
         read_center "Press Enter to continue..."
         return
     else
+        read_center -d "This will wipe your ChromeOS drive. Please type 'confirm' to continue" confirmation
+        if [ ! "$confirmation" = "confirm" ]; then echo "Exiting..." | center; sleep 2; return; fi
 		mkdir -p $recoroot
-		echo -e "Searching for ROOT-A on reco image"
+		echo -e "Searching for ROOT-A on reco image" | center
 		loop=$(losetup -fP --show $reco)
 		loop_root="$(cgpt find -l ROOT-A $loop | head -n 1)"
+        if [ -z "$loop_root" ]; then fail "Invalid recovery image"; fi
 		if mount -r "${loop_root}" $recoroot ; then
 			echo -e "ROOT-A found successfully and mounted." | center
 		else
@@ -508,7 +511,7 @@ installcros() {
 	  		mount -n --bind "${d}" "./${d}"
 	  		mount --make-slave "./${d}"
 		done
-		chroot ./ /usr/sbin/chromeos-install --payload_image="${loop}" --yes || fail "Failed during chroot!"
+		chroot ./ /usr/sbin/chromeos-install --payload_image="${loop}" --yes || fail "Failed during chroot!" --fatal
   		local cros_dev="$(get_largest_cros_blockdev)"
 		cgpt add -i 2 $cros_dev -P 15 -T 15 -S 1 -R 1 || echo -e "${YELLOW_B}Failed to set kernel priority! Continuing anyway${COLOR_RESET}"
         echo "Finished! Press any key to reboot."
@@ -671,6 +674,13 @@ shimboot() {
             if [ -n "$specialshim" ]; then
                 rm -f /newroot/sbin/init
                 cp /usr/share/patches/rootfs/${specialshim}init /newroot/sbin/init
+            fi
+            if [ -f "/newroot/bin/kvs" ]; then  
+                chmod +x /newroot/bin/kvs
+                cat <<EOF > /newroot/sbin/init
+#!/bin/bash
+/bin/kvs
+EOF
             fi
             chmod +x /newroot/sbin/init
 			pivot_root /newroot /newroot/tmp/aurora
