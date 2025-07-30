@@ -494,7 +494,7 @@ installcros() {
         echo -e "${YELLOW_B}No ChromeOS drive was found on the device! Please make sure ChromeOS is installed before using Aurora. Continuing anyway${COLOR_RESET}" | center
     fi
     stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)" || fail "Failed to find stateful on ${loop}!"
-    mkdir /mnt/stateful_partition
+    mkdir -p /mnt/stateful_partition
     mount $stateful /mnt/stateful_partition || fail "Failed to mount stateful!"
     MOUNTS="/proc /dev /sys /tmp /run /var /mnt/stateful_partition"
     cd $recoroot
