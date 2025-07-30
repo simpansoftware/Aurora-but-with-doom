@@ -471,7 +471,7 @@ installcros() {
         for reco_opt in "${recochoose[@]}"; do
             reco_actions+=("reco=\"${reco_opt}\"")
         done
-        reco_actions+=("reco=\"Block Updates\"")
+
         reco_actions+=("reco=\"Exit\"")
 
         while true; do
@@ -484,15 +484,6 @@ installcros() {
 	if [[ $reco == "Exit" ]]; then
         read_center "Press Enter to continue..."
         return
-	elif [[ $reco == "Block Updates" ]]; then
-		read_center -d "Did you just recover? (Y/n): " blockupdates
-        cros_dev=$(get_largest_cros_blockdev)
-        case $blockupdates in
-            n|N) ;;
-            *) cgpt add $cros_dev -i 2 -P 10 -T 5 -S 1
-               mkfs.ext4 -F ${cros_dev}p1
-               parted $cros_dev --script rm 4 rm 5 ;;
-        esac
     else
 		mkdir -p $recoroot
 		echo -e "Searching for ROOT-A on reco image"
