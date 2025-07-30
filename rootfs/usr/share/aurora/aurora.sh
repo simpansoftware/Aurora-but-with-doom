@@ -466,60 +466,51 @@ installcros() {
 	else
         mapfile -t recochoose < <(find "$aroot/images/recovery" -type f)
         reco_options=("${recochoose[@]}" "Exit")
-
-        reco_actions=()
-        for reco_opt in "${recochoose[@]}"; do
-            reco_actions+=("reco=\"${reco_opt}\"")
-        done
-
-        reco_actions+=("reco=\"Exit\"")
-
         while true; do
             menu "Choose the recovery image you want to boot" "${reco_options[@]}"
-            eval "${reco_actions[$?]}"
+            choice=$?
+            reco="${reco_options[$choice]}"
+            if [[ "$reco" == "Exit" ]]; then
+                read_center "Press Enter to continue..."
+                return
+            fi
             break
         done
 	fi
-
-	if [[ $reco == "Exit" ]]; then
-        read_center "Press Enter to continue..."
-        return
+    read_center -d "This will wipe your ChromeOS drive. Please type 'confirm' to continue" confirmation
+    if [ ! "$confirmation" = "confirm" ]; then echo "Exiting..." | center; sleep 2; return; fi
+    mkdir -p $recoroot
+    echo -e "Searching for ROOT-A on reco image" | center
+    loop=$(losetup -fP --show $reco)
+    loop_root="$(cgpt find -l ROOT-A $loop | head -n 1)"
+    if [ -z "$loop_root" ]; then fail "Invalid recovery image"; fi
+    if mount -r "${loop_root}" $recoroot ; then
+        echo -e "ROOT-A found successfully and mounted." | center
     else
-        read_center -d "This will wipe your ChromeOS drive. Please type 'confirm' to continue" confirmation
-        if [ ! "$confirmation" = "confirm" ]; then echo "Exiting..." | center; sleep 2; return; fi
-		mkdir -p $recoroot
-		echo -e "Searching for ROOT-A on reco image" | center
-		loop=$(losetup -fP --show $reco)
-		loop_root="$(cgpt find -l ROOT-A $loop | head -n 1)"
-        if [ -z "$loop_root" ]; then fail "Invalid recovery image"; fi
-		if mount -r "${loop_root}" $recoroot ; then
-			echo -e "ROOT-A found successfully and mounted." | center
-		else
-			fail "Failed to mount ROOT-A"
-		fi
-		local cros_dev="$(get_largest_cros_blockdev)"
-  		if [ -z "$cros_dev" ]; then
-			echo -e "${YELLOW_B}No ChromeOS drive was found on the device! Please make sure ChromeOS is installed before using Aurora. Continuing anyway${COLOR_RESET}" | center
-		fi
-		stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)" || fail "Failed to find stateful on ${loop}!"
-		mkdir /mnt/stateful_partition
-		mount $stateful /mnt/stateful_partition || fail "Failed to mount stateful!"
-		MOUNTS="/proc /dev /sys /tmp /run /var /mnt/stateful_partition"
-		cd $recoroot
-		d=
-		for d in ${MOUNTS}; do
-	  		mount -n --bind "${d}" "./${d}"
-	  		mount --make-slave "./${d}"
-		done
-		chroot ./ /usr/sbin/chromeos-install --payload_image="${loop}" --yes || fail "Failed during chroot!" --fatal
-  		local cros_dev="$(get_largest_cros_blockdev)"
-		cgpt add -i 2 $cros_dev -P 15 -T 15 -S 1 -R 1 || echo -e "${YELLOW_B}Failed to set kernel priority! Continuing anyway${COLOR_RESET}"
-        echo "Finished! Press any key to reboot."
-        read -n1
-		reboot -f
-		sleep 3
-        fail "Reboot failed." --fatal
-	fi
+        fail "Failed to mount ROOT-A"
+    fi
+    local cros_dev="$(get_largest_cros_blockdev)"
+    if [ -z "$cros_dev" ]; then
+        echo -e "${YELLOW_B}No ChromeOS drive was found on the device! Please make sure ChromeOS is installed before using Aurora. Continuing anyway${COLOR_RESET}" | center
+    fi
+    stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)" || fail "Failed to find stateful on ${loop}!"
+    mkdir /mnt/stateful_partition
+    mount $stateful /mnt/stateful_partition || fail "Failed to mount stateful!"
+    MOUNTS="/proc /dev /sys /tmp /run /var /mnt/stateful_partition"
+    cd $recoroot
+    d=
+    for d in ${MOUNTS}; do
+        mount -n --bind "${d}" "./${d}"
+        mount --make-slave "./${d}"
+    done
+    chroot ./ /usr/sbin/chromeos-install --payload_image="${loop}" --yes || fail "Failed during chroot!" --fatal
+    local cros_dev="$(get_largest_cros_blockdev)"
+    cgpt add -i 2 $cros_dev -P 15 -T 15 -S 1 -R 1 || echo -e "${YELLOW_B}Failed to set kernel priority! Continuing anyway${COLOR_RESET}"
+    echo "Finished! Press any key to reboot."
+    read -n1
+    reboot -f
+    sleep 3
+    fail "Reboot failed." --fatal
 }
 
 is_ext2() {
@@ -562,138 +553,132 @@ shimboot() {
         mapfile -t shimchoose < <(find "$aroot/images/shims" -type f)
         shim_options=("${shimchoose[@]}" "Exit")
 
-        shim_actions=()
-        for shim_opt in "${shimchoose[@]}"; do
-            shim_actions+=("shim=\"${shim_opt}\"")
-        done
-        shim_actions+=("return")
-
         while true; do
             menu "Choose the shim you want to boot:" "${shim_options[@]}"
-            eval "${shim_actions[$?]}"
+            choice=$?
+            shim="${shim_options[$choice]}"
+            if [[ "$shim" == "Exit" ]]; then
+                read_center "Press Enter to continue..."
+                return
+            fi
             break
         done
 	fi
 
-	if [[ $shim == "Exit" ]]; then
-        read_center "Press Enter to continue"
-		return
-	else
-		mkdir -p $shimroot
-		echo -e "Searching for ROOT-A on shim" | center
-		loop=$(losetup -Pf --show $shim)
-		export loop
-        if lsblk -o PARTLABEL $loop | grep "shimboot"; then
-            touch /etc/shimboot
-            sync
-            read_center "Reboot to boot into shimboot instead of Aurora from the initramfs? (Y/n): " bootshimboot
-            case $bootshimboot in
-                n|N|no|No|NO) return 0 ;;
-                *) losetup -D && reboot -f ;;
-            esac
-        fi
+    mkdir -p $shimroot
+    echo -e "Searching for ROOT-A on shim" | center
+    loop=$(losetup -Pf --show $shim)
+    export loop
+    if lsblk -o PARTLABEL $loop | grep "shimboot"; then
+        touch /etc/shimboot
+        sync
+        read_center "Reboot to boot into shimboot instead of Aurora from the initramfs? (Y/n): " bootshimboot
+        case $bootshimboot in
+            n|N|no|No|NO) return 0 ;;
+            *) losetup -D && reboot -f ;;
+        esac
+    fi
 
-		loop_root="$(cgpt find -l ROOT-A "$loop" | head -n1)"
-        if [ -z "$loop_root" ]; then
-                loop_root="$(cgpt find -t rootfs "$loop" | head -n1)"
-        fi
-        if [ -z "$loop_root" ]; then
-            loop_root="${loop}p3"
-        fi
+    loop_root="$(cgpt find -l ROOT-A "$loop" | head -n1)"
+    if [ -z "$loop_root" ]; then
+            loop_root="$(cgpt find -t rootfs "$loop" | head -n1)"
+    fi
+    if [ -z "$loop_root" ]; then
+        loop_root="${loop}p3"
+    fi
 
-        enable_rw_mount ${loop_root}
-		if mount "${loop_root}" $shimroot; then
-			echo -e "ROOT-A found successfully and mounted." | center
-		else
-            fail "Failed to mount ROOT-A"
-		fi
-		export skipshimboot=0
-		if ! stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)"; then
-			echo -e "${YELLOW_B}Finding stateful via partition label \"STATE\" failed (try 1...)${COLOR_RESET}" | center
-			if ! stateful="$(cgpt find -l SH1MMER ${loop} | head -n 1 | grep --color=never /dev/)"; then
-				echo -e "${YELLOW_B}Finding stateful via partition label \"SH1MMER\" failed (try 2...)${COLOR_RESET}" | center
+    enable_rw_mount ${loop_root}
+    if mount "${loop_root}" $shimroot; then
+        echo -e "ROOT-A found successfully and mounted." | center
+    else
+        fail "Failed to mount ROOT-A"
+    fi
+    export skipshimboot=0
+    if ! stateful="$(cgpt find -l STATE ${loop} | head -n 1 | grep --color=never /dev/)"; then
+        echo -e "${YELLOW_B}Finding stateful via partition label \"STATE\" failed (try 1...)${COLOR_RESET}" | center
+        if ! stateful="$(cgpt find -l SH1MMER ${loop} | head -n 1 | grep --color=never /dev/)"; then
+            echo -e "${YELLOW_B}Finding stateful via partition label \"SH1MMER\" failed (try 2...)${COLOR_RESET}" | center
 
-				for dev in "$loop"*; do
-					[[ -b "$dev" ]] || continue
-					parttype=$(udevadm info --query=property --name="$dev" 2>/dev/null | grep '^ID_PART_ENTRY_TYPE=' | cut -d= -f2)
-					if [ "$parttype" = "0fc63daf-8483-4772-8e79-3d69d8477de4" ]; then
-						stateful="$dev"
-						break
-					fi
-				done
-			fi
-		fi
-		if [[ -z "${stateful// }" ]]; then
-			echo -e "${RED_B}Finding stateful via partition type \"Linux data\" failed (try 3...)${COLOR_RESET}" | center
-			echo -e "Last resort (try 4...)" | center
-			stateful="${loop}p1"
-		fi
-        echo "Found Stateful at $stateful" | center
-		if (( $skipshimboot == 0 )); then
-			mkdir -p /stateful
-			mkdir -p /newroot
-			mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
-			mount $stateful /stateful || fail "Failed to mount stateful!"
-            sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
-            if lsblk -o PARTLABEL $loop | grep "SH1MMER"; then
-                sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
-                for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
-                cp /usr/share/patches/rootfs/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
-                chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
-                sync
-                chmod +x $sh1mmerfile
-            fi
-
-			copy_lsb
-            
-			echo "Copying rootfs to ram..." | center
-			pv_dircopy "$shimroot" /newroot
-
-			
-
-            mkdir -p /newroot/dev/pts /newroot/proc /newroot/sys /newroot/tmp /newroot/run
-            mount -t tmpfs -o mode=1777 none /newroot/tmp
-            mount -t tmpfs -o mode=0555 run /newroot/run
-            mkdir -p -m 0755 /newroot/run/lock
-
-            for mnt in /dev /proc /sys; do
-                mount --move "$mnt" "/newroot$mnt" || fail "Failed to mount $mnt"
+            for dev in "$loop"*; do
+                [[ -b "$dev" ]] || continue
+                parttype=$(udevadm info --query=property --name="$dev" 2>/dev/null | grep '^ID_PART_ENTRY_TYPE=' | cut -d= -f2)
+                if [ "$parttype" = "0fc63daf-8483-4772-8e79-3d69d8477de4" ]; then
+                    stateful="$dev"
+                    break
+                fi
             done
+        fi
+    fi
+    if [[ -z "${stateful// }" ]]; then
+        echo -e "${RED_B}Finding stateful via partition type \"Linux data\" failed (try 3...)${COLOR_RESET}" | center
+        echo -e "Last resort (try 4...)" | center
+        stateful="${loop}p1"
+    fi
+    echo "Found Stateful at $stateful" | center
+    if (( $skipshimboot == 0 )); then
+        mkdir -p /stateful
+        mkdir -p /newroot
+        mount -t tmpfs tmpfs /newroot -o "size=1024M" || fail "Failed to allocate 1GB to /newroot"
+        mount $stateful /stateful || fail "Failed to mount stateful!"
+        sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
+        if lsblk -o PARTLABEL $loop | grep "SH1MMER"; then
+            sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
+            for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
+            cp /usr/share/patches/rootfs/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
+            chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
+            sync
+            chmod +x $sh1mmerfile
+        fi
 
-            if ! mountpoint -q /newroot/dev/pts; then
-                mount -t devpts devpts /newroot/dev/pts
-            fi
+        copy_lsb
+        
+        echo "Copying rootfs to ram..." | center
+        pv_dircopy "$shimroot" /newroot
 
-			echo "Done" | center
-			echo "About to switch root. If your screen goes black and the device reboots, please make a GitHub issue if you're sure your shim isn't corrupted" | center
-			echo "Switching root" | center
-			clear
+        
 
-			mkdir -p /newroot/tmp/aurora
-            chmod +x /usr/share/patches/rootfs/*
-            if [ -n "$specialshim" ]; then
-                rm -f /newroot/sbin/init
-                cp /usr/share/patches/rootfs/${specialshim}init /newroot/sbin/init
-            fi
-            if [ -f "/newroot/bin/kvs" ]; then  
-                chmod +x /newroot/bin/kvs
-                cat <<EOF > /newroot/sbin/init
+        mkdir -p /newroot/dev/pts /newroot/proc /newroot/sys /newroot/tmp /newroot/run
+        mount -t tmpfs -o mode=1777 none /newroot/tmp
+        mount -t tmpfs -o mode=0555 run /newroot/run
+        mkdir -p -m 0755 /newroot/run/lock
+
+        for mnt in /dev /proc /sys; do
+            mount --move "$mnt" "/newroot$mnt" || fail "Failed to mount $mnt"
+        done
+
+        if ! mountpoint -q /newroot/dev/pts; then
+            mount -t devpts devpts /newroot/dev/pts
+        fi
+
+        echo "Done" | center
+        echo "About to switch root. If your screen goes black and the device reboots, please make a GitHub issue if you're sure your shim isn't corrupted" | center
+        echo "Switching root" | center
+        clear
+
+        mkdir -p /newroot/tmp/aurora
+        chmod +x /usr/share/patches/rootfs/*
+        if [ -n "$specialshim" ]; then
+            rm -f /newroot/sbin/init
+            cp /usr/share/patches/rootfs/${specialshim}init /newroot/sbin/init
+        fi
+        if [ -f "/newroot/bin/kvs" ]; then  
+            chmod +x /newroot/bin/kvs
+            cat <<EOF > /newroot/sbin/init
 #!/bin/bash
 /bin/kvs
 EOF
-            fi
-            chmod +x /newroot/sbin/init
-			pivot_root /newroot /newroot/tmp/aurora
-			echo "Successfully switched root. Starting init..."
-			exec /sbin/init || {
-				echo "Failed to start init"
-				echo "Bailing out, you are on your own. Good luck."
-				echo "This shell has PID 1. Exit = panic"
-				echo $(/tmp/aurora/bin/uname -a)
-				exec /tmp/aurora/bin/sh
-			}
-		fi
-	fi
+        fi
+        chmod +x /newroot/sbin/init
+        pivot_root /newroot /newroot/tmp/aurora
+        echo "Successfully switched root. Starting init..."
+        exec /sbin/init || {
+            echo "Failed to start init"
+            echo "Bailing out, you are on your own. Good luck."
+            echo "This shell has PID 1. Exit = panic"
+            echo $(/tmp/aurora/bin/uname -a)
+            exec /tmp/aurora/bin/sh
+        }
+    fi
 }
 
 ##########
