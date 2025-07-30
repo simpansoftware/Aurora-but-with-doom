@@ -1092,7 +1092,7 @@ if [ -f "/etc/wpa_supplicant.conf" ]; then
     wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
 
     connected=0
-    for i in $(seq 1 5); do
+    for i in $(seq 1 30); do
         if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
             udhcpc -i "$wifidevice" >/dev/null 2>&1 && connected=1
             break
