@@ -116,13 +116,13 @@ mount $root_a $root_amount
 mount $root_b $root_bmount
 
 echo_c "Copying rootfs to shim" "GEEN_B" 
-rm -f $root_bmount/sbin/init
+rm -f $rootfs/sbin/init
 cp ../rootfs/. $rootfs -ar
-rsync -avH --info=progress2 "$rootfs" "$root_bmount" &>/dev/null
+rsync -avH --info=progress2 --delete "$rootfs" "$root_bmount" &>/dev/null
 echo_c "Copying initramfs to shim" "GEEN_B" 
-rm -f $root_amount/bin/init
+rm -f $initramfs/bin/init
 cp ../initramfs/. $initramfs -ar
-rsync -avH --info=progress2 "$initramfs" "$root_amount" &>/dev/null
+rsync -avH --info=progress2 --delete "$initramfs/" "$root_amount" &>/dev/null
 chmod +x $root_amount/init $root_amount/sbin/init $root_amount/bootstrap.sh
 chmod +x $root_bmount/sbin/init $root_bmount/usr/bin/* $root_bmount/usr/share/aurora/*
 echo_c "Unmounting..." "GEEN_B"
