@@ -173,6 +173,19 @@ button, input[type="submit"], input[type="button"] {
     text-decoration: none;
 }
 
+input[type="password"] {
+    background: transparent;
+    border: 1px solid white;
+    color: white;
+    font-family: monospace;
+    padding: 0.25rem 0.5rem;
+    outline: none;
+}
+
+input[type="password"]::placeholder {
+    color: #aaaaaa;
+}
+
 button:hover, input[type="submit"]:hover, input[type="button"]:hover {
     text-decoration: underline;
 }
