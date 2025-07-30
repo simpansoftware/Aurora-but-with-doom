@@ -465,7 +465,7 @@ installcros() {
 		return
 	else
         mapfile -t recochoose < <(find "$aroot/images/recovery" -type f)
-        reco_options=("${recochoose[@]}" "Block Updates" "Exit")
+        reco_options=("${recochoose[@]}" "Exit")
 
         reco_actions=()
         for reco_opt in "${recochoose[@]}"; do
