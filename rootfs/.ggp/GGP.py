@@ -102,7 +102,7 @@ def logout():
 @app.route("/browse/<path:path>", methods=["GET", "POST"])
 def browse(path, password=None):
     if not check_auth():
-        return passprompt("Authentication required")
+        return redirect('/')
     now = datetime.now().strftime("%H:%M %b %d")
 
     fullpath = os.path.join("/", path)
@@ -222,7 +222,7 @@ def browse(path, password=None):
 @app.route("/edit/<path:path>", methods=["GET", "POST"])
 def edit(path):
     if not check_auth():
-        return passprompt("Authentication required")
+        return redirect('/')
 
     fullpath = os.path.join("/", path)
     if not os.path.exists(fullpath) or not os.path.isfile(fullpath):
@@ -323,7 +323,7 @@ def edit(path):
 @app.route("/upload/<path:path>", methods=["POST"])
 def upload(path):
     if not check_auth():
-        return passprompt("Authentication required")
+        return redirect('/')
 
     fullpath = os.path.join("/", path)
     file = request.files.get("file")
