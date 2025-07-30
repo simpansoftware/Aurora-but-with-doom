@@ -377,25 +377,19 @@ versions() {
         export url="https://raw.githubusercontent.com/MercuryWorkshop/chromeos-releases-data/refs/heads/main/data.json"
         cros_json=$(curl -s "$url" | jq --arg board "$board_name" --arg ver "$chromeVersion" '.[$board].images[] | select((.chrome_version | tostring) | test("^" + $ver))')
         if [[ -z "$cros_json" ]]; then return; fi
-        echo "$cros_json" | jq -r '.platform_version'| head -1 
-        read -p
         cros_platform=$(echo "$cros_json" | jq -r '.platform_version'| head -1 )
-        echo "$cros_json" | jq -r '.url' | head -1
-        read -p
         cros_url=$(echo "$cros_json" | jq -r '.url' | head -1 )
-        echo "$cros_json" | jq -r '.last_modified' | head -1
-        read -p
         last_modified=$(echo "$cros_json" | jq -r '.last_modified' | head -1 )
         MATCH_FOUND=0
         if [[ -n "$cros_url" ]]; then
             echo "Found a $chromeVersion match on platform $cros_platform from $last_modified." | center
             MATCH_FOUND=1
             export FINAL_URL="$cros_url"
-            break
+            return 0
         fi
         if [ $MATCH_FOUND -eq 0 ]; then
             echo "No recovery image found for your board and target version. Exiting" | center
-            return
+            return 1
         fi
     fi
 }
