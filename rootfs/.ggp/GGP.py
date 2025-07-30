@@ -333,6 +333,7 @@ def edit(path):
     </html>
     ''', path=path, filecontent=filecontent, language=language, pathdir=pathdir)
 
+@app.route("/upload/", defaults={"path": ""}, methods=["POST"])
 @app.route("/upload/<path:path>", methods=["POST"])
 def upload(path):
     if not check_auth():
