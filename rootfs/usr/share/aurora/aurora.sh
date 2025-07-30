@@ -141,7 +141,7 @@ funText() {
         "it runs the demon - OlyB"
         "GOOD MANNERS\n1 Wait your turn\n2 Use polite words\n3 Listen Carefully"
         "mommy may I please have fakemod :3\n- synaptic"
-        "crazy ant [..] 👍"
+        "crazy ant [...] :thumbsup:"
         "Nothing beats a Jet2 Holiday"
         "VeeGay[..]"
         "rogged"
