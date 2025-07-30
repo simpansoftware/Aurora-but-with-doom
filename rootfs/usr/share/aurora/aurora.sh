@@ -485,7 +485,8 @@ installcros() {
         read_center "Press Enter to continue..."
         return
 	elif [[ $reco == "Block Updates" ]]; then
-		read_center -d "${GEEN_B}Would you like to block updates?${COLOR_RESET} (Y/n): " blockupdates
+		read_center -d "Did you just recover (Y/n): " blockupdates
+        cros_dev=$(get_largest_cros_blockdev)
         case $blockupdates in
             n|N) ;;
             *) cgpt add $cros_dev -i 2 -P 10 -T 5 -S 1
