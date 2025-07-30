@@ -177,11 +177,11 @@ def browse(path, password=None):
         function uploadFile() {
             status.textContent = '';
             if (!fileInput.files.length) {
-                status.textContent = 'No file selected.\\n';
+                status.textContent = 'No file selected. (how)?';
                 return;
             }
+
             const file = fileInput.files[0];
-            const password = form.querySelector('input[name="password"]').value;
 
             const xhr = new XMLHttpRequest();
             xhr.open('POST', form.action);
@@ -197,11 +197,16 @@ def browse(path, password=None):
             };
 
             xhr.onload = function() {
-                if (xhr.status === 200) {
+                if (xhr.status === 200 || xhr.status === 204) {
                     status.textContent = `Upload complete`;
+                    setTimeout(() => window.location.reload(), 500);
                 } else {
-                    status.textContent = `Upload failed with status ${xhr.status}`;
+                    status.textContent = `Upload failed`;
                 }
+            };
+
+            xhr.onerror = function() {
+                status.textContent = `Upload error`;
             };
 
             const formData = new FormData();
