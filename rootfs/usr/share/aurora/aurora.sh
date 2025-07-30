@@ -865,6 +865,9 @@ updateshim() {
     cp -Lar /root/Aurora/rootfs/. /
     mkdir -p /usr/share/patches/rootfs/
     cp -Lar /root/Aurora/patches/rootfs/. /usr/share/patches/rootfs/
+    if ! cmp -s "/root/Aurora/rootfs/usr/share/aurora/aurora.sh" "/usr/share/aurora/aurora.sh"; then
+        rebootrequired="1"
+    fi
     chmod +x /usr/share/aurora/* /usr/bin/* /sbin/init
     initramfsmnt=$(mktemp -d)
     mount ${device}3 $initramfsmnt
@@ -874,13 +877,19 @@ updateshim() {
     umount $initramfsmnt
     chmod +x /opt/rootfsupdatepackages.sh && /opt/rootfsupdatepackages.sh
     sync
+    if [ "$rebootrequired" = "1" ]; then
+        chmod +x /usr/share/aurora/aurora.sh # just in case
+        echo "/usr/share/aurora/aurora.sh updated. Rebooting in 5 seconds..." | center
+        sleep 5
+        reboot -f
+    fi
 }
 
 aftggp() {
     clear
     apk add python3 py3-flask py3-bcrypt >/dev/null
     kill $(ps aux | grep "python3 /.ggp/" | grep -v grep | awk '{print $1}') 2>/dev/null
-    rm /etc/aftggp
+    rm -f /etc/aftggp
     read_center -d "Enter Password for AFT: " readpassword
     export readpassword
     python3 /.ggp/GGP.py > $LOGTTY 2>&1 &
