@@ -124,7 +124,7 @@ rm -f $initramfs/bin/init
 cp ../initramfs/. $initramfs -ar
 rsync -avH --info=progress2 --delete "$initramfs/" "$root_amount" &>/dev/null
 chmod +x $root_amount/init $root_amount/sbin/init $root_amount/bootstrap.sh
-chmod +x $root_bmount/sbin/init $root_bmount/usr/bin/* $root_bmount/usr/share/aurora/*
+chmod +x $root_bmount/sbin/init $root_bmount/usr/bin/* $root_bmount/usr/share/aurora/* 2>/dev/null
 echo_c "Unmounting..." "GEEN_B"
 umount $statemount
 umount $statemount -l
