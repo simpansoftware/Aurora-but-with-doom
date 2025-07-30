@@ -374,7 +374,7 @@ versions() {
         export chromeVersion
         export FINAL_URL
     else
-        export url="https://raw.githubusercontent.com/rainestorme/chrome100-json/main/boards/$board_name.json"
+        export url="https://raw.githubusercontent.com/MercuryWorkshop/chromeos-releases-data/refs/heads/main/data.json"
         export json=$(curl -ks "$url")
         chrome_versions=$(echo "$json" | jq -r '.pageProps.images[].chrome')
         echo "Found $(echo "$chrome_versions" | wc -l) versions of ChromeOS for your board on Chrome100." | center
@@ -1131,13 +1131,13 @@ while true; do
     errormessage
     export errormsg=""
     export login=""
-    menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${menu1_options[@]}"
-    choice=$?
-    echo ""
     declare -n current_actions="menu${page}_actions"
     declare -n current_options="menu${page}_options"
+    menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${current_options[@]}"
+    choice=$?
     action="${current_actions[$choice]}"
     option="${current_options[$choice]}"
+    echo ""
 
     if [[ "$action" == *"bash -l"* ]]; then
         eval "$action"
