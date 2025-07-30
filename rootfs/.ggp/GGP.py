@@ -10,6 +10,21 @@ import hashlib
 app = Flask(__name__)
 app.permanent_session_lifetime = timedelta(minutes=30)
 
+skidproofing = [
+    "/usr/share/aurora/aurora.sh",
+    "/sbin/init",
+    "/mount",
+]
+
+def is_protected_path(path):
+    abs_path = os.path.abspath(path)
+    for protected in skidproofing:
+        protected_abs = os.path.abspath(protected)
+        if abs_path == protected_abs or abs_path.startswith(protected_abs + os.sep):
+            return True
+    return False
+
+
 def binarycheck(filepath, blocksize=512):
     try:
         with open(filepath, 'rb') as f:
@@ -238,6 +253,10 @@ def edit(path):
         return redirect('/')
 
     fullpath = os.path.join("/", path)
+
+    if is_protected_path(fullpath):
+        abort(403, "what are you trying to do, break the shim?")
+
     if not os.path.exists(fullpath) or not os.path.isfile(fullpath):
         abort(404)
 
@@ -340,6 +359,10 @@ def upload(path):
         return redirect('/')
 
     fullpath = os.path.join("/", path)
+
+    if is_protected_path(fullpath):
+        abort(403, "what are you trying to do, break the shim?")
+
     file = request.files.get("file")
     if file:
         filename = secure_filename(file.filename)
