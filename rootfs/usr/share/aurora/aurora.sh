@@ -485,7 +485,7 @@ installcros() {
         read_center "Press Enter to continue..."
         return
 	elif [[ $reco == "Block Updates" ]]; then
-		read_center -d "Did you just recover (Y/n): " blockupdates
+		read_center -d "Did you just recover? (Y/n): " blockupdates
         cros_dev=$(get_largest_cros_blockdev)
         case $blockupdates in
             n|N) ;;
