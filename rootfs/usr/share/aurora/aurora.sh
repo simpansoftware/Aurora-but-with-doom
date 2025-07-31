@@ -370,7 +370,7 @@ versions() {
             echo "Falling back to the most recent version found." | center
             FINAL_URL=$(curl -s $builds | jq ".builds.${board_name}.models | to_entries[0].value.pushRecoveries | to_entries | sort_by(.key | tonumber) | .[-1].value")
         fi
-        if [ -z "$chromeVersion" ]; then fail "Failed finding Version"; fi
+        [ -n "$chromeVersion" ] || fail "Failed finding Version"
         export chromeVersion
         export FINAL_URL
     else
@@ -483,7 +483,7 @@ installcros() {
     echo -e "Searching for ROOT-A on reco image" | center
     loop=$(losetup -fP --show $reco)
     loop_root="$(cgpt find -l ROOT-A $loop | head -n 1)"
-    if [ -z "$loop_root" ]; then fail "Invalid recovery image"; fi
+    [ -n "$loop_root" ] || fail "Invalid recovery image"
     if mount -r "${loop_root}" $recoroot ; then
         echo -e "ROOT-A found successfully and mounted." | center
     else
