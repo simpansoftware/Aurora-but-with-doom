@@ -120,17 +120,20 @@ EOF
     fi
     if [ "${buildenvname}" = "cros" ]; then
         if [ ! -e "${aroot}/build/env/${buildenvname}/etc/.exists" ]; then
-            export crosbuild="$aroot/build/env/cros"
-            crosbuildloopdev=$(losetup -Pf --show "$basebuildshim")
-            crosbuildlooproota=$(lsblk -pro NAME,PARTLABEL "$crosbuildloopdev" | grep "ROOT-A" | awk '{print $1}')
-            crosbuildtempdir=$(mktemp -d)
-            mount "$crosbuildlooproota" "$crosbuildtempdir" -o ro
-            cp -ra "$crosbuildtempdir/." "$crosbuild"
-            umount "$crosbuildlooproota"
-            rm -f "$crosbuild/sbin/init"
-            touch "$crosbuild/etc/.exists"
             mkdir -p "$crosbuild/shims"
-            cp "$basebuildshim" "$crosbuild/shims/$board_name.bin"
+            if cp "$basebuildshim" "$crosbuild/shims/$board_name.bin"; then
+                export crosbuild="$aroot/build/env/cros"
+                crosbuildloopdev=$(losetup -Pf --show "$basebuildshim")
+                crosbuildlooproota=$(lsblk -pro NAME,PARTLABEL "$crosbuildloopdev" | grep "ROOT-A" | awk '{print $1}')
+                crosbuildtempdir=$(mktemp -d)
+                mount "$crosbuildlooproota" "$crosbuildtempdir" -o ro
+                cp -ra "$crosbuildtempdir/." "$crosbuild"
+                umount "$crosbuildlooproota"
+                rm -f "$crosbuild/sbin/init"
+                touch "$crosbuild/etc/.exists"
+            else
+                echo "Raw shim failed to download/copy."
+            fi
         else
             echo "Please remove the existing cros build environment before creating another." 
         fi
