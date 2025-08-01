@@ -19,6 +19,7 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+source /usr/share/aurora/centering
 stty sane
 stty erase '^H'
 stty intr ''
@@ -39,17 +40,6 @@ export aroot="/usr/share/aurora"
 export releaseBuild=1
 export shimroot="/shimroot"
 export recoroot="/recoroot"
-export COLOR_RESET="\033[0m"
-export BLACK_B="\033[1;30m"
-export RED_B="\033[1;31m"
-export GEEN="\033[0;32m"
-export GEEN_B="\033[1;32m"
-export YELLOW="\033[0;33m"
-export YELLOW_B="\033[1;33m"
-export BLUE_B="\033[1;34m"
-export MAGENTA_B="\033[1;35m"
-export PINK_B="\x1b[1;38;5;212m"
-export CYAN_B="\033[1;36m"
 export PS1='\e[1;34m\]\u@\h \e[1;33m\]$(date +"%H:%M %b %d")\e[1;32m\] \w/\[\e[0m\] '
 export rogged=$((RANDOM % 100))
 alias ls='ls --color=auto'
@@ -160,8 +150,6 @@ echo_c() {
     local color="${!color_variable}"
     echo -e "${color}${text}${COLOR_RESET}"
 }
-
-source /usr/share/aurora/centering
 
 echo_menu() {
     local text="$1"
