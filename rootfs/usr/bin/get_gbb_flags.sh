@@ -1,16 +1,8 @@
 #!/bin/sh
-#
-# Copyright 2017 The Chromium OS Authors. All rights reserved.
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
-#
-# This script can change GBB flags in system live firmware or a given image
-# file.
 
 SCRIPT_BASE="$(dirname "$0")"
 . "${SCRIPT_BASE}/gbb_flags_common.sh"
 
-# DEFINE_string name default_value description flag
 DEFINE_string file "" "Path to firmware image. Default to system firmware." "f"
 DEFINE_boolean explicit ${FLAGS_FALSE} "Print list of what flags are set." "e"
 
@@ -29,9 +21,6 @@ main() {
     flashrom_read "${image_file}"
   fi
 
-  # Process file.
-
-  # Keep 'local' declaration split from assignment so return code is checked.
   local gbb_flags
   gbb_flags="$(futility gbb -g --flags "${image_file}")"
   local raw_gbb_flags="$(echo "${gbb_flags}" | egrep -o "0x[0-9a-fA-F]+")"
@@ -47,7 +36,6 @@ main() {
   fi
 }
 
-# Parse command line.
 FLAGS "$@" || exit 1
 eval set -- "${FLAGS_ARGV}"
 

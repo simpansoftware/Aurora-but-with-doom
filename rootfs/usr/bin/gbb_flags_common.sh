@@ -1,19 +1,9 @@
 #!/bin/sh
-#
-# Copyright 2017 The Chromium OS Authors. All rights reserved.
-# Use of this source code is governed by a BSD-style license that can be
-# found in the LICENSE file.
-#
-# This script provides tools to read or change GBB flags on a live system.
 
 SCRIPT_BASE="$(dirname "$0")"
 . "${SCRIPT_BASE}/common_minimal.sh"
 load_shflags || exit 1
 
-# Globals
-# ----------------------------------------------------------------------------
-
-# Values from vboot_reference/firmware/2lib/include/2gbb_flags.h
 GBBFLAGS_DESCRIPTION_PREFIX="
   Defined flags (some values may be not supported by all systems):
 
