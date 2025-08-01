@@ -9,6 +9,13 @@ Wifi :white_check_mark:<br>
 Synaptic :x:<br>
 
 # Building
+
+## Dependencies
+### Arch Linux:
+```bash
+yay -Syu vboot-utils gptfdisk rsync binwalk e2fsprogs
+```
+
 ```bash
 git clone https://github.com/EtherealWorkshop/Aurora.git
 cd Aurora
