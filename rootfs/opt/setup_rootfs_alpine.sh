@@ -5,7 +5,7 @@ http://dl-cdn.alpinelinux.org/alpine/edge/main
 http://dl-cdn.alpinelinux.org/alpine/edge/community
 http://dl-cdn.alpinelinux.org/alpine/edge/testing
 EOF
-apk add jq debootstrap rsync cgpt file unzip dhcpcd tzdata fastfetch figlet util-linux syslog-ng e2fsprogs fish lsblk losetup wpa_supplicant vboot-utils curl tpm2-tools cryptsetup coreutils bash openrc dbus eudev udev-init-scripts ncurses udisks2 sudo zram-init iw wpa_supplicant cloud-utils-growpart nano sfdisk sgdisk wget gnupg tar xz zstd
+apk add jq debootstrap rsync cgpt file unzip dhcpcd tzdata fastfetch figlet util-linux syslog-ng e2fsprogs fish lsblk losetup wpa_supplicant vboot-utils curl tpm2-tools cryptsetup coreutils bash openrc dbus eudev udev-init-scripts ncurses udisks2 sudo zram-init iw wpa_supplicant cloud-utils-growpart nano sfdisk sgdisk wget gnupg tar xz zstd >/dev/null
 cat <<'EOF' >> /etc/profile
 if [ "$USER" = "root" ]; then
   PS1='\e[1;31m\u@\h \e[1;33m$(date +"%H:%M %b %d")\e[1;32m \w/\e[0m '
@@ -41,5 +41,5 @@ done
 echo "Aurora" > /etc/hostname
 echo "127.0.0.1 localhost Aurora" >> /etc/hosts
 echo "%wheel ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
-echo root:root | chpasswd
+echo root:root | chpasswd 2>/dev/null
 rm -f /etc/setup /etc/shimboot

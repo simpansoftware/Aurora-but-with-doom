@@ -36,8 +36,9 @@ echo_c() {
     echo -e "${color}${text}${COLOR_RESET}"
 }
 
-unmount() {
+cleanup() {
     for dir in proc sys dev run; do umount -l "$rootfs/$dir"; done
+    rm -rf "$rootfs" "$initramfs" "$statemount" "$root_amount" "$root_bmount"
 }
 
 lsbval() {
@@ -50,94 +51,59 @@ lsbval() {
   }" "$lsbfile"
 }
 
-if [ "$EUID" -ne 0 ]; then
-    echo "Please run as root."
-    exit 1
-fi
-if [ -z "$1" ]; then
-    echo "Usage: sudo bash Aurora /path/to/rawshim.bin [cpu_architecture(x86_64 or aarch64)] /path/to/payload/dir/"
-    exit 1
-fi
-if [ -z "$2" ]; then
-    read -p "CPU Architecture Unspecified. Default to x86_64? (Y/n): " cpuarch
-    case "$cpuarch" in
-        n|N)
-            read -p "Enter CPU Architecture (x86_64/aarch64): " arch
-            export arch
-            ;;
-        *)
-            arch="x86_64"
-            export arch
-            ;;
-    esac
-else
-    arch="$2"
-    export arch
-fi
-
-checkarch() {
-    if [[ "$arch" != "aarch64" && "$arch" != "x86_64" ]]; then
-        echo -e "Invalid CPU Architecture"
-        read -p "Enter CPU Architecture (x86_64/aarch64): " arch
-        export arch
-        checkarch
-    fi
-}
-checkarch
+source ./checks
 
 shim="$1"
 [ -n "$3" ] && payloads=$(realpath -m "$3")
-
-aurorashim="$(basename "$shim")-aurora.bin"
+aurorashim="./aurora-$(basename "$shim")"
 
 [ -z "$shim" ] && echo_c "Please run on a raw shim." RED_B
 initramfs=$(mktemp -d)
 rootfs=$(mktemp -d)
-
 [ -z "usr/share/aurora/aurora.sh" ] && echo_c "Please run in the base directory of Aurora." RED_B
 
 if findmnt -T "$rootfs" -o OPTIONS -n | grep -qE 'noexec|nodev'; then
     mount -o remount,dev,exec "$(findmnt -T "$rootfs" -o TARGET -n)"
 fi
-
+rm -f "$aurorashim"
 truncate -s 694200K "$aurorashim" # haha 69
 
 echo_c "Bootstrapping Alpine" GEEN_B
-curl -L "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$arch/alpine-minirootfs-3.22.0-$arch.tar.gz" -o alpine-minirootfs.tar.gz
+curl -sL "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$arch/alpine-minirootfs-3.22.0-$arch.tar.gz" -o alpine-minirootfs.tar.gz 
 
 tar -xf alpine-minirootfs.tar.gz -C "$rootfs"
 rm -f "$rootfs/sbin/init" "alpine-minirootfs.tar.gz"
 
 echo "nameserver 1.1.1.1" > "$rootfs/etc/resolv.conf"
 
-trap unmount EXIT
+trap cleanup EXIT
 
 cp -Lar "$rootfs/." "$initramfs/"
 cp -r initramfs/. "$initramfs/"
 cp -r patches/initramfs/. "$initramfs/"
+echo_c "Done.\n\nInstalling Bootloader Packages" GEEN_B
 chroot "$initramfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_initramfs_alpine.sh && /opt/setup_initramfs_alpine.sh $arch"
 cp -r rootfs/. "$rootfs/"
 mkdir -p "$rootfs/usr/share/patches/rootfs"
 cp -r patches/rootfs/. "$rootfs/usr/share/patches/rootfs/"
+echo_c "Done.\n\nInstalling Rootfs Packages" GEEN_B
 chroot "$rootfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_rootfs_alpine.sh && /opt/setup_rootfs_alpine.sh $arch"
-
-rm -rf $(find "$rootfs/lib/firmware/"* -not -path "*wifi*")
+echo_c "Done.\n\nDownloading firmware..." GEEN_B
+git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware $rootfs/lib/firmware/ >/dev/null 2>&1
+rm -rf $(find "$rootfs/lib/firmware/"* -not -path "*wifi*") >/dev/null
 
 trap - EXIT
-unmount
 
-echo_c "Rootfs Created.\n" GEEN_B
-echo_c "Building shim..." GEEN_B
+echo_c "Done.\n\nBuilding shim..." GEEN_B
 
 mkdir -p "$initramfs"
-rm -f "$aurorashim"
 
 shimdev=$(losetup -Pf --show "$shim")
 dev=$(losetup -Pf --show "$aurorashim")
 
 chromeos=$(cgpt find -l ROOT-A "$shimdev" | head -n 1)
 tempmount=$(mktemp -d)
-echo_c "Copying Modules..." GEEN_B
+echo_c "Done.\n\nCopying Modules..." GEEN_B
 mount -o ro "$chromeos" "$tempmount"
 if [ -d "$tempmount/lib/modules" ]; then
   cp -ar "$tempmount/lib/modules" $rootfs/lib/
@@ -155,31 +121,32 @@ else
   exit
 fi
 
-sgdisk --zap-all "$dev"
-sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev"
-sgdisk -n 2:10240:75775 "$dev"
-sgdisk -n 3:75776:152575 -c 3:"AuroraBoot" "$dev"
-sgdisk -n 4:152576:0 -c 4:"Aurora" "$dev"
-sgdisk -t 3:3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC "$dev"
-sgdisk -t 4:8300 "$dev"
-sgdisk -p "$dev"
+echo_c "Done.\n\nPartitioning shim..." GEEN_B
+sgdisk --zap-all "$dev" >/dev/null
+sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev" >/dev/null
+sgdisk -n 2:10240:75775 "$dev" >/dev/null
+sgdisk -n 3:75776:152575 -c 3:"AuroraBoot" "$dev" >/dev/null
+sgdisk -n 4:152576:0 -c 4:"Aurora" "$dev" >/dev/null
+sgdisk -t 3:3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC "$dev" >/dev/null
+sgdisk -t 4:8300 "$dev" >/dev/null
+sgdisk -p "$dev" >/dev/null
 
 kernelpartition="${dev}p2"
 skpart=$(cgpt find -l KERN-A "$shimdev" | head -n 1)
 skpartnum="${skpart##*p}"
 sgdisk -i "$skpartnum" "$shimdev" >/dev/null
-dd if="$skpart" of="$kernelpartition"
+dd if="$skpart" of="$kernelpartition" status=none
 
-sgdisk --partition-guid=2:B5BAF579-07EF-A747-858B-87C0E507CD29 "$dev"
-cgpt add -i 2 -t "$(cgpt show -i "$skpartnum" -t "$shimdev")" -l "$(cgpt show -i "$skpartnum" -l "$shimdev")" -P 15 -T 15 -S 1 "$dev"
+sgdisk --partition-guid=2:B5BAF579-07EF-A747-858B-87C0E507CD29 "$dev" >/dev/null
+cgpt add -i 2 -t "$(cgpt show -i "$skpartnum" -t "$shimdev")" -l "$(cgpt show -i "$skpartnum" -l "$shimdev")" -P 15 -T 15 -S 1 "$dev" >/dev/null
 
 state="${dev}p1"
 root_a="${dev}p3"
 root_b="${dev}p4"
 
-mkfs.ext4 -F "$state" -L STATE
-mkfs.ext4 -F "$root_a" -L AuroraBoot
-mkfs.ext4 -F "$root_b" -L Aurora
+mkfs.ext4 -F "$state" -L "STATE" >/dev/null 2>&1
+mkfs.ext4 -F "$root_a" -L "AuroraBoot" >/dev/null 2>&1
+mkfs.ext4 -F "$root_b" -L "Aurora" >/dev/null 2>&1
 
 statemount=$(mktemp -d)
 root_amount=$(mktemp -d)
@@ -192,13 +159,13 @@ touch "$statemount/dev_image/etc/lsb-factory"
 mount "$root_a" "$root_amount"
 mount "$root_b" "$root_bmount"
 
-echo_c "Copying rootfs to shim" "GEEN_B"
+echo_c "Done.\n\nCopying rootfs to shim" "GEEN_B"
 rm -f "$rootfs/sbin/init"
 cp -ar rootfs/. "$rootfs"
 [ -n "$3" ] && cp -r "$payloads"/. "$rootfs"
 rsync -avH --info=progress2 --delete "$rootfs" "$root_bmount" &>/dev/null
 
-echo_c "Copying initramfs to shim" "GEEN_B"
+echo_c "Done.\n\nCopying initramfs to shim" "GEEN_B"
 rm -f "$initramfs/bin/init"
 cp -ar initramfs/. "$initramfs"
 rsync -avH --info=progress2 --delete "$initramfs/" "$root_amount" &>/dev/null
@@ -206,7 +173,7 @@ rsync -avH --info=progress2 --delete "$initramfs/" "$root_amount" &>/dev/null
 chmod +x "$root_amount/init" "$root_amount/sbin/init" "$root_amount/bootstrap.sh"
 chmod +x "$root_bmount/sbin/init" "$root_bmount/usr/bin/"* "$root_bmount/usr/share/aurora/"* 2>/dev/null
 
-echo_c "Unmounting..." "GEEN_B"
+echo_c "Cleaning up..." "GEEN_B"
 umount "$statemount" "$root_amount" "$root_bmount"
 umount "$statemount" -l 2>/dev/null
 umount "$root_amount" -l 2>/dev/null
