@@ -89,7 +89,7 @@ cp -r patches/rootfs/. "$rootfs/usr/share/patches/rootfs/"
 echo_c "Done.\n\n${BLUE_B}Installing Rootfs Packages" GEEN_B
 chroot "$rootfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_rootfs_alpine.sh && /opt/setup_rootfs_alpine.sh $arch"
 echo_c "Done.\n\n${BLUE_B}Downloading firmware..." GEEN_B
-git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware $rootfs/lib/firmware/ >/dev/null 2>&1
+git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware $rootfs/lib/firmware/
 rm -rf $(find "$rootfs/lib/firmware/"* -not -path "*wifi*") >/dev/null
 
 trap - EXIT
@@ -122,22 +122,22 @@ else
 fi
 
 echo_c "Done.\n\n${BLUE_B}Partitioning shim..." GEEN_B
-sgdisk --zap-all "$dev" >/dev/null
-sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev" >/dev/null
-sgdisk -n 2:10240:75775 "$dev" >/dev/null
-sgdisk -n 3:75776:152575 -c 3:"AuroraBoot" "$dev" >/dev/null
-sgdisk -n 4:152576:0 -c 4:"Aurora" "$dev" >/dev/null
-sgdisk -t 3:3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC "$dev" >/dev/null
-sgdisk -t 4:8300 "$dev" >/dev/null
-sgdisk -p "$dev" >/dev/null
+sgdisk --zap-all "$dev"
+sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev"
+sgdisk -n 2:10240:75775 "$dev"
+sgdisk -n 3:75776:152575 -c 3:"AuroraBoot" "$dev"
+sgdisk -n 4:152576:0 -c 4:"Aurora" "$dev"
+sgdisk -t 3:3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC "$dev"
+sgdisk -t 4:8300 "$dev"
+sgdisk -p "$dev"
 
 kernelpartition="${dev}p2"
 skpart=$(cgpt find -l KERN-A "$shimdev" | head -n 1)
 skpartnum="${skpart##*p}"
-sgdisk -i "$skpartnum" "$shimdev" >/dev/null
+sgdisk -i "$skpartnum" "$shimdev"
 dd if="$skpart" of="$kernelpartition" status=none
 
-sgdisk --partition-guid=2:B5BAF579-07EF-A747-858B-87C0E507CD29 "$dev" >/dev/null
+sgdisk --partition-guid=2:B5BAF579-07EF-A747-858B-87C0E507CD29 "$dev"
 cgpt add -i 2 -t "$(cgpt show -i "$skpartnum" -t "$shimdev")" -l "$(cgpt show -i "$skpartnum" -l "$shimdev")" -P 15 -T 15 -S 1 "$dev" >/dev/null
 
 state="${dev}p1"
