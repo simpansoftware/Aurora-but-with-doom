@@ -837,9 +837,6 @@ updateshim() {
         git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive
         git config --global submodule.recurse true
     fi
-    if [ ! -e /usr/share/aurora/.UNRESIZED ]; then
-        rm -f /root/Aurora/rootfs/usr/share/aurora/.UNRESIZED
-    fi
     echo "Copying files"
     cp -Lar /root/Aurora/rootfs/. /
     mkdir -p /usr/share/patches/rootfs/

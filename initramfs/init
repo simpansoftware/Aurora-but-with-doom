@@ -324,12 +324,9 @@ if [ -z "$dev_partition" ]; then
     sleep 5
     exit 1
 fi
-if [ -f "/.UNRESIZED" ]; then
-    chmod +x /.UNRESIZED
-    bash /.UNRESIZED
-    rm -f /.UNRESIZED
-    sync
-fi
+chmod +x /resize
+bash /resize
+sync
 echo "Mounting device..."
 mount $dev_partition /auroraroot
 
