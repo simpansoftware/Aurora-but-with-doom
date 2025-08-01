@@ -192,6 +192,5 @@ echo -e "${YELLOW_B}Synaptic${COLOR_RESET}: Emotional Support"
 echo -e "${CYAN_B}Simon${COLOR_RESET}: ${BLUE_B}[IRS]${COLOR_RESET} Brainstormed how to do wifi, helped with dhcpcd"
 echo -e "${BLUE_B}kraeb${COLOR_RESET}: ${BLUE_B}[IRS]${COLOR_RESET} QoL improvements and initial idea"
 echo -e "${MAGENTA_B}AC3${COLOR_RESET}: Literally nothing"
-echo -e "${GEEN_B}Rainestorme:${COLOR_RESET} Murkmod's version finder"
 echo -e "${GEEN_B}kxtz${COLOR_RESET}: KVG\n"
 echo_c "Done!" GEEN_B
