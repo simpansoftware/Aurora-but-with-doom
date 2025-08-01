@@ -41,7 +41,7 @@ unmount() {
 }
 
 lsbval() {
-  local key="$1" lsbfile="${2:-./rootfs/etc/lsb-release}"
+  local key="$1" lsbfile="${2:-$rootfs/etc/lsb-release}"
   echo "$key" | grep -Eq '^[a-zA-Z0-9_]+$' || return 1
   sed -E -n -e "/^[[:space:]]*${key}[[:space:]]*=/{
     s:^[^=]+=[[:space:]]*::
@@ -140,15 +140,15 @@ tempmount=$(mktemp -d)
 echo_c "Copying Modules..." GEEN_B
 mount -o ro "$chromeos" "$tempmount"
 if [ -d "$tempmount/lib/modules" ]; then
-  cp -ar "$tempmount/lib/modules" ./rootfs/lib/
-  cp -ar "$tempmount/etc/lsb-release" ./rootfs/etc/lsb-release
+  cp -ar "$tempmount/lib/modules" $rootfs/lib/
+  cp -ar "$tempmount/etc/lsb-release" $rootfs/etc/lsb-release
   export boardname=$(lsbval CHROMEOS_RELEASE_BOARD)
-  mkdir -p ./rootfs/mount/usr/bin ./rootfs/mount/lib64
-  cp -r "$tempmount/lib64"/* ./rootfs/mount/lib64
-  cp "$tempmount/usr/bin/tpmc" ./rootfs/mount/usr/bin/tpmc
-  cp "$tempmount/bin/sh" ./rootfs/mount/usr/bin/sh
-  cp "$tempmount/bin/cat" ./rootfs/mount/usr/bin/cat
-  cp "lib/$arch/kvg" ./rootfs/mount/usr/bin/kvg
+  mkdir -p $rootfs/mount/usr/bin $rootfs/mount/lib64
+  cp -r "$tempmount/lib64"/* $rootfs/mount/lib64
+  cp "$tempmount/usr/bin/tpmc" $rootfs/mount/usr/bin/tpmc
+  cp "$tempmount/bin/sh" $rootfs/mount/usr/bin/sh
+  cp "$tempmount/bin/cat" $rootfs/mount/usr/bin/cat
+  cp "lib/$arch/kvg" $rootfs/mount/usr/bin/kvg
   umount "$tempmount"
 else
   echo_c "Please run on a raw shim." RED_B
