@@ -16,6 +16,7 @@ Synaptic :x:<br>
 yay -Syu vboot-utils gptfdisk rsync binwalk e2fsprogs
 ```
 
+## Building
 ```bash
 git clone https://github.com/EtherealWorkshop/Aurora.git
 cd Aurora
