@@ -13,11 +13,15 @@ Synaptic :x:<br>
 ## Dependencies
 ### Arch Linux:
 ```bash
-yay -Syu vboot-utils gptfdisk rsync binwalk e2fsprogs
+sudo pacman -Sy gptfdisk rsync binwalk e2fsprogs && yay -S vboot-utils cgpt
 ```
-or
+### Debian:
 ```bash
-sudo pacman -Sy gptfdisk rsync binwalk e2fsprogs && yay -S vboot-utils
+sudo apt install bash e2fsprogs parted gdisk cgpt rsync
+```
+### Alpine:
+```bash
+apk add bash e2fsprogs parted gptfdisk sgdisk cgpt rsync
 ```
 
 ## Building
