@@ -1,20 +1,5 @@
 #!/bin/bash
 
-# Copyright 2025 Ethereal Workshop. All rights reserved.
-# Use of this source code is governed by the BSD 3-Clause license
-# that can be found in the LICENSE.md file.
-
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS “AS IS”
-# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE 
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-# TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
-# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 shim=$1
 arch=$2
 if [ -n "$3" ]; then payloads=$(realpath -m "$3"); fi
@@ -61,7 +46,6 @@ if [ -d $tempmount/lib/modules ]; then
     cp -ar $tempmount/lib/modules ./rootfs/lib/
     cp -ar $tempmount/etc/lsb-release ./rootfs/etc/lsb-release
     export boardname=$(lsbval CHROMEOS_RELEASE_BOARD)
-    # the skiddiest thing i've EVER written (but it works :3)
     mkdir -p ./rootfs/mount/usr/bin ./rootfs/mount/lib64
     cp $tempmount/lib64/* ./rootfs/mount/lib64 -r
     cp $tempmount/usr/bin/tpmc ./rootfs/mount/usr/bin/tpmc

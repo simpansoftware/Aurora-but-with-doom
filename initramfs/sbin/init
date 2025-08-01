@@ -1,5 +1,4 @@
 #!/bin/busybox sh
-echo "test"
 clear
 export TTY1="/dev/tty1"
 export TTY2="/dev/tty2"
