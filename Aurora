@@ -86,7 +86,6 @@ checkarch() {
 checkarch
 
 shim="$1"
-arch="$2"
 [ -n "$3" ] && payloads=$(realpath -m "$3")
 
 aurorashim="$(basename "$shim")-aurora.bin"
