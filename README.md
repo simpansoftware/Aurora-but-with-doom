@@ -17,7 +17,7 @@ yay -Syu vboot-utils gptfdisk rsync binwalk e2fsprogs
 ```
 or
 ```bash
-sudo pacman -Syu gptfdisk rsync binwalk e2fsprogs && yay -S vboot-utils
+sudo pacman -Sy gptfdisk rsync binwalk e2fsprogs && yay -S vboot-utils
 ```
 
 ## Building
