@@ -7,7 +7,8 @@ if [ -z "$1" ]; then
     exit 1
 fi
 if [ -z "$2" ]; then
-    read -p "CPU Architecture Unspecified. Default to x86_64? (Y/n): " cpuarch
+    echo -ne "${YELLOW_B}CPU Architecture Unspecified. Default to x86_64? (Y/n): ${COLOR_RESET}"
+    read -p "" cpuarch
     case "$cpuarch" in
         n|N)
             read -p "Enter CPU Architecture (x86_64/aarch64): " arch

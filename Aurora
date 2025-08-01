@@ -68,7 +68,7 @@ fi
 rm -f "$aurorashim"
 truncate -s 694200K "$aurorashim" # haha 69
 
-echo_c "Bootstrapping Alpine" GEEN_B
+echo_c "\nBootstrapping Alpine" BLUE_B
 curl -sL "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$arch/alpine-minirootfs-3.22.0-$arch.tar.gz" -o alpine-minirootfs.tar.gz 
 
 tar -xf alpine-minirootfs.tar.gz -C "$rootfs"
@@ -81,20 +81,20 @@ trap cleanup EXIT
 cp -Lar "$rootfs/." "$initramfs/"
 cp -r initramfs/. "$initramfs/"
 cp -r patches/initramfs/. "$initramfs/"
-echo_c "Done.\n\nInstalling Bootloader Packages" GEEN_B
+echo_c "Done.\n\n${BLUE_B}Installing Bootloader Packages" GEEN_B
 chroot "$initramfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_initramfs_alpine.sh && /opt/setup_initramfs_alpine.sh $arch"
 cp -r rootfs/. "$rootfs/"
 mkdir -p "$rootfs/usr/share/patches/rootfs"
 cp -r patches/rootfs/. "$rootfs/usr/share/patches/rootfs/"
-echo_c "Done.\n\nInstalling Rootfs Packages" GEEN_B
+echo_c "Done.\n\n${BLUE_B}Installing Rootfs Packages" GEEN_B
 chroot "$rootfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_rootfs_alpine.sh && /opt/setup_rootfs_alpine.sh $arch"
-echo_c "Done.\n\nDownloading firmware..." GEEN_B
+echo_c "Done.\n\n${BLUE_B}Downloading firmware..." GEEN_B
 git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware $rootfs/lib/firmware/ >/dev/null 2>&1
 rm -rf $(find "$rootfs/lib/firmware/"* -not -path "*wifi*") >/dev/null
 
 trap - EXIT
 
-echo_c "Done.\n\nBuilding shim..." GEEN_B
+echo_c "Done.\n\n${BLUE_B}Building shim..." GEEN_B
 
 mkdir -p "$initramfs"
 
@@ -103,7 +103,7 @@ dev=$(losetup -Pf --show "$aurorashim")
 
 chromeos=$(cgpt find -l ROOT-A "$shimdev" | head -n 1)
 tempmount=$(mktemp -d)
-echo_c "Done.\n\nCopying Modules..." GEEN_B
+echo_c "Done.\n\n${BLUE_B}Copying Modules..." GEEN_B
 mount -o ro "$chromeos" "$tempmount"
 if [ -d "$tempmount/lib/modules" ]; then
   cp -ar "$tempmount/lib/modules" $rootfs/lib/
@@ -121,7 +121,7 @@ else
   exit
 fi
 
-echo_c "Done.\n\nPartitioning shim..." GEEN_B
+echo_c "Done.\n\n${BLUE_B}Partitioning shim..." GEEN_B
 sgdisk --zap-all "$dev" >/dev/null
 sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev" >/dev/null
 sgdisk -n 2:10240:75775 "$dev" >/dev/null
@@ -159,13 +159,13 @@ touch "$statemount/dev_image/etc/lsb-factory"
 mount "$root_a" "$root_amount"
 mount "$root_b" "$root_bmount"
 
-echo_c "Done.\n\nCopying rootfs to shim" "GEEN_B"
+echo_c "Done.\n\n${BLUE_B}Copying rootfs to shim" "GEEN_B"
 rm -f "$rootfs/sbin/init"
 cp -ar rootfs/. "$rootfs"
 [ -n "$3" ] && cp -r "$payloads"/. "$rootfs"
 rsync -avH --info=progress2 --delete "$rootfs" "$root_bmount" &>/dev/null
 
-echo_c "Done.\n\nCopying initramfs to shim" "GEEN_B"
+echo_c "Done.\n\n${BLUE_B}Copying initramfs to shim" "GEEN_B"
 rm -f "$initramfs/bin/init"
 cp -ar initramfs/. "$initramfs"
 rsync -avH --info=progress2 --delete "$initramfs/" "$root_amount" &>/dev/null
@@ -173,7 +173,7 @@ rsync -avH --info=progress2 --delete "$initramfs/" "$root_amount" &>/dev/null
 chmod +x "$root_amount/init" "$root_amount/sbin/init" "$root_amount/bootstrap.sh"
 chmod +x "$root_bmount/sbin/init" "$root_bmount/usr/bin/"* "$root_bmount/usr/share/aurora/"* 2>/dev/null
 
-echo_c "Cleaning up..." "GEEN_B"
+echo_c "Done.\n\n${BLUE_B}Cleaning up...\n" "GEEN_B"
 umount "$statemount" "$root_amount" "$root_bmount"
 umount "$statemount" -l 2>/dev/null
 umount "$root_amount" -l 2>/dev/null
@@ -183,3 +183,15 @@ losetup -D
 rm -rf "$rootfs" "$initramfs" "$statemount" "$root_amount" "$root_bmount"
 mv "$aurorashim" "${boardname}-aurora.bin" 2>/dev/null
 finalshim="${boardname}-aurora.bin"
+
+echo -e "${MAGENTA_B}Credits"
+echo -e "${PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Got Wifi"
+echo -e "${RED_B}Mariah Carey${COLOR_RESET}: Bugfixing and bugtesting"
+echo -e "${GEEN_B}xmb9${COLOR_RESET}: [PRIISM] Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images"
+echo -e "${YELLOW_B}Synaptic${COLOR_RESET}: Emotional Support"
+echo -e "${CYAN_B}Simon${COLOR_RESET}: [IRS] Brainstormed how to do wifi, helped with dhcpcd"
+echo -e "${BLUE_B}kraeb${COLOR_RESET}: [IRS] QoL improvements and initial idea"
+echo -e "${MAGENTA_B}AC3${COLOR_RESET}: Literally nothing"
+echo -e "${GEEN_B}Rainestorme:${COLOR_RESET} Murkmod's version finder"
+echo -e "${YELLOW_B}kxtz${COLOR_RESET}: KVG\n"
+echo_c "Done!" GEEN_B
