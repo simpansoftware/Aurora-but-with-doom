@@ -979,7 +979,7 @@ setupuser() {
     read_center -d "Password: " password
     stty echo 
     adduser -D "$username"
-    echo "$username:$password" | chpasswd
+    echo "$username:$password" | chpasswd 2>/dev/null
     echo "$username ALL=(ALL:ALL) ALL" >> /etc/sudoers
 }
 
