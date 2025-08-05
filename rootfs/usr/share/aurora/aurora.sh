@@ -533,7 +533,7 @@ enable_rw_mount() {
 shimboot() {
 	if [[ -z "$(ls -A $aroot/images/shims)" ]]; then
         echo -e "${YELLOW_B}You have no shims downloaded!\nPlease download or build a few images." | center
-		echo "Alternatively, these are available on websites such as mirror.akane.network or dl.fanqyxl.net. Put them into /usr/share/aurora/images/shims" | center
+		echo "Alternatively, these are available on websites such as dl.fanqyxl.net. Put them into /usr/share/aurora/images/shims" | center
         read_center "Press Enter to return to the main menu..."
         echo -e "${COLOR_RESET}"
 		return
@@ -858,6 +858,37 @@ updateshim() {
         echo "/usr/share/aurora/aurora.sh updated. Rebooting in 5 seconds..." | center
         sleep 5
         reboot -f
+    fi
+}
+
+update_sh1mmer() {
+	if [[ -z "$(ls -A $aroot/images/shims)" ]]; then
+        echo -e "${YELLOW_B}You have no shims downloaded!\nPlease download or build a few images." | center
+		echo "Alternatively, these are available on websites such as dl.fanqyxl.net. Put them into /usr/share/aurora/images/shims" | center
+        read_center "Press Enter to return to the main menu..."
+        echo -e "${COLOR_RESET}"
+		return
+	else
+        mapfile -t shimchoose < <(find "$aroot/images/shims" -type f)
+        shim_options=("${shimchoose[@]}" "Exit")
+
+        while true; do
+            menu "Choose the shim you want to update:" "${shim_options[@]}"
+            choice=$?
+            shim="${shim_options[$choice]}"
+            if [[ "$shim" == "Exit" ]]; then
+                read_center "Press Enter to continue..."
+                return
+            fi
+            break
+        done
+	fi
+    loop=$(losetup -Pf --show $shim)
+    if lsblk -o PARTLABEL $loop | grep "SH1MMER"; then
+        sh1mmermount=$(mktemp -d)
+        mount ${loop}p1
+    else
+        fail "Not a valid SH1MMER legacy shim."
     fi
 }
 
