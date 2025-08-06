@@ -14,7 +14,7 @@ for boardname in "${armboards[@]}"; do
     fi
 done
 
-curl -Lk "https://dl.cros.download/files/${board}/${board}.zip" -o "./${board}.zip" || exit 1
+curl --progress-bar --fail -Lk "https://dl.cros.download/files/${board}/${board}.zip" -o "./${board}.zip" || exit 1
 unzip "./${board}.zip"
 shim=$(unzip -Z1 "./${board}.zip")
 rm ./${board}.zip
