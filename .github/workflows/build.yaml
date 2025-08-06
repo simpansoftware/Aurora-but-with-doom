@@ -71,7 +71,7 @@ jobs:
       run: |
         set -e
         chmod +x fullbuild
-        ./fullbuild "${{ matrix.board }}"
+        sudo ./fullbuild "${{ matrix.board }}"
 
     - name: Upload built shim
       uses: softprops/action-gh-release@v2
