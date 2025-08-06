@@ -1,0 +1,83 @@
+name: Build and Release Aurora
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Build Aurora
+      run: |
+        set -e
+
+        boards=(
+          ambassador
+          banon
+          brask
+          brya
+          clapper
+          coral
+          corsola
+          cyan
+          dedede
+          edgar
+          elm
+          enguarde
+          fizz
+          glimmer
+          grunt
+          hana
+          hatch
+          jacuzzi
+          kalista
+          kefka
+          kukui
+          lulu
+          nami
+          nissa
+          octopus
+          orco
+          puff
+          pyro
+          reef
+          reks
+          relm
+          sand
+          sentry
+          snappy
+          stout
+          strongbad
+          tidus
+          trogdor
+          ultima
+          volteer
+          zork
+        )
+
+        chmod +x fullbuild
+        mkdir -p output
+
+        for board in "${boards[@]}"; do
+          echo "Building Aurora for $board"
+          sudo bash ./fullbuild "$board"
+          mv "./${board}.img" "output/${board}.img"
+        done
+
+    - name: Upload to Releases
+      uses: softprops/action-gh-release@v2
+      with:
+        name: Aurora Build ${{ inputs.tag }}
+        tag_name: ${{ inputs.tag }}
+        files: output/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
