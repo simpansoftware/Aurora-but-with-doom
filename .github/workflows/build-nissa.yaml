@@ -32,7 +32,7 @@ jobs:
     - name: Upload built shim
       uses: softprops/action-gh-release@v2
       with:
-        name: Aurora Build ${{ inputs.tag }}
+        name: Aurora ${{ inputs.tag }}
         tag_name: ${{ inputs.tag }}
         files: ./nissa-aurora.bin
       env:
