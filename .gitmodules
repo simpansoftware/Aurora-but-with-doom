@@ -1,3 +1,3 @@
 [submodule "patches"]
 	path = patches
-	url = git@github.com:EtherealWorkshop/patches.git
+	url = https://github.com/EtherealWorkshop/patches.git
