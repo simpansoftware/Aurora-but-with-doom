@@ -15,13 +15,13 @@ jobs:
     steps:
     - name: github is annoying
       run: |
-        git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf https://github.com/
+        git config --global url."https://${{ secrets.SUPERDUPERSECRET }}@github.com/".insteadOf https://github.com/
 
     - name: Checkout repo
       uses: actions/checkout@v4
       with:
         submodules: recursive
-        token: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.SUPERDUPERSECRET }}
 
     - name: Build Aurora
       run: |
