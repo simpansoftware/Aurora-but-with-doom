@@ -1,6 +1,6 @@
 #!/bin/bash
 
-apt install curl bash e2fsprogs gdisk cgpt rsync
+apt install wget curl bash e2fsprogs gdisk cgpt rsync
 
 board=$1
 
@@ -16,7 +16,7 @@ for boardname in "${armboards[@]}"; do
     fi
 done
 
-curl --max-time 1200 --progress-bar --fail -Lk "https://dl.cros.download/files/${board}/${board}.zip" -o "./${board}.zip" || exit 1
+wget "https://dl.cros.download/files/${board}/${board}.zip" -O "./${board}.zip" || exit 1
 unzip "./${board}.zip"
 shim=$(unzip -Z1 "./${board}.zip")
 rm ./${board}.zip
