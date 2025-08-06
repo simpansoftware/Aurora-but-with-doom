@@ -1,5 +1,7 @@
 #!/bin/bash
 
+apt install curl bash e2fsprogs gdisk cgpt rsync
+
 board=$1
 
 armboards=("bob" "corsola" "daisy-spring" "elm" "hana" "jacuzzi" "kevin" "kukui" "nyan-big" "peach-pi" "peach-pit" "scarlet" "stumpy" "strongbad" "trogdor" "veyron-jerry" "veyron-minnie" "veyron-speedy")
