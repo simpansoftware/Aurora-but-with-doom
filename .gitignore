@@ -4,4 +4,4 @@ build/rootfs
 build/initramfs
 build/alpine-minirootfs*
 eeeee
-yamlmaker.sh
+*yamlmaker.sh
