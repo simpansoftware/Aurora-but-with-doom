@@ -8,30 +8,18 @@ if [ -z "$1" ]; then
     echo "Usage: sudo bash Aurora /path/to/rawshim.bin [cpu_architecture(x86_64 or aarch64)] /path/to/payload/dir/"
     exit 1
 fi
-if [ -z "$2" ]; then
-    echo -ne "${YELLOW_B}CPU Architecture Unspecified. Default to x86_64? (Y/n): ${COLOR_RESET}"
-    read -p "" cpuarch
-    case "$cpuarch" in
-        n|N)
-            read -p "Enter CPU Architecture (x86_64/aarch64): " arch
-            export arch
-            ;;
-        *)
-            arch="x86_64"
-            export arch
-            ;;
+
+temproot=$(mktemp -d)
+loopdev=$(losetup -Pf --show $shim)
+mount -o ro "${loopdev}p3" "$temproot"
+
+export arch=x86_64
+if [ -f "$temproot/bin/bash" ]; then
+    case "$(file -b "$temproot/bin/bash" | awk -F ', ' '{print $2}' | tr '[:upper:]' '[:lower:]')" in
+        *aarch64* | *armv8* | *arm*) export arch=aarch64 ;;
     esac
-else
-    arch="$2"
-    export arch
 fi
 
-checkarch() {
-    if [[ "$arch" != "aarch64" && "$arch" != "x86_64" ]]; then
-        echo -e "Invalid CPU Architecture"
-        read -p "Enter CPU Architecture (x86_64/aarch64): " arch
-        export arch
-        checkarch
-    fi
-}
-checkarch
+umount "$temproot"
+losetup -d $loopdev
+rmdir "$temproot"

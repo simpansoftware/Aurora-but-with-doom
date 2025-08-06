@@ -51,10 +51,9 @@ lsbval() {
   }" "$lsbfile"
 }
 
+export shim="$1"
 source ./checks
-
-shim="$1"
-[ -n "$3" ] && payloads=$(realpath -m "$3")
+[ -n "$2" ] && payloads=$(realpath -m "$2")
 aurorashim="./aurora-$(basename "$shim")"
 
 [ -z "$shim" ] && echo_c "Please run on a raw shim." RED_B
@@ -66,6 +65,7 @@ if findmnt -T "$rootfs" -o OPTIONS -n | grep -qE 'noexec|nodev'; then
     mount -o remount,dev,exec "$(findmnt -T "$rootfs" -o TARGET -n)"
 fi
 rm -f "$aurorashim"
+
 truncate -s 694200K "$aurorashim" # haha 69
 
 echo_c "\nBootstrapping Alpine" BLUE_B
@@ -162,7 +162,7 @@ mount "$root_b" "$root_bmount"
 echo_c "Done.\n\n${BLUE_B}Copying rootfs to shim" "GEEN_B"
 rm -f "$rootfs/sbin/init"
 cp -ar rootfs/. "$rootfs"
-[ -n "$3" ] && cp -r "$payloads"/. "$rootfs"
+[ -n "$2" ] && cp -r "$payloads"/. "$rootfs"
 rsync -avH --info=progress2 --delete "$rootfs/." "$root_bmount" &>/dev/null
 
 echo_c "Done.\n\n${BLUE_B}Copying initramfs to shim" "GEEN_B"

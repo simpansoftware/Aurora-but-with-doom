@@ -4,21 +4,9 @@ apt install wget curl bash e2fsprogs gdisk cgpt rsync
 
 board=$1
 
-armboards=("bob" "corsola" "daisy-spring" "elm" "hana" "jacuzzi" "kevin" "kukui" "nyan-big" "peach-pi" "peach-pit" "scarlet" "stumpy" "strongbad" "trogdor" "veyron-jerry" "veyron-minnie" "veyron-speedy")
-
-for boardname in "${armboards[@]}"; do
-    if [[ "$boardname" == "$board" ]]; then
-        arch="aarch64"
-        break
-    else
-        arch="x86_64"
-        break
-    fi
-done
-
 wget -q "https://dl.cros.download/files/${board}/${board}.zip" -O "./${board}.zip" || exit 1
 unzip "./${board}.zip"
 shim=$(unzip -Z1 "./${board}.zip")
 rm ./${board}.zip
-./Aurora $shim $arch
+./Aurora $shim
 rm $shim
