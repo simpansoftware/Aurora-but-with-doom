@@ -77,7 +77,7 @@ jobs:
         for board in "${boards[@]}"; do
           echo "Building Aurora for $board"
           sudo bash ./fullbuild "$board"
-          mv "./aurora-${board}.bin" "output/aurora-${board}.bin"
+          mv "./${board}-aurora.bin" "output/${board}-aurora.bin"
         done
 
     - name: Upload to Releases
