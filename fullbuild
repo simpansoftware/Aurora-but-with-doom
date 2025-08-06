@@ -16,7 +16,7 @@ for boardname in "${armboards[@]}"; do
     fi
 done
 
-wget "https://dl.cros.download/files/${board}/${board}.zip" -O "./${board}.zip" || exit 1
+wget -q "https://dl.cros.download/files/${board}/${board}.zip" -O "./${board}.zip" || exit 1
 unzip "./${board}.zip"
 shim=$(unzip -Z1 "./${board}.zip")
 rm ./${board}.zip
