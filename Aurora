@@ -170,8 +170,8 @@ rm -f "$initramfs/bin/init"
 cp -ar initramfs/. "$initramfs"
 rsync -avH --info=progress2 --delete "$initramfs/." "$root_amount" &>/dev/null
 
-chmod +x "$root_amount/init" "$root_amount/sbin/init" "$root_amount/bootstrap.sh"
-chmod +x "$root_bmount/sbin/init" "$root_bmount/usr/bin/"* "$root_bmount/usr/share/aurora/"*
+chmod +x "$root_amount/init" "$root_amount/sbin/init" "$root_amount/bootstrap.sh" 2>/dev/null
+chmod +x "$root_bmount/sbin/init" "$root_bmount/usr/bin/"* "$root_bmount/usr/share/aurora/"* 2>/dev/null
 sync
 
 echo_c "Done.\n\n${BLUE_B}Cleaning up...\n" "GEEN_B"
