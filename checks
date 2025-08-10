@@ -10,7 +10,9 @@ if [ -z "$1" ]; then
 fi
 
 temproot=$(mktemp -d)
+echo $shim
 loopdev=$(losetup -Pf --show $shim)
+echo $loopdev
 mount -o ro "${loopdev}p3" "$temproot"
 
 export arch=x86_64
