@@ -51,7 +51,7 @@ lsbval() {
   }" "$lsbfile"
 }
 
-export shim="$1"
+export shim=$(realpath -m $1)
 source ./checks
 [ -n "$2" ] && payloads=$(realpath -m "$2")
 aurorashim="./aurora-$(basename "$shim")"
