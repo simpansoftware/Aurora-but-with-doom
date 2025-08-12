@@ -680,8 +680,8 @@ connect() {
     killall wpa_supplicant 2>/dev/null
     rm -rf /etc/wpa_supplicant* /etc/*dhcpc*
     ifconfig $wifidevice up
+    if DIS=1; then fail "Disconnected"; fi
     echo_c "Available Networks\n" GEEN_B | center
-    sleep 5
     mapfile -t wifi_options < <(
         iw dev "$wifidevice" scan | grep 'SSID:' | sed -E 's/.*SSID: //g'
     )
@@ -743,10 +743,10 @@ wifi() {
 
     if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
         echo "Currently connected to a network." | center
-        echo "Connect to a different network? (y/N): " | center
+        echo "Disconnect from this network? (y/N): " | center
         read_center -d "" connectornah
         case $connectornah in
-            y|Y|yes|Yes) connect || fail "Failed to connect." ;;
+            y|Y|yes|Yes) DIS=1 connect || fail "Failed to connect." ;;
             *) ;;
         esac
     else
