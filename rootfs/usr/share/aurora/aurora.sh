@@ -1017,7 +1017,7 @@ setup() {
         clear
         splash
         echo -e "\nSetup Aurora" | center
-        read_center "Setup a user? (Y/n) " setupuser
+        read_center -d "Setup a user? (Y/n) " setupuser
         case $setupuser in
             n|N) ;;
             *) setupuser ;;
@@ -1032,7 +1032,7 @@ setup() {
             ln -s "$timezonefile" /etc/localtime
             break
         done
-        read_center "Change Hostname? (y/N): " changehostname
+        read_center -d "Change Hostname? (y/N): " changehostname
         case $changehostname in
             y) read_center -d "Hostname: " hostname
                hostname $hostname
