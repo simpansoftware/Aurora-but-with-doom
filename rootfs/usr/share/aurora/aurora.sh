@@ -675,9 +675,9 @@ EOF
 ##########
 
 connect() {
-    echo_c "Available Networks" GEEN_B | center
+    echo_c "Available Networks\n" GEEN_B | center
     iw dev $wifidevice scan | grep SSID: | sed -E "s/.*SSID: //g" | center
-    echo "Enter your network SSID" | center
+    echo -e "\nEnter your network SSID" | center
     read_center -d "" ssid
     echo "Enter your network password (leave blank if none)" | center
     read_center -d "" psk
