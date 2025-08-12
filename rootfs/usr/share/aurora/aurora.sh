@@ -1160,10 +1160,14 @@ while true; do
     export login=""
     declare -n current_actions="menu${page}_actions"
     declare -n current_options="menu${page}_options"
+    tput civis
+    stty -echo
     menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${current_options[@]}"
     choice=$?
     action="${current_actions[$choice]}"
     option="${current_options[$choice]}"
+    tput cnorm
+    stty echo
     echo ""
 
     if [[ "$action" == *"bash -l"* ]]; then
