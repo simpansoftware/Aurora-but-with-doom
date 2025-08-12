@@ -6,6 +6,8 @@ if [ "$DEBUG" ]; then
   set -x
 fi
 
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
 setup-hostname Aurora
 setup-apkrepos "http://dl-cdn.alpinelinux.org/alpine/v3.21/main/" "http://dl-cdn.alpinelinux.org/alpine/v3.21/community/"
 
