@@ -23,7 +23,9 @@ source /usr/share/aurora/centering
 stty sane
 stty erase '^H'
 stty intr ''
+stty -echo
 export stty=$(stty -g)
+stty echo
 export TTY1="/dev/tty1"
 export TTY2="/dev/tty2"
 export LOGTTY="/dev/tty3"
@@ -347,7 +349,8 @@ versions() {
 
 	case "$install_choice" in
 	    0) chromeVersion="latest" ;;
-	    1) read_center -d "Enter Version: " chromeVersion ;;
+	    1) stty echo
+           read_center -d "Enter Version: " chromeVersion ;;
         *) fail "Invalid choice (somehow?????)" ;;
 	esac
     echo "Fetching recovery image..." | center
@@ -466,6 +469,8 @@ installcros() {
             break
         done
 	fi
+    stty echo
+    tput cnorm
     read_center -d "This will wipe your ChromeOS drive. Please type 'confirm' to continue: " confirmation
     if [ ! "$confirmation" = "confirm" ]; then echo "Exiting..." | center; sleep 2; return; fi
     mkdir -p $recoroot
@@ -561,7 +566,8 @@ shimboot() {
     if lsblk -o PARTLABEL $loop | grep "shimboot"; then
         touch /etc/shimboot
         sync
-        read_center "Reboot to boot into shimboot instead of Aurora from the initramfs? (Y/n): " bootshimboot
+        stty echo
+        read_center -d "Reboot to boot into shimboot instead of Aurora from the initramfs? (Y/n): " bootshimboot
         case $bootshimboot in
             n|N|no|No|NO) return 0 ;;
             *) losetup -D && reboot -f ;;
@@ -697,6 +703,7 @@ connect() {
         fi
         break
     done
+    stty echo
     read_center -d "Enter password for $ssid: " psk
     conf="/etc/wpa_supplicant.conf"
     if grep -q "ssid=\"$ssid\"" "$conf" 2>/dev/null; then
@@ -739,12 +746,12 @@ EOF
 }
 
 wifi() {
+    stty echo
     export wifidevice=$(ip link | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
 
     if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
         echo "Currently connected to a network." | center
-        echo "Disconnect from this network? (y/N): " | center
-        read_center -d "" connectornah
+        read_center -d "Disconnect from this network? (y/N): " connectornah
         case $connectornah in
             y|Y|yes|Yes) DIS=1 connect || fail "Failed to connect." ;;
             *) ;;
@@ -813,7 +820,9 @@ downloadshim() {
 
 	case "$download_choice" in
 	    0) export FINALSHIM_URL="https://ddl.fanqyxl.net/ChromeOS/Prebuilts/Sh1mmer/Legacy/${board_name}-legacy.zip" ;;
-	    1) read_center -d "Enter Shim URL: " FINALSHIM_URL ;;
+	    1) tput cnorm
+           stty echo
+           read_center -d "Enter Shim URL: " FINALSHIM_URL ;;
         *) fail "Invalid choice (somehow?????)" ;;
 	esac
     shimtype=$(echo $FINALSHIM_URL | awk -F. '{print $NF}')
@@ -878,38 +887,9 @@ updateshim() {
     fi
 }
 
-update_sh1mmer() {
-	if [[ -z "$(ls -A $aroot/images/shims)" ]]; then
-        echo -e "${YELLOW_B}You have no shims downloaded!\nPlease download or build a few images." | center
-		echo "Alternatively, these are available on websites such as dl.fanqyxl.net. Put them into /usr/share/aurora/images/shims" | center
-        read_center "Press Enter to return to the main menu..."
-        echo -e "${COLOR_RESET}"
-		return
-	else
-        mapfile -t shimchoose < <(find "$aroot/images/shims" -type f)
-        shim_options=("${shimchoose[@]}" "Exit")
-
-        while true; do
-            menu "Choose the shim you want to update:" "${shim_options[@]}"
-            choice=$?
-            shim="${shim_options[$choice]}"
-            if [[ "$shim" == "Exit" ]]; then
-                read_center "Press Enter to continue..."
-                return
-            fi
-            break
-        done
-	fi
-    loop=$(losetup -Pf --show $shim)
-    if lsblk -o PARTLABEL $loop | grep "SH1MMER"; then
-        sh1mmermount=$(mktemp -d)
-        mount ${loop}p1
-    else
-        fail "Not a valid SH1MMER legacy shim."
-    fi
-}
-
 aftggp() {
+    tput cnorm
+    stty echo
     apk add python3 py3-flask py3-bcrypt >/dev/null
     kill $(ps aux | grep "python3 /.ggp/" | grep -v grep | awk '{print $1}') 2>/dev/null
     rm -f /etc/aftggp
@@ -1032,6 +1012,8 @@ setupuser() {
 }
 
 setup() {
+    tput cnorm
+    stty echo
     if [ ! -f /etc/setup ]; then
         clear
         splash
@@ -1148,7 +1130,6 @@ clear
 export page=1
 while true; do
     export TERM=xterm-direct
-    tput cnorm
     stty $stty
     eval "setup"
     clear
@@ -1166,11 +1147,11 @@ while true; do
     choice=$?
     action="${current_actions[$choice]}"
     option="${current_options[$choice]}"
-    tput cnorm
-    stty echo
     echo ""
 
     if [[ "$action" == *"bash -l"* ]]; then
+        tput cnorm
+        stty echo
         eval "$action"
     else
         stty $stty
