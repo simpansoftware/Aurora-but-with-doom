@@ -29,7 +29,6 @@ rc-update add savecache shutdown
 rc-update add seedrng boot
 rc-update add swap boot
 rc-update add syslog boot
-rc-update add getty tty1
 
 echo "#!/sbin/openrc-run
 command='/usr/bin/killall frecon-lite'
@@ -43,11 +42,12 @@ for module in $modules; do
   echo >> /etc/modules
 done
 
-apk add udisks2 sudo zram-init iwd dhcpcd network-manager-applet wpa_supplicant adw-gtk3 cloud-utils-growpart nano mousepad
+apk add elogind polkit-elogind udisks2 polkit-elogind sudo zram-init iwd dhcpcd network-manager-applet wpa_supplicant adw-gtk3 cloud-utils-growpart nano mousepad xfce
 
 rc-update add iwd default
 rc-update add wpa_supplicant default
 rc-update add zram-init default
+rc-update add elogind default
 rc-update add dbus default
 
 sed -i 's/=zstd/=lzo/' /etc/conf.d/zram-init
