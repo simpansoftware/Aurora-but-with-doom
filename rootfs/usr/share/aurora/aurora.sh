@@ -675,10 +675,23 @@ EOF
 ##########
 
 connect() {
+    rm -rf /etc/wpa_supplicant*
     echo_c "Available Networks\n" GEEN_B | center
-    iw dev $wifidevice scan | grep SSID: | sed -E "s/.*SSID: //g" | center
-    echo -e "\nEnter your network SSID" | center
-    read_center -d "" ssid
+    mapfile -t wifi_options < <(
+        iw dev "$wifidevice" scan | grep 'SSID:' | sed -E 's/.*SSID: //g'
+    )
+    wifi_options+=("Exit")
+
+    while true; do
+        menu "Choose a network" "${wifi_options[@]}"
+        choice=$?
+        ssid="${wifi_options[$choice]}"
+        if [[ "$ssid" == "Exit" ]]; then
+            read_center "Press Enter to continue..."
+            return
+        fi
+        break
+    done
     echo "Enter your network password (leave blank if none)" | center
     read_center -d "" psk
     conf="/etc/wpa_supplicant.conf"
