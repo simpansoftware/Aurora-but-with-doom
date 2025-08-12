@@ -136,6 +136,7 @@ funText() {
         "VeeGay[..]"
         "rogged"
         "${RED_B}Error: Failed to find funText.${COLOR_RESET}"
+        "\x1b[38;5;81mTrans\x1b[38;5;213m Rights${COLOR_RESET} Are\x1b[38;5;213m Human\x1b[38;5;81m Rights"
         ) #              cen-><-ter" 
 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
