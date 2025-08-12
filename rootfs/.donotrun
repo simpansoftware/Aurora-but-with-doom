@@ -6,5 +6,4 @@ mkdir -p "/alpine"
 wget -q --show-progress "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/x86_64/$tools" -O /alpine/apk-tools-static
 tar --warning=no-unknown-keyword -xzf "/alpine/apk-tools-static" -C "/alpine"
 /alpine/sbin/apk.static --arch $(uname -m) -X http://dl-cdn.alpinelinux.org/alpine/edge/main/ -U --allow-untrusted --root "/alpine" --initdb add alpine-base
-chmod +x /alpine/setup-rootfs-aurora
-chroot /alpine /bin/sh -c /setup-rootfs-aurora
+du -sh /alpine
