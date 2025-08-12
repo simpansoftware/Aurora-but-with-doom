@@ -713,12 +713,10 @@ EOF
             wpa_passphrase "$ssid" "$psk" >> "$conf"
         fi
     fi
-    killall wpa_supplicant 2>/dev/null
-    killall udhcpc 2>/dev/null
     ip link set "$wifidevice" down
     ip link set "$wifidevice" up
 
-    wpa_supplicant -B -i "$wifidevice" -c "$conf"
+    wpa_supplicant -B -i "$wifidevice" -c "$conf" >/dev/null
 
     for i in {1..15}; do
         if iw dev "$wifidevice" link | grep -q 'Connected'; then
@@ -734,7 +732,7 @@ EOF
         return 1
     fi
 
-    udhcpc -i "$wifidevice" || {
+    udhcpc -i "$wifidevice" >/dev/null || {
         return 1
     }
 }
