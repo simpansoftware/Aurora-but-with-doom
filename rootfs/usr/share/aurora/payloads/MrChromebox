@@ -1,0 +1,2 @@
+source /usr/share/aurora/centering
+canwifi setsid bash <(curl -sSf https://mrchromebox.tech/firmware-util.sh)
