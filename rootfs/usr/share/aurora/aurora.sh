@@ -733,7 +733,7 @@ EOF
         return 1
     fi
 
-    udhcpc -i "$wifidevice" >/dev/null || {
+    udhcpc -i "$wifidevice" 2>/dev/null || {
         return 1
     }
 }
