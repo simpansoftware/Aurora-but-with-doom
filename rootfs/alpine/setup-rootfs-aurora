@@ -42,7 +42,7 @@ for module in $modules; do
   echo >> /etc/modules
 done
 
-apk add elogind polkit-elogind udisks2 polkit-elogind sudo zram-init iwd dhcpcd network-manager-applet wpa_supplicant adw-gtk3 cloud-utils-growpart nano mousepad xfce
+apk add elogind polkit-elogind udisks2 polkit-elogind sudo zram-init iwd dhcpcd network-manager-applet wpa_supplicant adw-gtk3 cloud-utils-growpart nano mousepad task-xfce-desktop
 
 rc-update add iwd default
 rc-update add wpa_supplicant default
