@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/sbin/openrc-run
 
 printf "\033]input:on\a"
 printf "\033[?25h"
