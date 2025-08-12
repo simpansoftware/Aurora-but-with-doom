@@ -89,7 +89,6 @@ tar --warning=no-unknown-keyword -xzf "$rootfs/apk-tools-static" -C "$rootfs"
 $rootfs/sbin/apk.static --arch $(uname -m) -X http://dl-cdn.alpinelinux.org/alpine/edge/main/ -U --allow-untrusted --root "$rootfs" --initdb add alpine-base
 echo "nameserver 1.1.1.1" > "$rootfs/etc/resolv.conf"
 
-cp -r rootfs/. "$rootfs/"
 mkdir -p "$rootfs/usr/share/patches/rootfs"
 cp -r patches/rootfs/. "$rootfs/usr/share/patches/rootfs/"
 echo_c "Done.\n\n${BLUE_B}Installing Rootfs Packages" GEEN_B
@@ -97,6 +96,7 @@ chroot "$rootfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod 
 echo_c "Done.\n\n${BLUE_B}Downloading firmware..." GEEN_B
 git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware $rootfs/lib/firmware/
 rm -rf $(find "$rootfs/lib/firmware/"* -not -path "*wifi*") >/dev/null
+cp -r rootfs/. "$rootfs/"
 
 trap - EXIT
 
