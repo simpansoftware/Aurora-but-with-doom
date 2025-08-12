@@ -204,7 +204,6 @@ menu() {
         ((selected < 0)) && selected=$((count - 1))
         ((selected >= count)) && selected=0
     done
-    tput cnorm
     return $selected
 }
 
