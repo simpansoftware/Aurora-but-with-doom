@@ -675,7 +675,11 @@ EOF
 ##########
 
 connect() {
+    ifconfig $wifidevice down
+    kill -SIGUSR2 $(pgrep udhcpc)
+    killall wpa_supplicant 2>/dev/null
     rm -rf /etc/wpa_supplicant* /etc/*dhcpc*
+    ifconfig $wifidevice up
     echo_c "Available Networks\n" GEEN_B | center
     mapfile -t wifi_options < <(
         iw dev "$wifidevice" scan | grep 'SSID:' | sed -E 's/.*SSID: //g'
@@ -692,7 +696,7 @@ connect() {
         fi
         break
     done
-    read_center -d "Enter password for ${GEEN_B}$ssid${COLOR_RESET}: " psk
+    read_center -d "Enter password for $ssid: " psk
     conf="/etc/wpa_supplicant.conf"
     if grep -q "ssid=\"$ssid\"" "$conf" 2>/dev/null; then
         echo "Network (${ssid}) already configured." | center
