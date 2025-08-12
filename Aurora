@@ -61,8 +61,8 @@ initramfs=$(mktemp -d)
 rootfs=$(mktemp -d)
 [ -z "usr/share/aurora/aurora.sh" ] && echo_c "Please run in the base directory of Aurora." RED_B
 
-if findmnt -T "$rootfs" -o OPTIONS -n | grep -qE 'noexec|nodev'; then
-    mount -o remount,dev,exec "$(findmnt -T "$rootfs" -o TARGET -n)"
+if findmnt -T "$initramfs" -o OPTIONS -n | grep -qE 'noexec|nodev'; then
+    mount -o remount,dev,exec "$(findmnt -T "$initramfs" -o TARGET -n)"
 fi
 rm -f "$aurorashim"
 
@@ -71,18 +71,24 @@ truncate -s 694200K "$aurorashim" # haha 69
 echo_c "\nBootstrapping Alpine" BLUE_B
 curl -sL "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$arch/alpine-minirootfs-3.22.0-$arch.tar.gz" -o alpine-minirootfs.tar.gz 
 
-tar -xf alpine-minirootfs.tar.gz -C "$rootfs"
-rm -f "$rootfs/sbin/init" "alpine-minirootfs.tar.gz"
+tar -xf alpine-minirootfs.tar.gz -C "$initramfs"
+rm -f "$initramfs/sbin/init" "alpine-minirootfs.tar.gz"
 
-echo "nameserver 1.1.1.1" > "$rootfs/etc/resolv.conf"
+echo "nameserver 1.1.1.1" > "$initramfs/etc/resolv.conf"
 
 trap cleanup EXIT
 
-cp -Lar "$rootfs/." "$initramfs/"
 cp -r initramfs/. "$initramfs/"
 cp -r patches/initramfs/. "$initramfs/"
 echo_c "Done.\n\n${BLUE_B}Installing Bootloader Packages" GEEN_B
 chroot "$initramfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_initramfs_alpine.sh && /opt/setup_initramfs_alpine.sh $arch"
+
+tools=$(wget -qO- https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/x86_64/ | grep "apk-tools-static" | awk -F "href=\"" '{print $2}' | awk -F "\">" '{print $1}')
+wget -q --show-progress "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/x86_64/$tools" -O $rootfs/apk-tools-static
+tar --warning=no-unknown-keyword -xzf "$rootfs/apk-tools-static" -C "$rootfs"
+$rootfs/sbin/apk.static --arch $(uname -m) -X http://dl-cdn.alpinelinux.org/alpine/edge/main/ -U --allow-untrusted --root "$rootfs" --initdb add alpine-base
+echo "nameserver 1.1.1.1" > "$rootfs/etc/resolv.conf"
+
 cp -r rootfs/. "$rootfs/"
 mkdir -p "$rootfs/usr/share/patches/rootfs"
 cp -r patches/rootfs/. "$rootfs/usr/share/patches/rootfs/"
@@ -95,8 +101,6 @@ rm -rf $(find "$rootfs/lib/firmware/"* -not -path "*wifi*") >/dev/null
 trap - EXIT
 
 echo_c "Done.\n\n${BLUE_B}Building shim..." GEEN_B
-
-mkdir -p "$initramfs"
 
 shimdev=$(losetup -Pf --show "$shim")
 dev=$(losetup -Pf --show "$aurorashim")
