@@ -867,7 +867,6 @@ updateshim() {
     cp -Lar /root/Aurora/patches/initramfs/. $initramfsmnt/
     chmod +x $initramfsmnt/init $initramfsmnt/bootstrap.sh $initramfsmnt/sbin/init
     umount $initramfsmnt
-    chmod +x /opt/rootfsupdatepackages.sh && /opt/rootfsupdatepackages.sh
     sync
     if [ "$rebootrequired" = "1" ]; then
         chmod +x /usr/share/aurora/aurora.sh # just in case
