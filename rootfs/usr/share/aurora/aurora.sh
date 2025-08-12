@@ -680,7 +680,7 @@ connect() {
     killall wpa_supplicant 2>/dev/null
     rm -rf /etc/wpa_supplicant* /etc/*dhcpc*
     ifconfig $wifidevice up
-    if [ $DIS -eq 1 ]; then return; fi
+    if [ -n $DIS ]; then return; fi
     echo_c "Available Networks\n" GEEN_B | center
     mapfile -t wifi_options < <(
         iw dev "$wifidevice" scan | grep 'SSID:' | sed -E 's/.*SSID: //g'
