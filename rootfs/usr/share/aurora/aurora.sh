@@ -675,6 +675,8 @@ EOF
 ##########
 
 connect() {
+    echo_c "Available Networks" GEEN_B | center
+    iw dev $wifidevice scan | grep SSID: | sed -E "s/.*SSID: //g" | center
     echo "Enter your network SSID" | center
     read_center -d "" ssid
     echo "Enter your network password (leave blank if none)" | center
@@ -722,7 +724,7 @@ EOF
 }
 
 wifi() {
-    wifidevice=$(ip link | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
+    export wifidevice=$(ip link | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
 
     if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
         echo "Currently connected to a network." | center
