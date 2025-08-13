@@ -25,6 +25,13 @@ canwifi() {
   fi
 }
 
+echo_c() {
+    local text="$1"
+    local color_variable="$2"
+    local color="${!color_variable}"
+    echo -e "${color}${text}${COLOR_RESET}"
+}
+
 center() {
     local width=$(tput cols)
     local offset="${1:-0}"

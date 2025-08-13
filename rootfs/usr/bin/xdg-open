@@ -1,0 +1,5 @@
+#!/bin/bash
+
+source /usr/share/aurora/functions
+echo_c "Open \"https://github.com/login/device\" in a new browser.\nPress Enter when done..." BLUE_B
+read
