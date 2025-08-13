@@ -890,12 +890,11 @@ updateshim() {
 }
 
 aftggp() {
-    stty -echo
+    tput cnorm
     apk add python3 py3-flask py3-bcrypt >/dev/null
     kill $(ps aux | grep "python3 /.ggp/" | grep -v grep | awk '{print $1}') 2>/dev/null
     rm -f /etc/aftggp
-    echo "Enter Password for AFT: " | center
-    read readpassword
+    read_center -d "Enter Password for AFT: " readpassword
     export readpassword
     python3 /.ggp/GGP.py > $LOGTTY 2>&1 &
     touch /etc/aftggp
