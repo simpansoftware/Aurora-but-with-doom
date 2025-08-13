@@ -854,7 +854,6 @@ downloadyo() {
 updateshim() {
     arch=$(uname -m)
     apk add git github-cli
-    rm -rf /usr/share/aurora/aurora.sh
     if [ -d "/root/Aurora/.git" ]; then
         git config --global submodule.recurse true
         git -C "/root/Aurora" pull origin alpine
