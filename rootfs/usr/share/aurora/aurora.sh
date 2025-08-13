@@ -451,6 +451,8 @@ pv_dircopy() {
 ############
 
 installcros() {
+    chmod +x /usr/bin/bigtext
+    bigtext installcros
 	if [[ -z "$(ls -A $aroot/images/recovery 2>/dev/null)" ]]; then
         echo -ne "${YELLOW_B}"
 		echo "You have no recovery images downloaded! Please download a few images" | center
@@ -540,6 +542,8 @@ enable_rw_mount() {
 }
 
 shimboot() {
+    chmod +x /usr/bin/bigtext
+    bigtext shimboot
 	if [[ -z "$(ls -A $aroot/images/shims)" ]]; then
         echo -e "${YELLOW_B}You have no shims downloaded!\nPlease download or build a few images." | center
 		echo "Alternatively, these are available on websites such as dl.fanqyxl.net. Put them into /usr/share/aurora/images/shims" | center
@@ -684,6 +688,8 @@ EOF
 ##########
 
 connect() {
+    chmod +x /usr/bin/bigtext
+    bigtext wifi
     ifconfig $wifidevice down
     pkill -12 udhcpc
     pkill udhcpc 2>/dev/null
@@ -767,6 +773,8 @@ wifi() {
 }
 
 download() {
+    chmod +x /usr/bin/bigtext
+    bigtext download
     	options_download=(
 	    "ChromeOS recovery image"
 	    "ChromeOS Shim"
@@ -775,7 +783,7 @@ download() {
 
 	menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${options_download[@]}"
 	download_choice=$?
-
+    clear
 	case "$download_choice" in
 	    0) downloadreco ;;
 	    1) downloadshim ;;
@@ -784,6 +792,8 @@ download() {
 	esac
 }
 downloadreco() {
+    chmod +x /usr/bin/bigtext
+    bigtext download
 	versions || fail "Failed to get version"
     curl --fail --progress-bar -k "$FINAL_URL" -o "$aroot/images/recovery/$chromeVersion.zip" || {
         fail "Failed to download ChromeOS recovery image."
@@ -799,6 +809,8 @@ downloadreco() {
     mv $aroot/images/recovery/$FINAL_FILENAME $aroot/images/recovery/$chromeVersion.bin
 }
 downloadshim() {
+    chmod +x /usr/bin/bigtext
+    bigtext download
     local release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
     export board_name=${release_board%%-*}
     	options_download=(
@@ -880,7 +892,7 @@ updateshim() {
 
 aftggp() {
     tput cnorm
-    stty echo
+    stty -echo
     apk add python3 py3-flask py3-bcrypt >/dev/null
     kill $(ps aux | grep "python3 /.ggp/" | grep -v grep | awk '{print $1}') 2>/dev/null
     rm -f /etc/aftggp

@@ -12,6 +12,9 @@ export MAGENTA_B="\033[1;35m"
 export PINK_B="\x1b[1;38;2;235;170;238m"
 export CYAN_B="\033[1;36m"
 
+stty echo
+tput cnorm
+
 lsbval() {
   local key="$1"
   local lsbfile="${2:-/etc/lsb-release}"
