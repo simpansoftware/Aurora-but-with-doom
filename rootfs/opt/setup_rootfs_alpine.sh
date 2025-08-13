@@ -27,13 +27,11 @@ rc-update add savecache shutdown
 rc-update add seedrng boot
 rc-update add swap boot
 rc-update add syslog boot
-chmod +x /etc/init.d/aurora
-rc-update add aurora boot
-
-rc-update add iwd default
 rc-update add wpa_supplicant default
 rc-update add zram-init default
 rc-update add dbus default
+chmod +x /etc/init.d/aurora
+rc-update add aurora default
 
 sed -i 's/=zstd/=lzo/' /etc/conf.d/zram-init
 sed -i '/size0=512/d' /etc/conf.d/zram-init
