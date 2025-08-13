@@ -20,21 +20,7 @@ chmod +x /auroraroot/etc/init.d/aurora
 chmod +x /auroraroot/usr/share/aurora/aurora.sh
 
 auroraselected() {
-    echo "Moving mounts to /auroraroot"
-    mkdir -p "/auroraroot/sys"
-    mount -n -o move "/sys" "/auroraroot/sys"
-    mkdir -p "/auroraroot/proc"
-    mount -n -o move "/proc" "/auroraroot/proc"
-    mkdir -p "/auroraroot/dev"
-    mount -n -o move "/dev" "/auroraroot/dev"
-    mkdir -p /auroraroot/initramfs || {
-        echo "Filesystem marked itself as read only. This is fixed with rebooting."
-        sleep 5
-        reboot -f
-    }
-    pivot_root /auroraroot /auroraroot/initramfs
-    umount -l /initramfs
-    exec /sbin/init < "$TTY1" >> "$TTY1" 2>&1
+    switch_root /auroraroot /sbin/init
 }
 
 splash() {
