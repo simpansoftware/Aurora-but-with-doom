@@ -65,6 +65,7 @@ VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]} - \"${VERSION["REL
 ####################
 ## BASE FUNCTIONS ##
 ####################
+
 # haha 69
 
 funText() {
@@ -139,7 +140,7 @@ funText() {
         "VeeGay[..]"
         "rogged"
         "${RED_B}Error: Failed to find funText.${COLOR_RESET}"
-        "\x1b[38;5;81mTrans\x1b[38;5;213m Rights${COLOR_RESET} Are\x1b[38;5;213m Human\x1b[38;5;81m Rights"
+        "\x1b[38;5;81mTrans\x1b[38;5;213m Rights${COLOR_RESET} Are\x1b[38;5;213m Human\x1b[38;5;81m Rights${COLOR_RESET}"
         ) #              cen-><-ter" 
 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
@@ -936,7 +937,10 @@ prevpage() {
     export page=$(( page - 1 ))
 }
 
-pid1=true
+pid1=false
+if [ "$$" -eq 1 ]; then
+    pid1=true
+fi
 
 menu1_options=(
     "1. Open Terminal"
@@ -968,11 +972,11 @@ menu1_options+=(
     "$( [ $pid1 = false ] && echo "7" || echo "8" ). Exit and Reboot"
 )
 menu2_options+=(
-    "$(echo "8" ). Payloads Menu"
-    "$(echo "9" ). AFTGGP [Aurora File Transfer]"
-    "$(echo "10" ). Build Environment"
-    "$(echo "11" ). KVS"
-    "$(echo "12" ). Previous Page"
+    "$(echo "2" ). Payloads Menu"
+    "$(echo "3" ). AFTGGP [Aurora File Transfer]"
+    "$(echo "4" ). Build Environment"
+    "$(echo "5" ). KVS"
+    "$(echo "6" ). Previous Page"
 )
 menu1_actions+=(
     "clear && wifi"

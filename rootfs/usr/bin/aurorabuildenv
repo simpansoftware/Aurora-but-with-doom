@@ -103,7 +103,7 @@ aurorabuildenv-create() {
             tar -xf alpine-minirootfs.tar.gz -C "$alpinebuild"
             rm -f "$alpinebuild/sbin/init"
             rm -f alpine-minirootfs.tar.gz
-            echo "nameserver 8.8.8.8" > $alpinebuild/etc/resolv.conf
+            echo "nameserver 1.1.1.1" > $alpinebuild/etc/resolv.conf
             cat <<EOF > $alpinebuild/etc/apk/repositories
 http://dl-cdn.alpinelinux.org/alpine/edge/main
 http://dl-cdn.alpinelinux.org/alpine/edge/community

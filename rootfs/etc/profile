@@ -1,0 +1,34 @@
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+export PAGER=less
+umask 022
+
+for script in /etc/profile.d/*.sh ; do
+	if [ -r "$script" ] ; then
+		. "$script"
+	fi
+done
+unset script
+
+if [ "$USER" = "root" ]; then
+  PS1='\e[1;31m\u@\h \e[1;33m$(date +"%H:%M %b %d")\e[1;32m \w/\e[0m '
+else
+  PS1='\e[1;34m\u@\h \e[1;33m$(date +"%H:%M %b %d")\e[1;32m \w/\e[0m '
+fi
+
+export TERM=xterm-direct
+alias ls='ls --color=auto'
+alias dir='dir --color=auto'
+alias grep='grep --color=auto'
+alias reboot='reboot -f'
+alias toilet="figlet" # those who know
+
+echo ""
+if [ -z "$login" ]; then
+  cat /etc/motd
+  stty intr ''
+  read -p "$(hostname) login: " USER
+  stty intr '^C'
+  export login=1
+  exec sudo -u "$USER" login=1 bash -l
+fi
