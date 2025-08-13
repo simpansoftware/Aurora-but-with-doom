@@ -795,7 +795,7 @@ downloadreco() {
     chmod +x /usr/bin/bigtext
     bigtext download
 	versions || fail "Failed to get version"
-    wget -q --show-status "$FINAL_URL" -O "$aroot/images/recovery/$chromeVersion.zip" || {
+    wget -q --show-progress "$FINAL_URL" -O "$aroot/images/recovery/$chromeVersion.zip" || {
         fail "Failed to download ChromeOS recovery image."
     }
     FINAL_FILENAME=$(unzip -Z1 "$aroot/images/recovery/$chromeVersion.zip")
@@ -834,7 +834,7 @@ downloadshim() {
     fi
     shimfile=$(echo $FINALSHIM_URL | awk -F/ '{print $NF}')
     shimname=$(echo $shimfile | sed "s/.${shimtype}//")
-    wget -q --show-status "$FINALSHIM_URL" -O "$aroot/images/shims/$shimfile" || {
+    wget -q --show-progress "$FINALSHIM_URL" -O "$aroot/images/shims/$shimfile" || {
         fail "Failed to download shim."
     }
     if [ "$shimtype" = "zip" ]; then

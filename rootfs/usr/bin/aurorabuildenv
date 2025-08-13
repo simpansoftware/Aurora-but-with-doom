@@ -97,7 +97,7 @@ aurorabuildenv-create() {
     if [ "${buildenvname}" = "alpine" ]; then
         if [ ! -e "${aroot}/build/env/${buildenvname}/etc/.exists" ]; then
             export alpinebuild="$aroot/build/env/alpine"
-            wget -q --show-status "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$(uname -m)/alpine-minirootfs-3.22.0-$(uname -m).tar.gz" -O alpine-minirootfs.tar.gz
+            wget -q --show-progress "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$(uname -m)/alpine-minirootfs-3.22.0-$(uname -m).tar.gz" -O alpine-minirootfs.tar.gz
             tar -xf alpine-minirootfs.tar.gz -C "$alpinebuild"
             rm -f "$alpinebuild/sbin/init"
             rm -f alpine-minirootfs.tar.gz
