@@ -681,11 +681,12 @@ EOF
 
 connect() {
     ifconfig $wifidevice down
-    kill -SIGUSR2 $(pgrep udhcpc)
+    pkill -12 udhcpc
+    pkill udhcpc 2>/dev/null
     killall wpa_supplicant 2>/dev/null
     rm -rf /etc/wpa_supplicant* /etc/*dhcpc*
     ifconfig $wifidevice up
-    if [ -n $DIS ]; then return; fi
+    if [ -n "$DIS" ]; then return; fi
     echo_c "Available Networks\n" GEEN_B | center
     mapfile -t wifi_options < <(
         iw dev "$wifidevice" scan | grep 'SSID:' | sed -E 's/.*SSID: //g'
@@ -1074,8 +1075,8 @@ for wifi in iwlwifi iwlmvm ccm 8021q; do
     modprobe "$wifi" 2>/dev/null
 done
 export needswifi=0
-echo -e "[${GEEN_B}+${COLOR_RESET}] Connecting to wifi" | center
 if [ -f "/etc/wpa_supplicant.conf" ]; then
+    echo -e "[${GEEN_B}+${COLOR_RESET}] Connecting to wifi" | center
     export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
     wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
 
