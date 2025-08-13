@@ -1,5 +1,6 @@
 #!/bin/bash
-
+tput civis
+stty -echo
 printf "\033]input:on\a"
 printf "\033[?25h"
 /bin/busybox --install -s /bin
