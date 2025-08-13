@@ -11,5 +11,4 @@ export TTY3="/dev/tty4"
 [ -e /dev/pts/0 ] && export TTY1="/dev/pts/0" && export TTY2="/dev/pts/1" && export TTY3="/dev/pts/3"
 setsid -c test
 export needswifi=1
-exec <${TTY1} >>${TTY1} 2>&1
-exec bash /usr/share/aurora/aurora.sh <${TTY1} >>${TTY1} 2>&1
+exec /sbin/agetty --noclear "$TTY1" linux < "$TTY1" >> "$TTY1" 2>&1
