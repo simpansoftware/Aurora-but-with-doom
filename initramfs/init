@@ -12,6 +12,8 @@ export MAGENTA_B="\033[1;35m"
 export PINK_B="\x1b[1;38;2;235;170;238m"
 export CYAN_B="\033[1;36m"
 export PS1='\e[1;34m\]\u@\h \e[1;33m\]$(date +"%H:%M %b %d")\e[1;32m\] \w/\[\e[0m\] '
+chmod +x /auroraroot/etc/init.d/aurora
+chmod +x /auroraroot/usr/share/aurora/aurora.sh
 
 auroraselected() {
     echo "Moving mounts to /auroraroot"
@@ -26,8 +28,6 @@ auroraselected() {
         sleep 5
         reboot -f
     }
-    chmod +x /auroraroot/etc/init.d/aurora
-    chmod +x /auroraroot/usr/share/aurora/aurora.sh
     pivot_root /auroraroot /auroraroot/initramfs
     umount -l /initramfs
     exec /sbin/init < "$TTY1" >> "$TTY1" 2>&1
