@@ -38,13 +38,6 @@ EOF
 echo -e "$COLOR_RESET"
 }
 
-┏━━━━┳━━━━┓
-┃    ┃    ┃
-┣━━━━╋━━━━┫
-┃    ┃    ┃
-┗━━━━┻━━━━┛
-
-
 wifi() {
 echo -e "$GEEN_B"
 cat <<'EOF' | center
