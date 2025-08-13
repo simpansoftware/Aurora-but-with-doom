@@ -768,6 +768,15 @@ wifi() {
         esac
     else
         connect || fail "Failed to connect."
+        while true; do
+            read_center -d "Enter your timezone: " timezone
+            timezone="*$(echo "$timezone" | sed 's/ /*/g')*"
+            timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -n 1 | awk -F/ '{print $NF}')
+            if [[ -z "$timezonefile" ]]; then echo "Invalid timezone" | center; continue; fi
+            rm -rf /etc/localtime
+            ln -s "$timezonefile" /etc/localtime
+            break
+        done
     fi
     sync
 }
@@ -1024,15 +1033,6 @@ setup() {
             n|N) ;;
             *) setupuser ;;
         esac
-        while true; do
-            read_center -d "Enter your timezone: " timezone
-            timezone="*$(echo "$timezone" | sed 's/ /*/g')*"
-            timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -n 1 | awk -F/ '{print $NF}')
-            if [[ -z "$timezonefile" ]]; then echo "Invalid timezone" | center; continue; fi
-            rm -rf /etc/localtime
-            ln -s "$timezonefile" /etc/localtime
-            break
-        done
         read_center -d "Change Hostname? (y/N): " changehostname
         case $changehostname in
             y) read_center -d "Hostname: " hostname
