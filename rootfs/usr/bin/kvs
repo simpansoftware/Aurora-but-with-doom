@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /usr/share/aurora/centering
+source /usr/share/aurora/functions
 export TERM=xterm-direct
 kvs() {
     while true; do

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /usr/share/aurora/centering
+source /usr/share/aurora/functions
 echo -e "${MAGENTA_B}Credits"
 echo -e "${PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Got Wifi"
 echo -e "${RED_B}Mariah Carey${COLOR_RESET}: Bugfixing and bugtesting"

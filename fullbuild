@@ -1,6 +1,0 @@
-#!/bin/bash
-
-apt install wget curl bash e2fsprogs gdisk cgpt rsync
-board=$1
-wget -q "https://github.com/EtherealWorkshop/sh1mmer/releases/download/v1.0.0/${board}.bin" -O "./${board}.bin" || exit 1
-./Aurora ./${board}.bin

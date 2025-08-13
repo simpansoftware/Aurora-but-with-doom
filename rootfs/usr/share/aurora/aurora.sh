@@ -20,7 +20,7 @@
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 cd /
-source /usr/share/aurora/centering
+source /usr/share/aurora/functions
 stty sane
 stty erase '^H'
 stty intr ''
@@ -80,7 +80,6 @@ funText() {
         "\"purr :3 mrrow\" - Synaptic" 
         "who else but quagmire?\nhe's quagmire, quagmire,\nyou never really know what\nhe's gonna do next\nhe's quagmire, quagmire,\ngiggitygiggitygiggitygiggity\nlet's have [...]"
         "rhymes with grug"
-        "rhymes with grug"
         "now with free thigh highs!"
         ":3"
         "cr50 hammer? i think you meant \"no PoC\"."
@@ -113,14 +112,12 @@ funText() {
         "idk why age matters - shrey719"
         "gurt: yo"
         "I am the Lorax and I speak for the trees"
-        "Vaporeon is that a EndlessVortex reference"
         "CHICKEN JOCKEY"
         "stellaword12"
         "PLEASE INSERT DI"
         "the higher glue appear trend is now large."
         "one cannot simply walk into mordor\n- some dumbass who didn't walk into mordor"
         "i don't want a lot for christmas\nthere is just one thing i need"
-        "we should put particles.js in a shim"
         "vermont isn't real"
         "\"Bite Me\" - Weird Al"
         "Hi there. I'm SmallAnt1."
@@ -131,7 +128,6 @@ funText() {
         "swiss cheese yo ahhh"
         "you keep using that word\ni do not think it means what you think it means."
         "give me andrew"
-        "I am not fanqyxl. -Fanqyxl"
         "it runs the demon - OlyB"
         "GOOD MANNERS\n1 Wait your turn\n2 Use polite words\n3 Listen Carefully"
         "mommy may I please have fakemod :3\n- synaptic"
@@ -140,11 +136,16 @@ funText() {
         "VeeGay[..]"
         "rogged"
         "Oh Reginald? I DISAGREE!"
+        "Good News, Everyone!"
         "${RED_B}Error: Failed to find funText.${COLOR_RESET}"
         "\x1b[38;5;81mTrans\x1b[38;5;213m Rights${COLOR_RESET} Are\x1b[38;5;213m Human\x1b[38;5;81m Rights${COLOR_RESET}"
+        "Big news for the unemployed!"
+        "blahaj"
+        "Shut Up, Synaptic!"
+        "bash: line 182: tput: I/O error$(printf "%*s" "$(( $(tput cols) - 31 ))" "")bash: line 192: tput: I/O error$(printf "%*s" "$(( $(tput cols) - 31 ))" "")bash: line 194: tput: I/O error$(printf "%*s" "$(( $(tput cols) - 31 ))" "")"
         ) #              cen-><-ter" 
 
-  	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
+  	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]}
 	echo -e " "
    	echo -e "$selectedSplashText"
 }
@@ -763,19 +764,6 @@ wifi() {
         connect || fail "Failed to connect."
     fi
     sync
-}
-
-canwifi() {
-  if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase!
-    "$@"
-  else
-    echo "Nebula Services is down. Trying example.com..." | center
-    if curl -Is https://example.com | head -n 1 | grep -q "HTTP/"; then
-        "$@"
-    else
-        fail "Not connected to the internet"
-    fi
-  fi
 }
 
 download() {

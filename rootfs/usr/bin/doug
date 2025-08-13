@@ -1,5 +1,5 @@
 #!/bin/bash
 
-source /usr/share/aurora/centering
+source /usr/share/aurora/functions
 clear
 cat /media/douglas | center

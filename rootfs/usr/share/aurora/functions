@@ -12,6 +12,19 @@ export MAGENTA_B="\033[1;35m"
 export PINK_B="\x1b[1;38;5;212m"
 export CYAN_B="\033[1;36m"
 
+canwifi() {
+  if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase!
+    "$@"
+  else
+    echo "Nebula Services is down. Trying example.com..." | center
+    if curl -Is https://example.com | head -n 1 | grep -q "HTTP/"; then
+        "$@"
+    else
+        fail "Not connected to the internet"
+    fi
+  fi
+}
+
 center() {
     local width=$(tput cols)
     local offset="${1:-0}"
