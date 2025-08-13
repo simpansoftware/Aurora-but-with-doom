@@ -1082,20 +1082,6 @@ EOF
     }
     udevadm trigger | center || :
     udevadm settle | center || :
-
-    chmod +x /usr/share/aurora/aurora.sh
-    setsid bash -c "
-    while true; do
-        script -qfc '/usr/share/aurora/aurora.sh' /dev/null < $TTY2 > $TTY2 2>&1
-        sleep 1
-    done
-    " &
-    setsid bash -c "
-    while true; do
-        script -qfc '/usr/share/aurora/aurora.sh' /dev/null < $TTY3 > $TTY3 2>&1
-        sleep 1
-    done
-    " &
 fi
 
 for wifi in iwlwifi iwlmvm ccm 8021q; do

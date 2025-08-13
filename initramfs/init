@@ -16,7 +16,7 @@ export TTY1="/dev/tty1"
 export TTY2="/dev/tty2"
 export TTY3="/dev/tty4"
 [ -e /dev/pts/0 ] && export TTY1="/dev/pts/0" && export TTY2="/dev/pts/1" && export TTY3="/dev/pts/3"
-chmod +x /auroraroot/etc/init.d/aurora
+chmod +x /auroraroot/sbin/init
 chmod +x /auroraroot/usr/share/aurora/aurora.sh
 
 auroraselected() {
