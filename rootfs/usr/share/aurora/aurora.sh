@@ -474,6 +474,7 @@ installcros() {
     stty echo
     tput cnorm
     read_center -d "This will wipe your ChromeOS drive. Please type 'confirm' to continue: " confirmation
+    tput civis
     if [ ! "$confirmation" = "confirm" ]; then echo "Exiting..." | center; sleep 2; return; fi
     mkdir -p $recoroot
     echo -e "Searching for ROOT-A on reco image" | center
