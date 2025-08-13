@@ -20,7 +20,7 @@ chmod +x /auroraroot/etc/init.d/aurora
 chmod +x /auroraroot/usr/share/aurora/aurora.sh
 
 auroraselected() {
-    switch_root /auroraroot /sbin/init
+    exec switch_root /auroraroot /sbin/init < "$TTY1" >> "$TTY1" 2>&1
 }
 
 splash() {
