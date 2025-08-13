@@ -993,7 +993,6 @@ menu2_actions+=(
     "prevpage"
 )
 
-
 errormessage() {
     if [ -n "$errormsg" ]; then 
         echo -en "${RED_B}"
