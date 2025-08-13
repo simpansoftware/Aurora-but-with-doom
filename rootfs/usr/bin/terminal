@@ -1,8 +1,0 @@
-#!/bin/sh
-
-export TTY1="/dev/tty1"
-export TTY2="/dev/tty2"
-export TTY3="/dev/tty4"
-[ -e /dev/pts/0 ] && export TTY1="/dev/pts/0" && export TTY2="/dev/pts/1" && export TTY3="/dev/pts/3"
-
-exec /sbin/agetty --noclear "$TTY1" linux < "$TTY1" >> "$TTY1" 2>&1
