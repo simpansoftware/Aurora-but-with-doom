@@ -1,6 +1,9 @@
 #!/bin/sh
 
-setup-hostname Aurora
+
+hostname Aurora
+echo "Aurora" > /etc/hostname
+echo "127.0.0.1 localhost Aurora" >> /etc/hosts 
 
 cat <<EOF > /etc/apk/repositories
 http://dl-cdn.alpinelinux.org/alpine/edge/main
