@@ -22,7 +22,7 @@ kvs() {
         fi
         echo "Struct ver: $ver" | center
         break=1
-        if [[ ! "$kernver" =~ ^[0-9A-Fa-f]{8}$ ]]; then
+        if [[ ! "$kernver" =~ ^[0-9A-Fa-f]{1,8}$ ]]; then
             echo "Invalid Kernver. Maximum 8 characters after 0x [e.g: 0x00000001]" | center
             break=0
             for mnt in /dev /proc /sys; do
