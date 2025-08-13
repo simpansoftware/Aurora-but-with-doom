@@ -1029,8 +1029,7 @@ setup() {
             timezone="*$(echo "$timezone" | sed 's/ /*/g')*"
             timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -n 1 | awk -F/ '{print $NF}')
             if [[ -z "$timezonefile" ]]; then echo "Invalid timezone" | center; continue; fi
-            rm -f /etc/localtime /etc/timezone
-            echo "${timezonefile#/usr/share/zoneinfo/}" > /etc/timezone
+            rm -rf /etc/localtime
             ln -s "$timezonefile" /etc/localtime
             break
         done
