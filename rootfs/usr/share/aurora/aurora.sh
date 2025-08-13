@@ -857,14 +857,13 @@ downloadyo() {
 updateshim() {
     arch=$(uname -m)
     apk add git github-cli
-    rm -rf /usr/share/aurora/aurora.sh
     if [ -d "/root/Aurora/.git" ]; then
         git config --global submodule.recurse true
-        git -C "/root/Aurora" pull origin alpine
+        git -C "/root/Aurora" pull origin alpine || return
     else
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
         gh auth status || gh auth login || return
-        git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive
+        git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive || return
         git config --global submodule.recurse true
     fi
     echo "Copying files"
