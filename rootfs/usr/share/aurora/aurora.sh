@@ -546,7 +546,7 @@ shimboot() {
     bigtext shimboot
 	if [[ -z "$(ls -A $aroot/images/shims)" ]]; then
         echo -e "${YELLOW_B}You have no shims downloaded!\nPlease download or build a few images." | center
-		echo "Alternatively, these are available on websites such as dl.fanqyxl.net. Put them into /usr/share/aurora/images/shims" | center
+		echo "Alternatively, shims are available in https://github.com/EtherealWorkshop/[Sh1mmer, KVS, Aurora]/releases. Put them into /usr/share/aurora/images/shims" | center
         read_center "Press Enter to return to the main menu..."
         echo -e "${COLOR_RESET}"
 		return
@@ -795,7 +795,7 @@ downloadreco() {
     chmod +x /usr/bin/bigtext
     bigtext download
 	versions || fail "Failed to get version"
-    curl --fail --progress-bar -k "$FINAL_URL" -o "$aroot/images/recovery/$chromeVersion.zip" || {
+    wget -q --show-status "$FINAL_URL" -O "$aroot/images/recovery/$chromeVersion.zip" || {
         fail "Failed to download ChromeOS recovery image."
     }
     FINAL_FILENAME=$(unzip -Z1 "$aroot/images/recovery/$chromeVersion.zip")
@@ -814,7 +814,7 @@ downloadshim() {
     local release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
     export board_name=${release_board%%-*}
     	options_download=(
-	    "SH1MMER Legacy - dl.fanqyxl.net mirror"
+	    "Sh1mmer Legacy - EtherealWorkshop/Sh1mmer/releases"
         "Custom Shim from URL - netshare later update? perchance..."
 	)
 
@@ -822,7 +822,7 @@ downloadshim() {
 	download_choice=$?
 
 	case "$download_choice" in
-	    0) export FINALSHIM_URL="https://ddl.fanqyxl.net/ChromeOS/Prebuilts/Sh1mmer/Legacy/${board_name}-legacy.zip" ;;
+	    0) export FINALSHIM_URL="https://github.com/EtherealWorkshop/sh1mmer/releases/download/v2.0.0/${board_name}.bin" ;;
 	    1) tput cnorm
            stty echo
            read_center -d "Enter Shim URL: " FINALSHIM_URL ;;
@@ -834,7 +834,7 @@ downloadshim() {
     fi
     shimfile=$(echo $FINALSHIM_URL | awk -F/ '{print $NF}')
     shimname=$(echo $shimfile | sed "s/.${shimtype}//")
-    curl --fail --progress-bar -k "$FINALSHIM_URL" -o "$aroot/images/shims/$shimfile" || {
+    wget -q --show-status "$FINALSHIM_URL" -O "$aroot/images/shims/$shimfile" || {
         fail "Failed to download shim."
     }
     if [ "$shimtype" = "zip" ]; then

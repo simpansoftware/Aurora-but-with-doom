@@ -38,14 +38,9 @@ export board_name=${release_board%%-*}
 
 downloadrawshim() {
     export basebuildshim="$aroot/build/.$board_name.bin"
-    export basebuildzip="$aroot/build/.$board_name.zip"
     if [ ! -f "$basebuildshim" ]; then
-        echo "Downloading Raw Shim for $board_name [ https://ddl.fanqyxl.net/ChromeOS/Raw%20Shims/${board_name}-raw.zip ]"
-        curl --progress-bar -Lk "https://ddl.fanqyxl.net/ChromeOS/Raw%20Shims/${board_name}-raw.zip" -o "$basebuildzip"
-        buildshim=$(unzip -Z1 "$basebuildzip")
-        unzip $basebuildzip
-        mv $(unzip -Z1 "$basebuildzip") $basebuildshim
-        rm $basebuildzip
+        echo "Downloading Raw Shim for $board_name [ https://github.com/EtherealWorkshop/sh1mmer/releases/download/v1.0.0/${board_name}.bin ]"
+        wget -q --show-progress "https://github.com/EtherealWorkshop/sh1mmer/releases/download/v1.0.0/${board_name}.bin" -O "$basebuildshim"
     fi
 }
 export alpinebuild="$aroot/build/env/alpine"
@@ -102,7 +97,7 @@ aurorabuildenv-create() {
     if [ "${buildenvname}" = "alpine" ]; then
         if [ ! -e "${aroot}/build/env/${buildenvname}/etc/.exists" ]; then
             export alpinebuild="$aroot/build/env/alpine"
-            curl -L "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$(uname -m)/alpine-minirootfs-3.22.0-$(uname -m).tar.gz" -o alpine-minirootfs.tar.gz
+            wget -q --show-status "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$(uname -m)/alpine-minirootfs-3.22.0-$(uname -m).tar.gz" -O alpine-minirootfs.tar.gz
             tar -xf alpine-minirootfs.tar.gz -C "$alpinebuild"
             rm -f "$alpinebuild/sbin/init"
             rm -f alpine-minirootfs.tar.gz
@@ -163,7 +158,7 @@ EOF
     if [ "${buildenvname}" = "arch" ]; then
         if [ ! -e "${aroot}/build/env/${buildenvname}/etc/.exists" ]; then
             export archbuild="$aroot/build/env/arch"
-            curl -Lo arch-bootstrap.sh https://raw.githubusercontent.com/tokland/arch-bootstrap/master/arch-bootstrap.sh
+            wget -q --show-progress https://raw.githubusercontent.com/tokland/arch-bootstrap/master/arch-bootstrap.sh -O arch-bootstrap.sh
             chmod +x arch-bootstrap.sh
             ./arch-bootstrap.sh "$archbuild"
             touch "$archbuild/etc/.exists"

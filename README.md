@@ -13,15 +13,15 @@ Synaptic :x:<br>
 ## Dependencies
 ### Arch Linux:
 ```bash
-sudo pacman -Sy curl gptfdisk rsync binwalk e2fsprogs && yay -S vboot-utils cgpt
+sudo pacman -Sy wget curl gptfdisk rsync binwalk e2fsprogs && yay -S vboot-utils cgpt
 ```
 ### Debian:
 ```bash
-sudo apt install curl bash e2fsprogs gdisk cgpt rsync
+sudo apt install wget curl bash e2fsprogs gdisk cgpt rsync
 ```
 ### Alpine:
 ```bash
-apk add curl bash e2fsprogs gptfdisk sgdisk cgpt rsync
+apk add curl wget bash e2fsprogs gptfdisk sgdisk cgpt rsync
 ```
 
 ## Building
