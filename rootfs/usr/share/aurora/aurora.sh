@@ -688,8 +688,6 @@ EOF
 ##########
 
 connect() {
-    chmod +x /usr/bin/bigtext
-    bigtext wifi
     ifconfig $wifidevice down
     pkill -12 udhcpc
     pkill udhcpc 2>/dev/null
@@ -756,6 +754,8 @@ EOF
 }
 
 wifi() {
+    chmod +x /usr/bin/bigtext
+    bigtext wifi
     stty echo
     export wifidevice=$(ip link | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
 
