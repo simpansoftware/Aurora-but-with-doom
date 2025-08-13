@@ -1,9 +1,0 @@
-#!/bin/bash
-
-mkdir -p /alpine
-tools=$(wget -qO- https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/x86_64/ | grep "apk-tools-static" | awk -F "href=\"" '{print $2}' | awk -F "\">" '{print $1}')
-mkdir -p "/alpine"
-wget -q --show-progress "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/x86_64/$tools" -O /alpine/apk-tools-static
-tar --warning=no-unknown-keyword -xzf "/alpine/apk-tools-static" -C "/alpine"
-/alpine/sbin/apk.static --arch $(uname -m) -X http://dl-cdn.alpinelinux.org/alpine/edge/main/ -U --allow-untrusted --root "/alpine" --initdb add alpine-base
-du -sh /alpine
