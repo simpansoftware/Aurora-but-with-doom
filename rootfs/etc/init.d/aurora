@@ -12,4 +12,4 @@ export TTY3="/dev/tty4"
 setsid -c test
 export needswifi=1
 exec <${TTY1} >>${TTY1} 2>&1
-exec bash -l /usr/share/aurora/aurora.sh <${TTY1} >>${TTY1} 2>&1
+exec bash /usr/share/aurora/aurora.sh <${TTY1} >>${TTY1} 2>&1
