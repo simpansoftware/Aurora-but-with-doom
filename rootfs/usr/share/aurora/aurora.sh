@@ -817,7 +817,7 @@ downloadshim() {
     export board_name=${release_board%%-*}
     	options_download=(
 	    "Sh1mmer Legacy - EtherealWorkshop/Sh1mmer/releases"
-        "Custom Shim from URL - netshare later update? perchance..."
+        "Custom Shim from URL"
 	)
 
 	menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${options_download[@]}"
