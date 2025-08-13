@@ -30,5 +30,5 @@ if [ -z "$login" ]; then
   read -p "$(hostname) login: " USER
   stty intr '^C'
   export login=1
-  exec sudo -u "$USER" login=1 bash -l
+  exec sudo -u "$USER" login=1 bash -l 2>/dev/null|| exec sudo -u root login=1 bash -l
 fi
