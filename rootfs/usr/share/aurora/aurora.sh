@@ -935,10 +935,7 @@ prevpage() {
     export page=$(( page - 1 ))
 }
 
-pid1=false
-if [ "$$" -eq 1 ]; then
-    pid1=true
-fi
+pid1=true
 
 menu1_options=(
     "1. Open Terminal"
@@ -1049,12 +1046,10 @@ setup() {
 #############
 ## STARTUP ##
 #############
-
-if [ "$$" -eq 1 ]; then
-    clear
-    tput civis
-    echo -e "$BLUE_B"
-    cat <<'EOF' | center
+clear
+tput civis
+echo -e "$BLUE_B"
+cat <<'EOF' | center
 ╒════════════════════════════════════════╕
 │ .    . .    '    +   *       o    .    │
 │+  '.                    '   .-.     +  │
@@ -1072,30 +1067,29 @@ if [ "$$" -eq 1 ]; then
 │     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
 ╘════════════════════════════════════════╛
 EOF
-    echo -e "${COLOR_RESET}"
+echo -e "${COLOR_RESET}"
 
-    echo -e "[${GEEN_B}+${COLOR_RESET}] Starting udevd" | center
-    /sbin/udevd --daemon | center || {
-        echo -e "[${RED_B}-${COLOR_RESET}] Error: failed to start udevd" | center
-        :
-    }
-    udevadm trigger | center || :
-    udevadm settle | center || :
+echo -e "[${GEEN_B}+${COLOR_RESET}] Starting udevd" | center
+/sbin/udevd --daemon | center || {
+    echo -e "[${RED_B}-${COLOR_RESET}] Error: failed to start udevd" | center
+    :
+}
+udevadm trigger | center || :
+udevadm settle | center || :
 
-    chmod +x /usr/share/aurora/aurora.sh
-    setsid bash -c "
-    while true; do
-        script -qfc '/usr/share/aurora/aurora.sh' /dev/null < $TTY2 > $TTY2 2>&1
-        sleep 1
-    done
-    " &
-    setsid bash -c "
-    while true; do
-        script -qfc '/usr/share/aurora/aurora.sh' /dev/null < $TTY3 > $TTY3 2>&1
-        sleep 1
-    done
-    " &
-fi
+chmod +x /usr/share/aurora/aurora.sh
+setsid bash -c "
+while true; do
+    script -qfc '/usr/share/aurora/aurora.sh' /dev/null < $TTY2 > $TTY2 2>&1
+    sleep 1
+done
+" &
+setsid bash -c "
+while true; do
+    script -qfc '/usr/share/aurora/aurora.sh' /dev/null < $TTY3 > $TTY3 2>&1
+    sleep 1
+done
+" &
 
 for wifi in iwlwifi iwlmvm ccm 8021q; do
     modprobe -r "$wifi" 2>/dev/null || true
