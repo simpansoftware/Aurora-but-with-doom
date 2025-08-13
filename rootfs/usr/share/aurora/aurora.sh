@@ -671,6 +671,8 @@ shimboot() {
 EOF
         fi
         chmod +x /newroot/sbin/init
+        stty echo
+        tput cnorm
         pivot_root /newroot /newroot/tmp/aurora
         echo "Successfully switched root. Starting init..."
         exec /sbin/init || {
