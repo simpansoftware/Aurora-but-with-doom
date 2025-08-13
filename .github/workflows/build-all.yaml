@@ -70,8 +70,9 @@ jobs:
     - name: Build Aurora
       run: |
         set -e
-        chmod +x fullbuild
-        sudo ./fullbuild "${{ matrix.board }}"
+        chmod +x Aurora
+        sudo apt install wget curl bash e2fsprogs gdisk cgpt rsync
+        sudo ./Aurora "${{ matrix.board }}" --auto
 
     - name: Upload built shim
       uses: softprops/action-gh-release@v2

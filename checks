@@ -5,9 +5,33 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 if [ -z "$1" ]; then
-    echo "Usage: sudo bash Aurora /path/to/rawshim.bin /path/to/payload/dir/"
+    echo "Usage: sudo bash Aurora /path/to/rawshim.bin [--auto]"
     exit 1
 fi
+
+deps=""
+for cmd in basename cat cgpt chroot chmod cp dd findmnt git grep head losetup mkfs.ext4 mktemp mount mv rm rsync sed sgdisk sync tar touch truncate umount wget; do
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        deps+=", $cmd"
+    fi
+done
+
+if [ -n "$deps" ]; then
+    echo "Error: Missing Dependencies: $deps" | sed 's/cies: , /cies: /'
+    exit 1
+fi
+
+if [ "$2" = "--auto" ]; then
+    board="$1"
+    export shim="./${board}.bin"
+    rm -f $shim
+    wget -q --show-progress "https://github.com/EtherealWorkshop/sh1mmer/releases/download/v1.0.0/${board}.bin" -O "$shim" || {
+        echo "Invalid board."    
+    }
+else
+    export shim=$(realpath -m $1)
+fi
+export aurorashim="./aurora-$(basename "$shim")"
 
 temproot=$(mktemp -d)
 loopdev=$(losetup -Pf --show $shim)

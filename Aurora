@@ -51,12 +51,12 @@ lsbval() {
   }" "$lsbfile"
 }
 
-export shim=$(realpath -m $1)
-source ./checks
-[ -n "$2" ] && payloads=$(realpath -m "$2")
-aurorashim="./aurora-$(basename "$shim")"
+source ./checks $@
 
-[ -z "$shim" ] && echo_c "Please run on a raw shim." RED_B
+if [ -z "$shim" ] || echo "$shim" | grep -vq ".bin"; then
+  echo_c "Please run on a raw shim." RED_B
+fi
+
 initramfs=$(mktemp -d)
 rootfs=$(mktemp -d)
 [ -z "usr/share/aurora/aurora.sh" ] && echo_c "Please run in the base directory of Aurora." RED_B
@@ -69,7 +69,7 @@ rm -f "$aurorashim"
 truncate -s 694200K "$aurorashim" # haha 69
 
 echo_c "\nBootstrapping Alpine" BLUE_B
-curl -sL "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$arch/alpine-minirootfs-3.22.0-$arch.tar.gz" -o alpine-minirootfs.tar.gz 
+wget -q --show-progress "https://dl-cdn.alpinelinux.org/alpine/v3.22/releases/$arch/alpine-minirootfs-3.22.0-$arch.tar.gz" -O alpine-minirootfs.tar.gz 
 
 tar -xf alpine-minirootfs.tar.gz -C "$rootfs"
 rm -f "$rootfs/sbin/init" "alpine-minirootfs.tar.gz"
@@ -162,7 +162,6 @@ mount "$root_b" "$root_bmount"
 echo_c "Done.\n\n${BLUE_B}Copying rootfs to shim" "GEEN_B"
 rm -f "$rootfs/sbin/init"
 cp -ar rootfs/. "$rootfs"
-[ -n "$2" ] && cp -r "$payloads"/. "$rootfs"
 rsync -avH --info=progress2 --delete "$rootfs/." "$root_bmount" &>/dev/null
 
 echo_c "Done.\n\n${BLUE_B}Copying initramfs to shim" "GEEN_B"
@@ -183,6 +182,7 @@ umount "$root_bmount" -l 2>/dev/null
 losetup -D
 rm -rf "$rootfs" "$initramfs" "$statemount" "$root_amount" "$root_bmount"
 mv "$aurorashim" "${boardname}-aurora.bin" 2>/dev/null
+[ "$2" = "--auto" ] && rm $shim
 finalshim="${boardname}-aurora.bin"
 
 echo -e "${MAGENTA_B}Credits"

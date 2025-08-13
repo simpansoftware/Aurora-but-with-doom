@@ -139,6 +139,7 @@ funText() {
         "Nothing beats a Jet2 Holiday"
         "VeeGay[..]"
         "rogged"
+        "Oh Reginald? I DISAGREE!"
         "${RED_B}Error: Failed to find funText.${COLOR_RESET}"
         "\x1b[38;5;81mTrans\x1b[38;5;213m Rights${COLOR_RESET} Are\x1b[38;5;213m Human\x1b[38;5;81m Rights${COLOR_RESET}"
         ) #              cen-><-ter" 
