@@ -27,6 +27,7 @@ auroraselected() {
         reboot -f
     }
     chmod +x /auroraroot/etc/init.d/aurora
+    chmod +x /auroraroot/usr/share/aurora/aurora.sh
     pivot_root /auroraroot /auroraroot/initramfs
     umount -l /initramfs
     exec /sbin/init < "$TTY1" >> "$TTY1" 2>&1
