@@ -1,2 +1,0 @@
-source /usr/share/aurora/functions
-canwifi setsid bash <(curl -sSf https://mrchromebox.tech/firmware-util.sh)
