@@ -267,7 +267,7 @@ splash() {
     else
         ssid="$(iw dev "$wifidevice" link 2>/dev/null | awk -F ': ' '/SSID/ {print $2}')"
         if [ -f /etc/aftggp ]; then
-            ssid="$ssid | ${BLUE_B}AFT running at: $(ip a | grep wlan0 | grep inet | awk '{print $2}' | sed 's|/.*||'):6969${COLOR_RESET}"
+            ssid="$ssid | ${BLUE_B}AFT running at: $(ip a | grep wlan0 | grep inet | awk '{print $2}' | sed 's|/.*||'):69420${COLOR_RESET}"
         fi
         if [ -n "$ssid" ]; then
             echo -e "\n${GEEN_B}● $wifidevice${COLOR_RESET} $ssid" | center
