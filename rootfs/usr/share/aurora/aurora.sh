@@ -19,14 +19,11 @@
 # TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 # THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-cd /
-source /usr/share/aurora/functions
+source /usr/share/aurora/centering
 stty sane
 stty erase '^H'
 stty intr ''
-stty -echo
 export stty=$(stty -g)
-stty echo
 export TTY1="/dev/tty1"
 export TTY2="/dev/tty2"
 export LOGTTY="/dev/tty3"
@@ -65,7 +62,6 @@ VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]} - \"${VERSION["REL
 ####################
 ## BASE FUNCTIONS ##
 ####################
-
 # haha 69
 
 funText() {
@@ -79,6 +75,7 @@ funText() {
         "Well-made Quality Assured Durability" 
         "\"purr :3 mrrow\" - Synaptic" 
         "who else but quagmire?\nhe's quagmire, quagmire,\nyou never really know what\nhe's gonna do next\nhe's quagmire, quagmire,\ngiggitygiggitygiggitygiggity\nlet's have [...]"
+        "rhymes with grug"
         "rhymes with grug"
         "now with free thigh highs!"
         ":3"
@@ -112,12 +109,14 @@ funText() {
         "idk why age matters - shrey719"
         "gurt: yo"
         "I am the Lorax and I speak for the trees"
+        "Vaporeon is that a EndlessVortex reference"
         "CHICKEN JOCKEY"
         "stellaword12"
         "PLEASE INSERT DI"
         "the higher glue appear trend is now large."
         "one cannot simply walk into mordor\n- some dumbass who didn't walk into mordor"
         "i don't want a lot for christmas\nthere is just one thing i need"
+        "we should put particles.js in a shim"
         "vermont isn't real"
         "\"Bite Me\" - Weird Al"
         "Hi there. I'm SmallAnt1."
@@ -128,6 +127,7 @@ funText() {
         "swiss cheese yo ahhh"
         "you keep using that word\ni do not think it means what you think it means."
         "give me andrew"
+        "I am not fanqyxl. -Fanqyxl"
         "it runs the demon - OlyB"
         "GOOD MANNERS\n1 Wait your turn\n2 Use polite words\n3 Listen Carefully"
         "mommy may I please have fakemod :3\n- synaptic"
@@ -135,17 +135,11 @@ funText() {
         "Nothing beats a Jet2 Holiday"
         "VeeGay[..]"
         "rogged"
-        "Oh Reginald? I DISAGREE!"
-        "Good News, Everyone!"
         "${RED_B}Error: Failed to find funText.${COLOR_RESET}"
-        "\x1b[38;5;81mTrans\x1b[38;5;213m Rights${COLOR_RESET} Are\x1b[38;5;213m Human\x1b[38;5;81m Rights${COLOR_RESET}"
-        "Big news for the unemployed!"
-        "blahaj"
-        "Shut Up, Synaptic!"
-        "bash: line 182: tput: I/O error$(printf "%*s" "$(( $(tput cols) - 31 ))" "")bash: line 192: tput: I/O error$(printf "%*s" "$(( $(tput cols) - 31 ))" "")bash: line 194: tput: I/O error$(printf "%*s" "$(( $(tput cols) - 31 ))" "")"
+        "\x1b[38;5;81mTrans\x1b[38;5;213m Rights${COLOR_RESET} Are\x1b[38;5;213m Human\x1b[38;5;81m Rights"
         ) #              cen-><-ter" 
 
-  	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]}
+  	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]} # it just really rhymes with grug what can i say
 	echo -e " "
    	echo -e "$selectedSplashText"
 }
@@ -208,6 +202,7 @@ menu() {
         ((selected < 0)) && selected=$((count - 1))
         ((selected >= count)) && selected=0
     done
+    tput cnorm
     return $selected
 }
 
@@ -352,8 +347,7 @@ versions() {
 
 	case "$install_choice" in
 	    0) chromeVersion="latest" ;;
-	    1) stty echo
-           read_center -d "Enter Version: " chromeVersion ;;
+	    1) read_center -d "Enter Version: " chromeVersion ;;
         *) fail "Invalid choice (somehow?????)" ;;
 	esac
     echo "Fetching recovery image..." | center
@@ -472,8 +466,6 @@ installcros() {
             break
         done
 	fi
-    stty echo
-    tput cnorm
     read_center -d "This will wipe your ChromeOS drive. Please type 'confirm' to continue: " confirmation
     if [ ! "$confirmation" = "confirm" ]; then echo "Exiting..." | center; sleep 2; return; fi
     mkdir -p $recoroot
@@ -569,8 +561,7 @@ shimboot() {
     if lsblk -o PARTLABEL $loop | grep "shimboot"; then
         touch /etc/shimboot
         sync
-        stty echo
-        read_center -d "Reboot to boot into shimboot instead of Aurora from the initramfs? (Y/n): " bootshimboot
+        read_center "Reboot to boot into shimboot instead of Aurora from the initramfs? (Y/n): " bootshimboot
         case $bootshimboot in
             n|N|no|No|NO) return 0 ;;
             *) losetup -D && reboot -f ;;
@@ -685,13 +676,12 @@ EOF
 
 connect() {
     ifconfig $wifidevice down
-    pkill -12 udhcpc
-    pkill udhcpc 2>/dev/null
+    kill -SIGUSR2 $(pgrep udhcpc)
     killall wpa_supplicant 2>/dev/null
     rm -rf /etc/wpa_supplicant* /etc/*dhcpc*
     ifconfig $wifidevice up
-    if [ -n "$DIS" ]; then return; fi
     echo_c "Available Networks\n" GEEN_B | center
+    sleep 5
     mapfile -t wifi_options < <(
         iw dev "$wifidevice" scan | grep 'SSID:' | sed -E 's/.*SSID: //g'
     )
@@ -707,7 +697,6 @@ connect() {
         fi
         break
     done
-    stty echo
     read_center -d "Enter password for $ssid: " psk
     conf="/etc/wpa_supplicant.conf"
     if grep -q "ssid=\"$ssid\"" "$conf" 2>/dev/null; then
@@ -744,26 +733,39 @@ EOF
         return 1
     fi
 
-    udhcpc -i "$wifidevice" 2>/dev/null || {
+    udhcpc -i "$wifidevice" >/dev/null || {
         return 1
     }
 }
 
 wifi() {
-    stty echo
     export wifidevice=$(ip link | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
 
     if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
         echo "Currently connected to a network." | center
-        read_center -d "Disconnect from this network? (y/N): " connectornah
+        echo "Connect to a different network? (y/N): " | center
+        read_center -d "" connectornah
         case $connectornah in
-            y|Y|yes|Yes) DIS=1 connect || fail "Failed to connect." ;;
+            y|Y|yes|Yes) connect || fail "Failed to connect." ;;
             *) ;;
         esac
     else
         connect || fail "Failed to connect."
     fi
     sync
+}
+
+canwifi() {
+  if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase!
+    "$@"
+  else
+    echo "Nebula Services is down. Trying example.com..." | center
+    if curl -Is https://example.com | head -n 1 | grep -q "HTTP/"; then
+        "$@"
+    else
+        fail "Not connected to the internet"
+    fi
+  fi
 }
 
 download() {
@@ -811,9 +813,7 @@ downloadshim() {
 
 	case "$download_choice" in
 	    0) export FINALSHIM_URL="https://ddl.fanqyxl.net/ChromeOS/Prebuilts/Sh1mmer/Legacy/${board_name}-legacy.zip" ;;
-	    1) tput cnorm
-           stty echo
-           read_center -d "Enter Shim URL: " FINALSHIM_URL ;;
+	    1) read_center -d "Enter Shim URL: " FINALSHIM_URL ;;
         *) fail "Invalid choice (somehow?????)" ;;
 	esac
     shimtype=$(echo $FINALSHIM_URL | awk -F. '{print $NF}')
@@ -845,14 +845,15 @@ downloadyo() {
 updateshim() {
     arch=$(uname -m)
     apk add git github-cli
+    rm -rf /usr/share/aurora/aurora.sh
     if [ -d "/root/Aurora/.git" ]; then
-        HOME=/root git config --global submodule.recurse true
-        HOME=/root git -C "/root/Aurora" pull origin alpine
+        git config --global submodule.recurse true
+        git -C "/root/Aurora" pull origin alpine
     else
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
-        gh auth login || return
-        HOME=/root git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive
-        HOME=/root git config --global submodule.recurse true
+        gh auth status || gh auth login || return
+        git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive
+        git config --global submodule.recurse true
     fi
     echo "Copying files"
     cp -Lar /root/Aurora/rootfs/. /
@@ -877,9 +878,38 @@ updateshim() {
     fi
 }
 
+update_sh1mmer() {
+	if [[ -z "$(ls -A $aroot/images/shims)" ]]; then
+        echo -e "${YELLOW_B}You have no shims downloaded!\nPlease download or build a few images." | center
+		echo "Alternatively, these are available on websites such as dl.fanqyxl.net. Put them into /usr/share/aurora/images/shims" | center
+        read_center "Press Enter to return to the main menu..."
+        echo -e "${COLOR_RESET}"
+		return
+	else
+        mapfile -t shimchoose < <(find "$aroot/images/shims" -type f)
+        shim_options=("${shimchoose[@]}" "Exit")
+
+        while true; do
+            menu "Choose the shim you want to update:" "${shim_options[@]}"
+            choice=$?
+            shim="${shim_options[$choice]}"
+            if [[ "$shim" == "Exit" ]]; then
+                read_center "Press Enter to continue..."
+                return
+            fi
+            break
+        done
+	fi
+    loop=$(losetup -Pf --show $shim)
+    if lsblk -o PARTLABEL $loop | grep "SH1MMER"; then
+        sh1mmermount=$(mktemp -d)
+        mount ${loop}p1
+    else
+        fail "Not a valid SH1MMER legacy shim."
+    fi
+}
+
 aftggp() {
-    tput cnorm
-    stty echo
     apk add python3 py3-flask py3-bcrypt >/dev/null
     kill $(ps aux | grep "python3 /.ggp/" | grep -v grep | awk '{print $1}') 2>/dev/null
     rm -f /etc/aftggp
@@ -961,11 +991,11 @@ menu1_options+=(
     "$( [ $pid1 = false ] && echo "7" || echo "8" ). Exit and Reboot"
 )
 menu2_options+=(
-    "$(echo "2" ). Payloads Menu"
-    "$(echo "3" ). AFTGGP [Aurora File Transfer]"
-    "$(echo "4" ). Build Environment"
-    "$(echo "5" ). KVS"
-    "$(echo "6" ). Previous Page"
+    "$(echo "8" ). Payloads Menu"
+    "$(echo "9" ). AFTGGP [Aurora File Transfer]"
+    "$(echo "10" ). Build Environment"
+    "$(echo "11" ). KVS"
+    "$(echo "12" ). Previous Page"
 )
 menu1_actions+=(
     "clear && wifi"
@@ -981,6 +1011,7 @@ menu2_actions+=(
     "clear && kvs"
     "prevpage"
 )
+
 
 errormessage() {
     if [ -n "$errormsg" ]; then 
@@ -1001,13 +1032,11 @@ setupuser() {
 }
 
 setup() {
-    tput cnorm
-    stty echo
     if [ ! -f /etc/setup ]; then
         clear
         splash
         echo -e "\nSetup Aurora" | center
-        read_center -d "Setup a user? (Y/n) " setupuser
+        read_center "Setup a user? (Y/n) " setupuser
         case $setupuser in
             n|N) ;;
             *) setupuser ;;
@@ -1022,7 +1051,7 @@ setup() {
             ln -s "$timezonefile" /etc/localtime
             break
         done
-        read_center -d "Change Hostname? (y/N): " changehostname
+        read_center "Change Hostname? (y/N): " changehostname
         case $changehostname in
             y) read_center -d "Hostname: " hostname
                hostname $hostname
@@ -1039,7 +1068,8 @@ setup() {
 #############
 ## STARTUP ##
 #############
-if $pid; then
+
+if [ "$$" -eq 1 ]; then
     clear
     tput civis
     echo -e "$BLUE_B"
@@ -1070,6 +1100,20 @@ EOF
     }
     udevadm trigger | center || :
     udevadm settle | center || :
+
+    chmod +x /usr/share/aurora/aurora.sh
+    setsid bash -c "
+    while true; do
+        script -qfc '/usr/share/aurora/aurora.sh' /dev/null < $TTY2 > $TTY2 2>&1
+        sleep 1
+    done
+    " &
+    setsid bash -c "
+    while true; do
+        script -qfc '/usr/share/aurora/aurora.sh' /dev/null < $TTY3 > $TTY3 2>&1
+        sleep 1
+    done
+    " &
 fi
 
 for wifi in iwlwifi iwlmvm ccm 8021q; do
@@ -1077,8 +1121,8 @@ for wifi in iwlwifi iwlmvm ccm 8021q; do
     modprobe "$wifi" 2>/dev/null
 done
 export needswifi=0
+echo -e "[${GEEN_B}+${COLOR_RESET}] Connecting to wifi" | center
 if [ -f "/etc/wpa_supplicant.conf" ]; then
-    echo -e "[${GEEN_B}+${COLOR_RESET}] Connecting to wifi" | center
     export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
     wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
 
@@ -1104,6 +1148,7 @@ clear
 export page=1
 while true; do
     export TERM=xterm-direct
+    tput cnorm
     stty $stty
     eval "setup"
     clear
@@ -1115,8 +1160,6 @@ while true; do
     export login=""
     declare -n current_actions="menu${page}_actions"
     declare -n current_options="menu${page}_options"
-    tput civis
-    stty -echo
     menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${current_options[@]}"
     choice=$?
     action="${current_actions[$choice]}"
@@ -1124,9 +1167,6 @@ while true; do
     echo ""
 
     if [[ "$action" == *"bash -l"* ]]; then
-        cd /
-        tput cnorm
-        stty echo
         eval "$action"
     else
         stty $stty
