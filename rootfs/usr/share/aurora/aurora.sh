@@ -1122,6 +1122,7 @@ while true; do
     echo ""
 
     if [[ "$action" == *"bash -l"* ]]; then
+        cd /
         tput cnorm
         stty echo
         eval "$action"
