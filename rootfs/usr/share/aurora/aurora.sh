@@ -866,8 +866,6 @@ updateshim() {
         git -C "/root/Aurora" pull origin alpine || return
     else
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
-        alias xdg-open="echo_c 'Open \"https://github.com/login/device\" in a new browser.' CYAN_B"
-        gh auth status || gh auth login || return
         git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive || return
         git config --global submodule.recurse true
     fi
