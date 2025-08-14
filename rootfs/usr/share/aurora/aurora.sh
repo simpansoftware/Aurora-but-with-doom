@@ -811,6 +811,8 @@ downloadreco() {
     }
 	rm $aroot/images/recovery/$chromeVersion.zip
     mv $aroot/images/recovery/$FINAL_FILENAME $aroot/images/recovery/$chromeVersion.bin
+    echo_c "Syncing filesystem" GEEN_B | center
+    sync
 }
 downloadshim() {
     chmod +x /usr/bin/bigtext
@@ -857,6 +859,8 @@ downloadshim() {
         }
     	rm $aroot/images/shims/$shimfile
     fi
+    echo_c "Syncing filesystem" GEEN_B | center
+    sync
 }
 
 downloadyo() {
