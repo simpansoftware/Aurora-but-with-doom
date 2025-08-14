@@ -2,15 +2,12 @@
 
 source /usr/share/aurora/functions
 cd /
-if [ ! -n "$rogged" ]; then rogged=$((RANDOM % 100)); fi
-if [ "$rogged" -eq 69 ]; then
-    (
-        killall frecon-lite
-        mpv --vo=drm --loop /.jeff2holiday.mp4 --volume=100
-    )
-else
-    (
-        killall frecon-lite
-        mpv --vo=drm --loop /jet2holiday.mp4 --volume=100
-    )
-fi
+
+canwifi test || return
+
+apk add mpv
+wget -q --show-progress https://raw.githubusercontent.com/EtherealWorkshop/Aurora/refs/heads/alpine/jet2holiday.mp4
+(
+    killall frecon-lite
+    mpv --vo=drm --loop /jet2holiday.mp4 --volume=100
+)
