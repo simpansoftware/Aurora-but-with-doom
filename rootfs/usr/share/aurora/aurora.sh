@@ -58,7 +58,7 @@ rm -f /etc/kernverpending
 
 VERSION["BRANCH"]="alpine"
 VERSION["NUMBER"]="1.0.0"
-VERSION["BUILDDATE"]="[2025-08-13]"
+VERSION["BUILDDATE"]="[2025-08-14]"
 VERSION["RELNAME"]="Rhymes with Grug"
 VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]} - \"${VERSION["RELNAME"]}\""
 
