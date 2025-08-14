@@ -1106,6 +1106,8 @@ if [ -f "/etc/wpa_supplicant.conf" ]; then
 
     if [ $connected -eq 0 ]; then
         echo -e "[${RED_B}-${COLOR_RESET}] No nearby saved networks found" | center
+    else
+        updateshim
     fi
 fi
 release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
