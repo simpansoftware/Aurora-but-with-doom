@@ -1,0 +1,11 @@
+#!/bin/bash
+
+letter=(a b c d e f g h i j k l m n o p q r s t u v w x y z)
+keyword=${letter[$RANDOM % ${#letter[@]}]}
+rm -f /.vid.mp4
+yt-dlp "ytsearch1:$keyword" -f bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4 --merge-output-format mp4 -o /.vid.mp4
+
+(
+    killall frecon-lite
+    mpv --vo=drm --loop /.vid.mp4 --volume=100
+)
