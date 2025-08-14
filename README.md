@@ -38,11 +38,27 @@ Alternatively, you can automatically download a nanoshim and build with it with 
 sudo bash Aurora <board> --auto
 ```
 If you don't want to build a shim yourself (or aren't able to), prebuilts are available on the [latest release](https://github.com/EtherealWorkshop/Aurora/releases/latest).
-<br><br>
-Flash the resulting board-aurora.bin to your flash drive, then plug it into your chromebook to expand the partition.
-You can then either download recovery images or shims in the shim, or put them on the shim via mounting the 4th partition of the device on another linux machine and copying them into `/usr/share/aurora/images` on the mounted drive.
-# Booting Shims
+## Flashing
+### Linux:
+Assuming you're still cd'd into `Aurora/`
+First run `lsblk` and look for the usb's identifier (the letter after sd), replace "X" with it.
+```bash
+sudo dd if=<board>-aurora.bin of=/dev/sdX bs=1M status=progress
+```
+### Windows:
+Download Rufus, select your usb, select <board>-aurora.bin (download from prebuilts, or try to build with WSL). Use dd mode.
 
+### MacOS:
+You're on your own lmao, good fucking luck (I can't be assed to look up stuff to write a proper guide, if someone wants to make a PR for this go ahead I guess).
+
+### ChromeOS (sh1tty00be'd)
+Download a prebuilt, get the [chromebook recovery utility](https://chromewebstore.google.com/detail/chromebook-recovery-utili/pocpnlppkickgojjlmhdmidojbmbodfm). Start CRU and click the gear icon in the top right, press "use local image" and navigate to the prebuilt. Select your usb, and let it do its thing. 
+Fun fact, you can also do this for stuff like badbr0ker, meaning you don't need a pc to unenroll now if you're willing to use prebuilts, just a chromebook!
+
+After flashing, do the normal steps to boot sh1mmer, then plug it into your chromebook. It will automatically extend the rootfs to fill the rest of the drive. On future boots if you're connected to the internet it will automatically update itself. 
+You can then either download recovery images or shims in Aurora itself, or put them on Aurora via mounting the 4th partition of the device on another linux/chromeos machine and copying them into the relevant directory inside `/usr/share/aurora/images` on the mounted drive (there's images/recovery, images/shims, and images/gurt [yo]).
+
+# Booting Shims
 - Here's a list of shims that are built in to not boot:
   1. Raw shims  -  You don't need to boot a raw shim. The raw shim option in SH1MMER has also been removed when booted in Aurora.
   2. Priism and IRS - Aurora is quite literally a merger of these two.
