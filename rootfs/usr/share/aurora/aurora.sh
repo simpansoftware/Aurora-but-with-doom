@@ -57,8 +57,8 @@ rm -f /etc/aftggp
 rm -f /etc/kernverpending
 
 VERSION["BRANCH"]="dev-alpine"
-VERSION["NUMBER"]="3.0"
-VERSION["BUILDDATE"]="[2025-07-16]"
+VERSION["NUMBER"]="1.0.0"
+VERSION["BUILDDATE"]="[2025-08-13]"
 VERSION["RELNAME"]="Rhymes with Grug"
 VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]} - \"${VERSION["RELNAME"]}\""
 
