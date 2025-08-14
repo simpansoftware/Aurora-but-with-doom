@@ -840,7 +840,7 @@ downloadshim() {
     fi
     shimfile=$(echo $FINALSHIM_URL | awk -F/ '{print $NF}')
     shimname=$(echo $shimfile | sed "s/.${shimtype}//")
-    if curl --head --silent --fail "$url" >/dev/null; then
+    if curl --head --silent --fail "$FINALSHIM_URL" >/dev/null; then
         wget -q --show-progress "$FINALSHIM_URL" -O "$aroot/images/shims/$shimfile" || {
             fail "Failed to download shim."
         }
