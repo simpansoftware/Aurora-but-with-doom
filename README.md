@@ -70,16 +70,6 @@ usbipd attach --wsl --busid <busid>
 And check WSL.<br>
 It is always preferred to use an actual linux machine, though.
 
-# FAQ (Frequently Asked Questions)
-<br><b>I wanna use Shimboot. How can I?</b>
-
-Coming soon to viewers like you!<br><br>
-<b>Does Aurora work on Chomp?</b>
-
-  Priism 2.0 (A lot of what Aurora was based off of) was developed entirely on Chomp!
-> [!WARNING]
-> Aurora, Priism, and IRS are all made for recovering and booting shims. They serve no purpose on a non-ChromeOS Machine ~~yet~~
-
 # Credits
 - [Sophia](https://github.com/soap-phia) - Lead developer of Aurora, Got Wifi
 - [Mariah Carey](https://github.com/xXMariahScaryXx) - Bugfixing and bugtesting
