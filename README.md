@@ -47,7 +47,7 @@ sudo dd if=<board>-aurora.bin of=/dev/sdX bs=1M status=progress
 ```
 Otherwise, do `if=/path/to/<board>-aurora.bin` if you aren't working in the same directory as the prebuilt.
 ### Windows:
-Download Rufus, select your usb, select <board>-aurora.bin (download from prebuilts, or try to build with WSL). Use dd mode.
+Download Rufus, select your usb, select board-aurora.bin (download from prebuilts, or try to build with WSL). Use dd mode.
 
 ### MacOS:
 You're on your own lmao, good fucking luck (I can't be assed to look up stuff to write a proper guide, if someone wants to make a PR for this go ahead I guess).
