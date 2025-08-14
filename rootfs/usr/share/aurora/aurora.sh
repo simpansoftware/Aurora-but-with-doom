@@ -862,20 +862,16 @@ updateshim() {
     arch=$(uname -m)
     apk add git github-cli
     if [ -d "/root/Aurora/.git" ]; then
-        git config --global submodule.recurse true
-        git -C "/root/Aurora" pull origin alpine || return
+        git config --global submodule.recurse true >/dev/null 2>&1
+        git -C "/root/Aurora" pull origin alpine >/dev/null 2>&1 || return
     else
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
-        git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive || return
-        git config --global submodule.recurse true
+        git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive >/dev/null 2>&1 || return
+        git config --global submodule.recurse true >/dev/null 2>&1
     fi
-    echo "Copying files"
     cp -Lar /root/Aurora/rootfs/. /
     mkdir -p /usr/share/patches/rootfs/
     cp -Lar /root/Aurora/patches/rootfs/. /usr/share/patches/rootfs/
-    if ! cmp -s "/root/Aurora/rootfs/usr/share/aurora/aurora.sh" "/usr/share/aurora/aurora.sh"; then
-        rebootrequired="1"
-    fi
     chmod +x /usr/share/aurora/* /usr/bin/* /sbin/init
     initramfsmnt=$(mktemp -d)
     mount ${device}3 $initramfsmnt
@@ -884,12 +880,6 @@ updateshim() {
     chmod +x $initramfsmnt/init $initramfsmnt/bootstrap.sh $initramfsmnt/sbin/init
     umount $initramfsmnt
     sync
-    if [ "$rebootrequired" = "1" ]; then
-        chmod +x /usr/share/aurora/aurora.sh # just in case
-        echo "/usr/share/aurora/aurora.sh updated. Rebooting in 5 seconds..." | center
-        sleep 5
-        reboot -f
-    fi
 }
 
 aftggp() {
