@@ -38,8 +38,8 @@ Alternatively, you can automatically download a nanoshim and build with it with 
 sudo bash Aurora <board> --auto
 ```
 If you don't want to build a shim yourself (or aren't able to), prebuilts are available on the [latest release](https://github.com/EtherealWorkshop/Aurora/releases/latest).
-
-Flash the resulting board-aurora.bin to your flash drive, then plug it into your chromebook to expand the partition.<br><br>
+<br><br>
+Flash the resulting board-aurora.bin to your flash drive, then plug it into your chromebook to expand the partition.
 You can then either download recovery images or shims in the shim, or put them on the shim via mounting the 4th partition of the device on another linux machine and copying them into `/usr/share/aurora/images` on the mounted drive.
 # Booting Shims
 
