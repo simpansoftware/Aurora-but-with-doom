@@ -819,6 +819,7 @@ downloadshim() {
     export board_name=${release_board%%-*}
     	options_download=(
 	    "Sh1mmer Legacy - EtherealWorkshop/Sh1mmer/releases"
+	    "Shimboot - ading2210/shimboot/releases"
         "Custom Shim from URL"
 	)
 
@@ -827,7 +828,8 @@ downloadshim() {
 
 	case "$download_choice" in
 	    0) export FINALSHIM_URL="https://github.com/EtherealWorkshop/sh1mmer/releases/download/v2.0.0/${board_name}.bin" ;;
-	    1) tput cnorm
+	    1) export FINALSHIM_URL="https://github.com/ading2210/shimboot/releases/download/v1.3.0/shimboot_${board_name}.zip" ;;
+	    2) tput cnorm
            stty echo
            read_center -d "Enter Shim URL: " FINALSHIM_URL ;;
         *) fail "Invalid choice (somehow?????)" ;;
@@ -838,9 +840,13 @@ downloadshim() {
     fi
     shimfile=$(echo $FINALSHIM_URL | awk -F/ '{print $NF}')
     shimname=$(echo $shimfile | sed "s/.${shimtype}//")
-    wget -q --show-progress "$FINALSHIM_URL" -O "$aroot/images/shims/$shimfile" || {
-        fail "Failed to download shim."
-    }
+    if curl --head --silent --fail "$url" >/dev/null; then
+        wget -q --show-progress "$FINALSHIM_URL" -O "$aroot/images/shims/$shimfile" || {
+            fail "Failed to download shim."
+        }
+    else
+        fail "File does not exist."
+    fi
     if [ "$shimtype" = "zip" ]; then
         FINALSHIM_FILENAME=$(unzip -Z1 "$aroot/images/shims/$shimfile")
         file "$aroot/images/shims/$shimfile" | grep -iq "zip" || {
