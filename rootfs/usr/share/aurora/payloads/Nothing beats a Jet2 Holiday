@@ -4,27 +4,13 @@ source /usr/share/aurora/functions
 cd /
 if [ ! -n "$rogged" ]; then rogged=$((RANDOM % 100)); fi
 if [ "$rogged" -eq 69 ]; then
-    tar xzf .nothingbeatsajeff2holiday.tar.gz
-    tput civis
-    tput cup 0 0
-    for frame in $(ls nothingbeatsajeff2holiday/frame_*.txt | sort); do
-        tput cup 0 0
-        cat "$frame" | center
-        sleep 0.01
-    done
-    tput cnorm
-    echo "Nothing beats a Jeff2 Holiday." | center
-    rm -rf /nothingbeatsajeff2holiday
+    (
+        killall frecon-lite
+        mpv --vo=drm --loop /.jeff2holiday.mp4 --volume=100
+    )
 else
-    tar xzf nothingbeatsajet2holiday.tar.gz
-    tput civis
-    tput cup 0 0
-    for frame in $(ls nothingbeatsajet2holiday/frame_*.txt | sort); do
-        tput cup 0 0
-        cat "$frame" | center
-        sleep 0.01
-    done
-    tput cnorm
-    echo "Nothing beats a Jet2 Holiday." | center
-    rm -rf /nothingbeatsajet2holiday
+    (
+        killall frecon-lite
+        mpv --vo=drm --loop /jet2holiday.mp4 --volume=100
+    )
 fi
