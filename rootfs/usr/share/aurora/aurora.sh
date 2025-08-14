@@ -861,7 +861,7 @@ downloadyo() {
 updateshim() {
     arch=$(uname -m)
     echo ""
-    apk add git github-cli >/dev/null | center
+    apk add git github-cli >/dev/null 2>&1
     if [ -d "/root/Aurora/.git" ]; then
         git config --global submodule.recurse true >/dev/null 2>&1
         git -C "/root/Aurora" pull origin alpine 2>&1 | center || return
