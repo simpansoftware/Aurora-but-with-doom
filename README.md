@@ -49,27 +49,6 @@ You can then either download recovery images or shims in the shim, or put them o
 - Here's a list of shims we're gonna make work and test:
   3. Any future shims that are made
 
-# WSL (Windows Subsystem for Linux)
-Aurora was made entirely on WSL. Building will not be an issue.<br>
-Here's how to access the Aurora USB inside of WSL, though.
-In powershell, run
-```bash
-winget install --interactive --exact dorssel.usbipd-win
-```
-Close Powershell, and reopen it as administrator (reopen it no matter what)
-```bash
-usbipd list
-```
-You should see your USB (Likely Mass Storage Device or something similar). Note the busid.
-```bash
-usbipd bind --busid <busid>
-```
-```bash
-usbipd attach --wsl --busid <busid>
-```
-And check WSL.<br>
-It is always preferred to use an actual linux machine, though.
-
 # Credits
 - [Sophia](https://github.com/soap-phia) - Lead developer of Aurora, Got Wifi
 - [Mariah Carey](https://github.com/xXMariahScaryXx) - Bugfixing and bugtesting
