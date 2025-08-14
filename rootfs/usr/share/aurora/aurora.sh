@@ -56,7 +56,7 @@ declare -A VERSION
 rm -f /etc/aftggp
 rm -f /etc/kernverpending
 
-VERSION["BRANCH"]="dev-alpine"
+VERSION["BRANCH"]="alpine"
 VERSION["NUMBER"]="1.0.0"
 VERSION["BUILDDATE"]="[2025-08-13]"
 VERSION["RELNAME"]="Rhymes with Grug"
