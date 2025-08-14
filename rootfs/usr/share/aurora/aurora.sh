@@ -113,7 +113,6 @@ funText() {
         "${ORANGE_B}I am the Lorax and I speak for the trees"
         "${GEEN_B}CHICKEN JOCKEY"
         "${BLUE_B}stellaword12"
-        "${CYAN_B}PLEASE INSERT DI"
         "${YELLOW_B}the higher glue appear trend is now large."
         "${RED_B}one cannot simply walk into mordor\n- some dumbass who didn't walk into mordor"
         "${RED_B}i don't want a lot for christmas\n${GEEN_B}there is just one thing i need"
@@ -139,6 +138,7 @@ funText() {
         "${GEEN_B}Big news for the unemployed!"
         "${BLUE_B}blahaj"
         "${YELLOW_B}Shut Up, Synaptic!"
+        "${YELLOW_B}We need to remove Antonios"
         "bash: line 182: tput: I/O error$(printf "%*s" "$(( $(tput cols) - 31 ))" "")bash: line 192: tput: I/O error$(printf "%*s" "$(( $(tput cols) - 31 ))" "")bash: line 194: tput: I/O error$(printf "%*s" "$(( $(tput cols) - 31 ))" "")"
         ) #              cen-><-ter" 
 
