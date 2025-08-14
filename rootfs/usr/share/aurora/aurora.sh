@@ -70,81 +70,81 @@ VERSION["STRING"]="v${VERSION["NUMBER"]} ${VERSION["BRANCH"]} - \"${VERSION["REL
 
 funText() {
 	splashText=(
-        "The lower tape fade meme is still massive."
-        "It most likely existed in the first place." 
-        "HACKED BY GEEN" 
-        "\"how do i type a backslash\" -simon" 
-        "MURDER DRONES SEASON 2 IS REAL I SWEAR"
-        "JCJENSON in SPAAAAAAC3"
-        "Well-made Quality Assured Durability" 
-        "\"purr :3 mrrow\" - Synaptic" 
-        "who else but quagmire?\nhe's quagmire, quagmire,\nyou never really know what\nhe's gonna do next\nhe's quagmire, quagmire,\ngiggitygiggitygiggitygiggity\nlet's have [...]"
-        "rhymes with grug"
-        "now with free thigh highs!"
-        ":3"
+        "${CYAN_B}The lower tape fade meme is still massive."
+        "${LIGHT_BLUE_B}It most likely existed in the first place." 
+        "${GEEN_B}HACKED BY GEEN" 
+        "${LIGHT_BLUE_B}\"how do i type a backslash\" -simon" 
+        "${PURPLE_B}MURDER DRONES SEASON 2 IS REAL I SWEAR"
+        "${PURPLE_B}JCJENSON in SPAAAAAAC3"
+        "${PURPLE_B}Well-made Quality Assured Durability" 
+        "${YELLOW_B}\"purr :3 mrrow\" - Synaptic" 
+        "${RED_B}who else but quagmire?\nhe's quagmire, quagmire,\nyou never really know what\nhe's gonna do next\nhe's quagmire, quagmire,\ngiggitygiggitygiggitygiggity\nlet's have [...]"
+        "${GEEN_B}rhymes with grug"
+        "${PINK_B}now with free thigh highs!"
+        "${PINK_B}:3"
         "cr50 hammer? i think you meant \"no PoC\"."
         "public nuisance???\nis that a hannah reference"
-        "can you overdose on pepperjack cheese?"
-        "make me staff lil bro i'm overqualified..."
-        ":cheese;"
-        "toilet command best command!"
-        "Sign in to Letterloop:\nHi friend,\nClick here to sign in with this magic link\n-Letterloop Team"
-        "Also try Terraria!"
-        "Terraria: Also try Minecraft"
-        "HOW MANY HOLES IN A POLO??"
-        "It's rewind time"
-        "Ain't no party like a Putt Party"
-        "Maxington hole 3"
-        "what's a nugget?"
-        "I'm gonna install a door on your face."
-        "Anne Frank in a Furnace."
-        "Use protection, Kids"
-        "Can Uzi use absolute solver on my dih?"
-        "\"hi crazy ant\" - crazy ant"
-        "I'm gonna shove a cravat up your ass"
-        "You barely sentient toaster."
-        "beautiful sophie art"
-        "Synaptic Network"
-        "he could be in this very room!\nhe could be you!\nhe could be me!!"
-        "Nothing built can last forever -ivor"
-        "Your footjob is weak"
-        "idk why age matters - shrey719"
-        "gurt: yo"
-        "I am the Lorax and I speak for the trees"
-        "CHICKEN JOCKEY"
-        "stellaword12"
-        "PLEASE INSERT DI"
-        "the higher glue appear trend is now large."
-        "one cannot simply walk into mordor\n- some dumbass who didn't walk into mordor"
-        "i don't want a lot for christmas\nthere is just one thing i need"
-        "vermont isn't real"
-        "\"Bite Me\" - Weird Al"
-        "Hi there. I'm SmallAnt1."
-        "Man I sure do love InitramF5"
-        "If a gay bomb was dropped - Zack D Films"
-        "swiss cheese yo ahhh"
-        "you keep using that word\ni do not think it means what you think it means."
-        "give me andrew"
-        "it runs the demon - OlyB"
-        "GOOD MANNERS\n1 Wait your turn\n2 Use polite words\n3 Listen Carefully"
-        "mommy may I please have fakemod :3\n- synaptic"
-        "crazy ant [...] :thumbsup:"
-        "Nothing beats a Jet2 Holiday"
-        "\"soap\" manor"
-        "rogged"
-        "Oh Reginald? I DISAGREE!"
-        "Good News, Everyone!"
-        "${RED_B}Error: Failed to find funText.${COLOR_RESET}"
-        "\x1b[38;5;81mTrans\x1b[38;5;213m Rights${COLOR_RESET} Are\x1b[38;5;213m Human\x1b[38;5;81m Rights${COLOR_RESET}"
-        "Big news for the unemployed!"
-        "blahaj"
-        "Shut Up, Synaptic!"
+        "${YELLOW_B}can you overdose on pepperjack cheese?"
+        "${PURPLE_B}make me staff lil bro i'm overqualified..."
+        "${YELLOW_B}:cheese;"
+        "${YELLOW_B}toilet command best command!"
+        "${CYAN_B}Sign in to Letterloop:\nHi friend,\nClick here to sign in with this magic link\n-Letterloop Team"
+        "${GEEN_B}Also try Terraria!"
+        "${GEEN_B}Terraria: Also try Minecraft"
+        "${CYAN_B}HOW MANY HOLES IN A POLO??"
+        "${CYAN_B}It's rewind time"
+        "${CYAN_B}Ain't no party like a Putt Party"
+        "${CYAN_B}Maxington hole 3"
+        "${YELLOW_B}what's a nugget?"
+        "${YELLOW_B}I'm gonna install a door on your face."
+        "${RED_B}Anne Frank in a Furnace."
+        "${CYAN_B}Use protection, Kids"
+        "${PURPLE_B}Can Uzi use absolute solver on my dih?"
+        "${GEEN}\"hi crazy ant\" - crazy ant"
+        "${YELLOW_B}I'm gonna shove a cravat up your ass"
+        "${CYAN_B}You barely sentient toaster."
+        "${PINK_B}beautiful sophie art"
+        "${YELLOW_B}Synaptic Network"
+        "${BLUE_B}he could be in this very room!\nhe could be you!\nhe could be me!!"
+        "${CYAN_B}Nothing built can last forever -ivor"
+        "${CYAN_B}Your footjob is weak"
+        "${CYAN_B}idk why age matters - shrey719"
+        "${GEEN_B}gurt: yo"
+        "${ORANGE_B}I am the Lorax and I speak for the trees"
+        "${GEEN_B}CHICKEN JOCKEY"
+        "${BLUE_B}stellaword12"
+        "${CYAN_B}PLEASE INSERT DI"
+        "${YELLOW_B}the higher glue appear trend is now large."
+        "${RED_B}one cannot simply walk into mordor\n- some dumbass who didn't walk into mordor"
+        "${RED_B}i don't want a lot for christmas\n${GEEN_B}there is just one thing i need"
+        "${GEEN_B}vermont isn't real"
+        "${BLUE_B}\"Bite Me\" - Weird Al"
+        "${PURPLE_B}Hi there. I'm SmallAnt1."
+        "${CYAN_B}Man I sure do love InitramF5"
+        "${LIGHT_BLUE_B}If a gay bomb was dropped - Zack D Films"
+        "${YELLOW_B}swiss cheese yo ahhh"
+        "${CYAN_B}you keep using that word\ni do not think it means what you think it means."
+        "${CYAN_B}give me andrew"
+        "${MAGENTA_B}it runs the demon - OlyB"
+        "${YELLOW_B}GOOD MANNERS\n${RED_B}1 Wait your turn\n${BLUE_B}2 Use polite words\n${GEEN_B}3 Listen Carefully"
+        "${YELLOW_B}mommy may I please have fakemod :3\n- synaptic"
+        "${GREEN}crazy ant [...] :thumbsup:"
+        "${CYAN_B}Nothing beats a Jet2 Holiday"
+        "${PINK_B}\"soap\" manor"
+        "${PURPLE_B}rogged"
+        "${LIGHT_BLUE_B}Oh Reginald? I DISAGREE!"
+        "${CYAN_B}Good News, Everyone!"
+        "${RED_B}Error: Failed to find funText."
+        "${PINK_B}Trans${LIGHT_BLUE_B} Rights${COLOR_RESET} Are${LIGHT_BLUE_B} Human${PINK_B} Rights"
+        "${GEEN_B}Big news for the unemployed!"
+        "${BLUE_B}blahaj"
+        "${YELLOW_B}Shut Up, Synaptic!"
         "bash: line 182: tput: I/O error$(printf "%*s" "$(( $(tput cols) - 31 ))" "")bash: line 192: tput: I/O error$(printf "%*s" "$(( $(tput cols) - 31 ))" "")bash: line 194: tput: I/O error$(printf "%*s" "$(( $(tput cols) - 31 ))" "")"
         ) #              cen-><-ter" 
 
   	selectedSplashText=${splashText[$RANDOM % ${#splashText[@]}]}
 	echo -e " "
-   	echo -e "$selectedSplashText"
+   	echo -e "$selectedSplashText${COLOR_RESET}"
 }
 
 
@@ -267,7 +267,7 @@ splash() {
     else
         ssid="$(iw dev "$wifidevice" link 2>/dev/null | awk -F ': ' '/SSID/ {print $2}')"
         if [ -f /etc/aftggp ]; then
-            ssid="$ssid | ${BLUE_B}AFT running at: $(ip a | grep wlan0 | grep inet | awk '{print $2}' | sed 's|/.*||'):42069${COLOR_RESET}"
+            ssid="$ssid | ${CYAN_B}AFT running at: $(ip a | grep wlan0 | grep inet | awk '{print $2}' | sed 's|/.*||'):42069${COLOR_RESET}"
         fi
         if [ -n "$ssid" ]; then
             echo -e "\n${GEEN_B}● $wifidevice${COLOR_RESET} $ssid" | center
@@ -280,7 +280,7 @@ splash() {
 	local build=${VERSION["BUILDDATE"]}
 	local version_pad=$(( (width - ${#verstring}) / 2 ))
     local build_pad=$(( (width - ${#build}) / 2 ))
-    echo -ne "$BLUE_B"
+    echo -ne "$CYAN_B"
     cat <<'EOF' | center
 ╒════════════════════════════════════════╕
 │ .    . .    '    +   *       o    .    │
@@ -299,7 +299,7 @@ splash() {
 │     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
 ╘════════════════════════════════════════╛
 EOF
-    echo -ne "$BLUE_B"
+    echo -ne "$CYAN_B"
     echo -e "\n$verstring" | center
     echo -e "$build" | center
     kernelver=$(getkv)
@@ -865,7 +865,7 @@ updateshim() {
         git -C "/root/Aurora" pull origin alpine || return
     else
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
-        alias xdg-open="echo_c 'Open \"https://github.com/login/device\" in a new browser.' BLUE_B"
+        alias xdg-open="echo_c 'Open \"https://github.com/login/device\" in a new browser.' CYAN_B"
         gh auth status || gh auth login || return
         git clone --branch=alpine https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive || return
         git config --global submodule.recurse true
@@ -1056,7 +1056,7 @@ setup() {
 if $pid; then
     clear
     tput civis
-    echo -e "$BLUE_B"
+    echo -e "$CYAN_B"
     cat <<'EOF' | center
 ╒════════════════════════════════════════╕
 │ .    . .    '    +   *       o    .    │
