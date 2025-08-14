@@ -3,7 +3,7 @@
 source /usr/share/aurora/functions
 
 installcros() {
-echo -e "$GEEN_B"
+echo -e "$CYAN_B"
 cat <<'EOF' | center
 ╒════════════════════════════════════════╕
 │          ┏━ ┓          ┏━┓┏━━          │
@@ -15,7 +15,7 @@ echo -e "$COLOR_RESET"
 }
 
 shimboot() {
-echo -e "$GEEN_B"
+echo -e "$CYAN_B"
 cat <<'EOF' | center
 ╒════════════════════════════════════════╕
 │          ┏━┓┏┳┓┏┓   ┏━━┓               │
@@ -27,7 +27,7 @@ echo -e "$COLOR_RESET"
 }
 
 download() {
-echo -e "$GEEN_B"
+echo -e "$CYAN_B"
 cat <<'EOF' | center
 ╒════════════════════════════════════════╕
 │            ┳┓       ┏     ┏            │
@@ -39,7 +39,7 @@ echo -e "$COLOR_RESET"
 }
 
 wifi() {
-echo -e "$GEEN_B"
+echo -e "$CYAN_B"
 cat <<'EOF' | center
 ╒════════════════════════════════════════╕
 │             ┳┓          ┓              │

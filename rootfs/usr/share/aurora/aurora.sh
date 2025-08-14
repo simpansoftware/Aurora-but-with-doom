@@ -262,8 +262,8 @@ splash() {
         tput cup 0 0
         clear
     fi
-    if [ "$(cat /sys/devices/virtual/dmi/id/product_name)" = "Barla" ]; then
-        echo -e "${RED_B}Barla wifi unsupported. Please contact @kxtzownsu on discord${COLOR_RESET}"
+    if [ "$(cat /sys/devices/virtual/dmi/id/product_name)" = "Barla" ] || [ "$(cat /sys/devices/virtual/dmi/id/product_name)" = "Treeya" ]; then
+        echo -e "${RED_B}Barla/Treeya wifi unsupported. Please contact @kxtzownsu on discord${COLOR_RESET}"
     else
         ssid="$(iw dev "$wifidevice" link 2>/dev/null | awk -F ': ' '/SSID/ {print $2}')"
         if [ -f /etc/aftggp ]; then
@@ -760,7 +760,9 @@ wifi() {
     bigtext wifi
     stty echo
     export wifidevice=$(ip link | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
-
+    if [ "$(cat /sys/devices/virtual/dmi/id/product_name)" = "Barla" ] || [ "$(cat /sys/devices/virtual/dmi/id/product_name)" = "Treeya" ]; then
+        fail "Barla/Treeya wifi unsupported. Please contact @kxtzownsu on discord"
+    fi
     if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
         echo "Currently connected to a network." | center
         read_center -d "Disconnect from this network? (y/N): " connectornah
