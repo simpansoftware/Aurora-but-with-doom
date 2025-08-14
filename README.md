@@ -13,7 +13,7 @@ Synaptic :x:<br>
 ## Dependencies
 ### Arch Linux:
 ```bash
-sudo pacman -Sy wget curl gptfdisk rsync binwalk e2fsprogs && yay -S vboot-utils cgpt
+sudo pacman -Sy wget curl gptfdisk rsync binwalk e2fsprogs && yay -S vboot-utils
 ```
 ### Debian:
 ```bash
@@ -26,23 +26,28 @@ apk add curl wget bash e2fsprogs gptfdisk sgdisk cgpt rsync
 
 ## Building
 ```bash
-git clone https://github.com/EtherealWorkshop/Aurora.git
+git clone --recursive https://github.com/EtherealWorkshop/Aurora.git
 cd Aurora
 ```
 Run the next command with a **raw** shim and the architecture of the chromebook you have.
 ```bash
-sudo bash Aurora /path/to/shim.bin [cpu_architecture(x86_64 or aarch64)]
+sudo bash Aurora /path/to/shim.bin
+```
+Alternatively, you can automatically download a nanoshim and build with it with the following command (also don't keep the angled brackets in there, if you do even after this warning you're stupid):
+```bash
+sudo bash Aurora <board> --auto
 ```
 Flash the resulting board-aurora.bin to your flash drive, then plug it into your chromebook to expand the partition.<br><br>
 You can then either download recovery images or shims in the shim, or put them on the shim via mounting the 4th partition of the device on another linux machine and copying them into `/usr/share/aurora/images` on the mounted drive.
-
+<br>
+If you don't want to build a shim yourself (or aren't able to), prebuilts are available on the [latest release](https://github.com/EtherealWorkshop/Aurora/releases/latest).
 # Booting Shims
 
 - Here's a list of shims that are built in to not boot:
   1. Raw shims  -  You don't need to boot a raw shim. The raw shim option in SH1MMER has also been removed when booted in Aurora.
   2. Priism and IRS - Aurora is quite literally a merger of these two.
 - Here's a list of shims that we've tested and they work:
-  1. SH1MMER (contains cryptosmite and icarus)
+  1. SH1MMER (contains cryptosmite, icarus, and br0ker)
   2. Shimboot (:3)
   3. KVS
   4. Aurora (great scott!)
