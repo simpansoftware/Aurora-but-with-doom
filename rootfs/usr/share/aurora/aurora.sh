@@ -130,7 +130,7 @@ funText() {
         "mommy may I please have fakemod :3\n- synaptic"
         "crazy ant [...] :thumbsup:"
         "Nothing beats a Jet2 Holiday"
-        "VeeGay[..]"
+        "\"soap\" manor"
         "rogged"
         "Oh Reginald? I DISAGREE!"
         "Good News, Everyone!"
