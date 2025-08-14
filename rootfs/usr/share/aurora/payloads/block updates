@@ -1,0 +1,40 @@
+#!/bin/bash
+
+get_largest_cros_blockdev() {
+	local largest size dev_name tmp_size remo
+	size=0
+	for blockdev in /sys/block/*; do
+		dev_name="${blockdev##*/}"
+		echo -e "$dev_name" | grep -q '^\(loop\|ram\)' && continue
+		tmp_size=$(cat "$blockdev"/size)
+		remo=$(cat "$blockdev"/removable)
+		if [ "$tmp_size" -gt "$size" ] && [ "${remo:-0}" -eq 0 ]; then
+			case "$(sfdisk -d "/dev/$dev_name" 2>/dev/null)" in
+				*'name="STATE"'*'name="KERN-A"'*'name="ROOT-A"'*)
+					largest="/dev/$dev_name"
+					size="$tmp_size"
+					;;
+			esac
+		fi
+	done
+	echo -e "$largest"
+}
+
+mkdir -p /tmp/cros
+mount "$(get_largest_cros_blockdev)p3" /tmp/cros -o ro
+mount -o remount,rw "$(get_largest_cros_blockdev)p3" /tmp/cros
+
+delete() {
+cat <<EOF >
+#!/bin/bash
+exit 0
+EOF
+}
+
+rm -rf /tmp/cros/opt/google/*50
+delete $(find /tmp/cros -iname "gsctool" -type f)
+delete /tmp/cros/usr/sbin/chromeos-firmwareupdate
+delete /tmp/cros/usr/sbin/chromeos-setgoodfirmware
+delete /tmp/cros/usr/sbin/chromeos-setgoodkernel
+sed -i "s/tools.google.com\/service\/update2/updates.google.com\/update/" /tmp/cros/etc/lsb-release
+sed -i "s/stable/testimage/" /tmp/cros/etc/lsb-release
