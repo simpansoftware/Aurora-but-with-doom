@@ -13,7 +13,7 @@ export PINK_B="\x1b[1;38;5;81m"
 export LIGHT_BLUE_B="\x1b[1;38;5;213m"
 export PURPLE_B="\x1b[1;38;5;55m"
 export ORANGE_B="\x1b[1;38;5;202m"
-export CYAN_B="\x1b[1;38;5;37m"
+export CYAN_B="\x1b[1;38;5;36m"
 
 canwifi() {
   if curl -Is https://nebulaservices.org | head -n 1 | grep -q "HTTP/"; then # the website with the best uptime is good for this usecase!
