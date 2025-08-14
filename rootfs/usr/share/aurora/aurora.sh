@@ -309,7 +309,7 @@ EOF
     else
         echo -e "$kernelver" | center
     fi
-    echo -e "\nhttps://github.com/EtherealWorkshop/Aurora${COLOR_RESET}"
+    echo -e "\nhttps://github.com/EtherealWorkshop/Aurora${COLOR_RESET}" | center
     funText | center
 }
 
