@@ -40,11 +40,12 @@ sudo bash Aurora <board> --auto
 If you don't want to build a shim yourself (or aren't able to), prebuilts are available on the [latest release](https://github.com/EtherealWorkshop/Aurora/releases/latest).
 ## Flashing
 ### Linux:
-Assuming you're still cd'd into `Aurora/`
+Assuming you're still cd'd into `Aurora/` and have just built it.
 First run `lsblk` and look for the usb's identifier (the letter after sd), replace "X" with it.
 ```bash
 sudo dd if=<board>-aurora.bin of=/dev/sdX bs=1M status=progress
 ```
+Otherwise, do `if=/path/to/<board>-aurora.bin` if you aren't working in the same directory as the prebuilt.
 ### Windows:
 Download Rufus, select your usb, select <board>-aurora.bin (download from prebuilts, or try to build with WSL). Use dd mode.
 
