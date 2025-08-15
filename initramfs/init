@@ -354,7 +354,7 @@ while true; do
         1) auroraselected || sleep 5 ;;
         2) shimbootselected || sleep 5 ;;
         3) manage || sleep 5 ;;
-        4) clear && script -qfc 'stty sane && stty erase '^H' && exec busybox sh -l' /dev/null ;;
+        4) exec busybox sh -l ;;
         *) echo "Invalid Option" ;;
     esac
 done
