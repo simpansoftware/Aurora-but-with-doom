@@ -78,9 +78,9 @@ echo "nameserver 1.1.1.1" > "$rootfs/etc/resolv.conf"
 
 if [ "$hostarch" != "$arch" ]; then
     echo_c "Done.\n\n${BLUE_B}Setting up QEMU " GEEN_B
-    sudo mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
+    sudo mount -t binfmt_misc none /proc/sys/fs/binfmt_misc 2>/dev/null
     if ! grep -q binfmt_misc /proc/filesystems; then
-       sudo modprobe binfmt_misc
+       sudo modprobe binfmt_misc 2>/dev/null
     fi
     
     [ -f "/usr/bin/qemu-$arch-static" ] && cp "/usr/bin/qemu-$arch-static" "$rootfs/usr/bin/"
