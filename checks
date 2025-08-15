@@ -24,10 +24,12 @@ fi
 if [ "$2" = "--auto" ]; then
     board="$1"
     export shim="./${board}.bin"
-    rm -f $shim
-    wget -q --show-progress "https://github.com/EtherealWorkshop/sh1mmer/releases/download/v1.0.0/${board}.bin" -O "$shim" || {
-        echo "Invalid board."    
-    }
+    if [ ! -f "$shim" ]
+    then
+        wget -q --show-progress "https://github.com/EtherealWorkshop/sh1mmer/releases/download/v1.0.0/${board}.bin" -O "$shim" || {
+            echo "Invalid board."    
+        }
+    fi
 else
     export shim=$(realpath -m $1)
 fi
