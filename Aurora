@@ -174,7 +174,7 @@ mount "$root_b" "$root_bmount"
 echo_c "Done.\n\n${BLUE_B}Copying rootfs to shim" "GEEN_B"
 rm -f "$rootfs/sbin/init"
 cp -ar rootfs/. "$rootfs"
-rsync -avH --info=progress2 --delete "$rootfs/." "$root_bmount"
+rsync -avH --info=progress2 --delete "$rootfs/." "$root_bmount" &>/dev/null
 
 echo_c "Done.\n\n${BLUE_B}Copying initramfs to shim" "GEEN_B"
 rm -f "$initramfs/bin/init"
