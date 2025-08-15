@@ -37,6 +37,7 @@ temproot=$(mktemp -d)
 loopdev=$(losetup -Pf --show $shim)
 mount -o ro "${loopdev}p3" "$temproot"
 
+export hostarch=$(uname -m)
 export arch=x86_64
 if [ -f "$temproot/bin/bash" ]; then
     case "$(file -b "$temproot/bin/bash" | awk -F ', ' '{print $2}' | tr '[:upper:]' '[:lower:]')" in
