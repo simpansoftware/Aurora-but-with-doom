@@ -49,4 +49,4 @@ fi
 
 umount "$temproot"
 losetup -d $loopdev
-rmdir "$temproot"
+rm -rf "$temproot"
