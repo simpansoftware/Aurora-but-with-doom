@@ -103,7 +103,6 @@ git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/lin
 rm -rf $(find "$rootfs/lib/firmware/"* -not -path "*wifi*") >/dev/null
 
 trap - EXIT
-
 echo_c "Done.\n\n${BLUE_B}Building shim..." GEEN_B
 
 mkdir -p "$initramfs"
@@ -121,7 +120,6 @@ if [ -d "$tempmount/lib/modules" ]; then
   export boardname=$(lsbval CHROMEOS_RELEASE_BOARD)
   mkdir -p $rootfs/.kvsenv/usr/bin $rootfs/.kvsenv/lib64
   cp -r "$tempmount/lib64"/* $rootfs/.kvsenv/lib64 2>/dev/null
-  cp -r "$tempmount/lib"/* $rootfs/.kvsenv/lib 2>/dev/null
   cp "$tempmount/usr/bin/tpmc" $rootfs/.kvsenv/usr/bin/tpmc
   cp "$tempmount/bin/sh" $rootfs/.kvsenv/usr/bin/sh
   cp "$tempmount/bin/cat" $rootfs/.kvsenv/usr/bin/cat
@@ -132,12 +130,15 @@ else
   exit
 fi
 
+rm -f $rootfs/usr/bin/qemu-$arch-static
+rm -f $initramfs/usr/bin/qemu-$arch-static
+
 echo_c "Done.\n\n${BLUE_B}Partitioning shim..." GEEN_B
 sgdisk --zap-all "$dev"
 sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev"
 sgdisk -n 2:10240:75775 "$dev"
-sgdisk -n 3:75776:152575 -c 3:"AuroraBoot" "$dev"
-sgdisk -n 4:152576:0 -c 4:"Aurora" "$dev"
+sgdisk -n 3:75776:178175 -c 3:"AuroraBoot" "$dev"
+sgdisk -n 4:178176:0 -c 4:"Aurora" "$dev"
 sgdisk -t 3:3CB8E202-3B7E-47DD-8A3C-7FF2A13CFCEC "$dev"
 sgdisk -t 4:8300 "$dev"
 sgdisk -p "$dev"
@@ -178,7 +179,7 @@ rsync -avH --info=progress2 --delete "$rootfs/." "$root_bmount" &>/dev/null
 echo_c "Done.\n\n${BLUE_B}Copying initramfs to shim" "GEEN_B"
 rm -f "$initramfs/bin/init"
 cp -ar initramfs/. "$initramfs"
-rsync -avH --info=progress2 --delete "$initramfs/." "$root_amount"
+rsync -avH --info=progress2 --delete "$initramfs/." "$root_amount" &>/dev/null
 
 chmod +x "$root_amount/init" "$root_amount/sbin/init" "$root_amount/bootstrap.sh" 2>/dev/null
 chmod +x "$root_bmount/sbin/init" "$root_bmount/usr/bin/"* "$root_bmount/usr/share/aurora/"* 2>/dev/null
