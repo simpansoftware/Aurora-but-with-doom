@@ -559,7 +559,7 @@ shimboot() {
     if [ -z "$loop_root" ]; then
         loop_root="${loop}p3"
     fi
-
+    echo $loop_root
     if mount "${loop_root}" $shimroot; then
         echo -e "ROOT-A found successfully and mounted." | center
     else
