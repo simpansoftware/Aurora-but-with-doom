@@ -182,7 +182,6 @@ umount "$root_bmount" -l 2>/dev/null
 losetup -D
 rm -rf "$rootfs" "$initramfs" "$statemount" "$root_amount" "$root_bmount"
 mv "$aurorashim" "${boardname}-aurora.bin" 2>/dev/null
-[ "$2" = "--auto" ] && rm $shim
 finalshim="${boardname}-aurora.bin"
 
 echo -e "${MAGENTA_B}Credits"
