@@ -324,7 +324,11 @@ chmod +x /resize
 bash /resize
 sync
 echo "Mounting device..."
-mount $dev_partition /auroraroot
+mount $dev_partition /auroraroot || {
+    echo "failed to mount aurora partition"
+    sleep 5
+    exit 1
+}
 
 defaultboot="/auroraroot/etc/initramfs.defaultboot"
 if [ -f "$defaultboot" ]; then
