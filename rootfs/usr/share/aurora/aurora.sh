@@ -669,7 +669,7 @@ connect() {
     if [ -n "$DIS" ]; then return; fi
     echo_c "Available Networks\n" GEEN_B | center
     mapfile -t wifi_options < <(
-        iw dev "$wifidevice" scan | grep 'SSID:' | sed -E 's/.*SSID: //g'
+        iw dev "$wifidevice" scan | grep 'SSID:' | sed -E 's/.*SSID: //g' | sort -u
     )
     wifi_options+=("Exit")
 
