@@ -17,6 +17,7 @@
 
 #This is the automated buildscript for Aurora
 
+export DEBUG="${DEBUG:=0}"
 export COLOR_RESET="\033[0m"
 export BLACK_B="\033[1;30m"
 export RED_B="\033[1;31m"
@@ -35,12 +36,10 @@ echo_c() {
     local color="${!color_variable}"
     echo -e "${color}${text}${COLOR_RESET}"
 }
-
 cleanup() {
     for dir in proc sys dev run; do umount -l "$rootfs/$dir"; done
     rm -rf "$rootfs" "$initramfs" "$statemount" "$root_amount" "$root_bmount"
 }
-
 lsbval() {
   local key="$1" lsbfile="${2:-$rootfs/etc/lsb-release}"
   echo "$key" | grep -Eq '^[a-zA-Z0-9_]+$' || return 1
@@ -50,7 +49,6 @@ lsbval() {
     p
   }" "$lsbfile"
 }
-
 source ./checks $@
 
 if [ -z "$shim" ] || echo "$shim" | grep -vq ".bin"; then
@@ -176,20 +174,20 @@ mount "$root_b" "$root_bmount"
 echo_c "Done.\n\n${BLUE_B}Copying rootfs to shim" "GEEN_B"
 rm -f "$rootfs/sbin/init"
 cp -ar rootfs/. "$rootfs"
-if [ -n "$DEBUG" ]; then
+if [ "$DEBUG" -eq "1" ]; then
     rsync -avH --info=progress2 --delete "$rootfs/." "$root_bmount"
-      sleep 10
+    sleep 10
 else
-    rsync -avH --info=progress2 --delete "$rootfs/." "$root_bmount" 2>/dev/null
+    rsync -avH --info=progress2 --delete "$rootfs/." "$root_bmount" >/dev/null 2>&1
 fi
 echo_c "Done.\n\n${BLUE_B}Copying initramfs to shim" "GEEN_B"
 rm -f "$initramfs/bin/init"
 cp -ar initramfs/. "$initramfs"
-if [ -n "$DEBUG" ]; then
+if [ "$DEBUG" -eq "1" ]; then
     rsync -avH --info=progress2 --delete "$initramfs/." "$root_amount"
     sleep 10
 else
-    rsync -avH --info=progress2 --delete "$initramfs/." "$root_amount" 2>/dev/null
+    rsync -avH --info=progress2 --delete "$initramfs/." "$root_amount" >/dev/null 2>&1
 fi
 chmod +x "$root_amount/init" "$root_amount/sbin/init" "$root_amount/bootstrap.sh" 2>/dev/null
 chmod +x "$root_bmount/sbin/init" "$root_bmount/usr/bin/"* "$root_bmount/usr/share/aurora/"* 2>/dev/null
