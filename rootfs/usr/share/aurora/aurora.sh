@@ -986,6 +986,8 @@ setupuser() {
     echo "$username ALL=(ALL:ALL) ALL" >> /etc/sudoers
     mkdir -p /run/user/$(id -u $username)
     chown $username:$username /run/user/$(id -u $username)
+    usermod -aG video $username
+    usermod -aG seat $username
 }
 
 setup() {
