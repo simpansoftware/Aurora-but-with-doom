@@ -52,7 +52,7 @@ Download Rufus, select your usb, select board-aurora.bin (download from prebuilt
 ### MacOS:
 You're on your own lmao, good fucking luck (I can't be assed to look up stuff to write a proper guide, if someone wants to make a PR for this go ahead I guess).
 
-### ChromeOS (sh1tty00be'd)
+### ChromeOS (sh1tty00be'd or otherwise unenrolled)
 Download a prebuilt, get the [chromebook recovery utility](https://chromewebstore.google.com/detail/chromebook-recovery-utili/pocpnlppkickgojjlmhdmidojbmbodfm). Start CRU and click the gear icon in the top right, press "use local image" and navigate to the prebuilt. Select your usb, and let it do its thing. 
 Fun fact, you can also do this for stuff like badbr0ker, meaning you don't need a pc to unenroll now if you're willing to use prebuilts, just a chromebook!<br><br>
 
