@@ -71,6 +71,7 @@ jobs:
       run: |
         set -e
         chmod +x Aurora
+        sudo apt update
         sudo apt install wget curl bash e2fsprogs gdisk cgpt rsync qemu-user-static binfmt-support
         sudo ./Aurora "${{ matrix.board }}" --auto
 
