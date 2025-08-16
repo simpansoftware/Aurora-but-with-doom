@@ -984,6 +984,7 @@ setupuser() {
     adduser -D "$username"
     echo "$username:$password" | chpasswd 2>/dev/null
     echo "$username ALL=(ALL:ALL) ALL" >> /etc/sudoers
+    mkdir -p /run/user/$(id -u $username)
 }
 
 setup() {
