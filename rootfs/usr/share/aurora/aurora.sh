@@ -682,25 +682,17 @@ connect() {
         fi
     done < <(iw dev "$wifidevice" scan | grep -E 'SSID:|signal:')
 
-    networks=()
-    while IFS=$'\t' read -r signal ssid; do
-        networks+=("$ssid:$signal")
-    done < <(for ssid in "${!best[@]}"; do
-                echo -e "${best[$ssid]}\t$ssid"
-            done | sort -nr)
-
     wifi_options=()
-    for entry in "${networks[@]}"; do
-        signal=${entry%%:*}
-        ssid=${entry##*:}
-
+    for ssid in "${!best[@]}"; do
+        echo -e "${best[$ssid]}\t$ssid"
+    done | sort -nr | while IFS=$'\t' read -r signal ssid; do
         if (( signal >= -50 )); then color=$'\e[1;38;5;82m●\e[0m'
         elif (( signal >= -60 )); then color=$'\e[1;38;5;226m●\e[0m'
         elif (( signal >= -70 )); then color=$'\e[1;38;5;208m●\e[0m'
         else color=$'\e[1;38;5;196m●\e[0m'; fi
-
         wifi_options+=("$color $ssid")
     done
+
     wifi_options+=("Enter Network manually")
     wifi_options+=("Exit")
 
