@@ -68,7 +68,7 @@ You can then either download recovery images or shims in Aurora itself, or put t
   3. KVS
   4. Aurora (great scott!)
 - Here's a list of shims we're gonna make work and test:
-  3. Any future shims that are made
+  1. Any future shims that are made
 
 # Credits
 - [Sophia](https://github.com/soap-phia) - Lead developer of Aurora, Got Wifi
