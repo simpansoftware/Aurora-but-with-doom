@@ -266,18 +266,18 @@ splash() {
         echo -e "${RED_B}Barla/Treeya wifi unsupported. Please contact @kxtzownsu on discord${COLOR_RESET}"
     else
         signal=$(iw dev $wifidevice link | grep signal | awk '{print $2}' | sed 's/.00//' | head -1)
-        if (( signal >= -50 )); then color=$'\e[1;38;5;82m'
-        elif (( signal >= -60 )); then color=$'\e[1;38;5;226m'
-        elif (( signal >= -70 )); then color=$'\e[1;38;5;208m'
-        else color=$'\e[1;38;5;196m'; fi
+        if (( signal >= -50 )); then color=$'\e[1;38;5;82m▃▅▇'
+        elif (( signal >= -60 )); then color=$'\e[1;38;5;226m▃▅\e[1;38;5;236m▇'
+        elif (( signal >= -70 )); then color=$'\e[1;38;5;208m▃\e[1;38;5;236m▅▇'
+        else color=$'\e[1;38;5;196m▃\e[1;38;5;236m▅▇'; fi
         ssid="$(iw dev "$wifidevice" link 2>/dev/null | awk -F ': ' '/SSID/ {print $2}')"
         if [ -f /etc/aftggp ]; then
             ssid="$ssid | ${CYAN_B}AFT running at: $(ip a | grep wlan0 | grep inet | awk '{print $2}' | sed 's|/.*||'):42069${COLOR_RESET}"
         fi
         if [ -n "$ssid" ]; then
-            echo -e "\n${color}● $wifidevice${COLOR_RESET} $ssid" | center
+            echo -e "\n${color} $wifidevice${COLOR_RESET} $ssid" | center
         else
-            echo -e "\n${RED_B}● $wifidevice${COLOR_RESET} disconnected" | center
+            echo -e "\n\e[1;38;5;196m▃\e[1;38;5;236m▅▇ $wifidevice${COLOR_RESET} disconnected" | center
         fi
     fi
     local width=42
@@ -700,10 +700,10 @@ connect() {
         signal=${entry%%:*}
         ssid=${entry##*:}
 
-        if (( signal >= -50 )); then color=$'\e[1;38;5;82m●\e[0m'
-        elif (( signal >= -60 )); then color=$'\e[1;38;5;226m●\e[0m'
-        elif (( signal >= -70 )); then color=$'\e[1;38;5;208m●\e[0m'
-        else color=$'\e[1;38;5;196m●\e[0m'; fi
+        if (( signal >= -50 )); then color=$'\e[1;38;5;82m▃▅▇\e[0m'
+        elif (( signal >= -60 )); then color=$'\e[1;38;5;226m▃▅\e[1;38;5;236m▇\e[0m'
+        elif (( signal >= -70 )); then color=$'\e[1;38;5;208m▃\e[1;38;5;236m▅▇\e[0m'
+        else color=$'\e[1;38;5;196m▃\e[1;38;5;236m▅▇\e[0m'; fi
 
         wifi_options+=("$color $ssid")
     done
