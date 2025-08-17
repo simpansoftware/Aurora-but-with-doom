@@ -1104,7 +1104,7 @@ EOF
     udevadm settle | center || :
 fi
 
-for wifi in iwlwifi iwlmvm ccm 8021q rtw88 rtwpci; do
+for wifi in iwlwifi iwlmvm ccm 8021q rtw88 rtwpci ath10k_sdio; do
     modprobe -r "$wifi" 2>/dev/null || true
     modprobe "$wifi" 2>/dev/null
 done
