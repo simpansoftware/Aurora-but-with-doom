@@ -676,7 +676,7 @@ connect() {
             ssid=$(echo "$line" | sed 's/^SSID: //')
             [ -z "$ssid" ] && continue
             if [[ -z ${best["$ssid"]} || $signal -gt ${best["$ssid"]} ]]; then
-                best["$ssid"]=$sig
+                best["$ssid"]=$signal
             fi
         fi
     done < <(iw dev "$wifidevice" scan | grep -E 'SSID:|signal:')
