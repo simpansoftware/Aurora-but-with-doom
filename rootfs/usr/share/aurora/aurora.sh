@@ -690,7 +690,7 @@ connect() {
         else color=$'\x1b[1;38;5;196m●\e[0m'; fi
         wifi_options+=("$color $ssid")
     done
-    wifi_options+=("Enter SSID manually")
+    wifi_options+=("Enter Network manually")
     wifi_options+=("Exit")
 
     while true; do
