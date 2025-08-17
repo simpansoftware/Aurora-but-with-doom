@@ -77,7 +77,7 @@ rm -f "$rootfs/sbin/init" "alpine-minirootfs.tar.gz"
 echo "nameserver 1.1.1.1" > "$rootfs/etc/resolv.conf"
 
 if [ "$hostarch" != "$arch" ]; then
-    echo_c "Done.\n\n${BLUE_B}Setting up QEMU " GEEN_B
+    echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Setting up QEMU " GEEN_B
     sudo mount -t binfmt_misc none /proc/sys/fs/binfmt_misc 2>/dev/null
     if ! grep -q binfmt_misc /proc/filesystems; then
        sudo modprobe binfmt_misc 2>/dev/null
@@ -91,19 +91,19 @@ trap cleanup EXIT
 cp -Lar "$rootfs/." "$initramfs/"
 cp -r initramfs/. "$initramfs/"
 cp -r patches/initramfs/. "$initramfs/"
-echo_c "Done.\n\n${BLUE_B}Installing Bootloader Packages" GEEN_B
+echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Installing Bootloader Packages" GEEN_B
 chroot "$initramfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_initramfs_alpine.sh && /opt/setup_initramfs_alpine.sh $arch"
+echo_c "Done. Initramfs: $(du -sh $initramfs | awk '{print $1}')\n\n${BLUE_B}Installing Rootfs Packages" GEEN_B
 cp -r rootfs/. "$rootfs/"
 mkdir -p "$rootfs/usr/share/patches/rootfs"
 cp -r patches/rootfs/. "$rootfs/usr/share/patches/rootfs/"
-echo_c "Done.\n\n${BLUE_B}Installing Rootfs Packages" GEEN_B
 chroot "$rootfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_rootfs_alpine.sh && /opt/setup_rootfs_alpine.sh $arch"
-echo_c "Done.\n\n${BLUE_B}Downloading firmware..." GEEN_B
+echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Downloading firmware..." GEEN_B
 git clone --depth=1 https://chromium.googlesource.com/chromiumos/third_party/linux-firmware $rootfs/lib/firmware/
 find "$rootfs/lib/firmware" -type f -not \( -path "*wifi*" -o -path "*rt*" -o -path "*ath*" -o -path "*mediatek*" \) -exec rm -rf {} + >/dev/null 2>&1
 
 trap - EXIT
-echo_c "Done.\n\n${BLUE_B}Building shim..." GEEN_B
+echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Building shim..." GEEN_B
 
 mkdir -p "$initramfs"
 
@@ -112,7 +112,7 @@ dev=$(losetup -Pf --show "$aurorashim")
 
 chromeos=$(cgpt find -l ROOT-A "$shimdev" | head -n 1)
 tempmount=$(mktemp -d)
-echo_c "Done.\n\n${BLUE_B}Copying Modules..." GEEN_B
+echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Copying Modules..." GEEN_B
 mount -o ro "$chromeos" "$tempmount"
 if [ -d "$tempmount/lib/modules" ]; then
   cp -ar "$tempmount/lib/modules" $rootfs/lib/
@@ -133,7 +133,7 @@ fi
 rm -f $rootfs/usr/bin/qemu-$arch-static
 rm -f $initramfs/usr/bin/qemu-$arch-static
 
-echo_c "Done.\n\n${BLUE_B}Partitioning shim..." GEEN_B
+echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Partitioning shim..." GEEN_B
 sgdisk --zap-all "$dev"
 sgdisk -n 1:2048:10239 -c 1:"STATE" "$dev"
 sgdisk -n 2:10240:75775 "$dev"
@@ -171,29 +171,29 @@ touch "$statemount/dev_image/etc/lsb-factory"
 mount "$root_a" "$root_amount"
 mount "$root_b" "$root_bmount"
 
-echo_c "Done.\n\n${BLUE_B}Copying rootfs to shim" "GEEN_B"
+echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Copying rootfs to shim" "GEEN_B"
 rm -f "$rootfs/sbin/init"
 cp -ar rootfs/. "$rootfs"
 if [ "$DEBUG" -eq "1" ]; then
-    rsync -avH --info=progress2 --delete "$rootfs/." "$root_bmount"
+    rsync -avH --info=progress2 --delete "$rootfs/." "$root_bmount" || { echo "failed to copy all files"; exit 1; }
     sleep 10
 else
-    rsync -avH --info=progress2 --delete "$rootfs/." "$root_bmount" >/dev/null 2>&1 || echo "failed to copy all files"; exit 1
+    rsync -avH --info=progress2 --delete "$rootfs/." "$root_bmount" >/dev/null || { echo "failed to copy all files"; exit 1; }
 fi
-echo_c "Done.\n\n${BLUE_B}Copying initramfs to shim" "GEEN_B"
+echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Copying initramfs to shim" "GEEN_B"
 rm -f "$initramfs/bin/init"
 cp -ar initramfs/. "$initramfs"
 if [ "$DEBUG" -eq "1" ]; then
-    rsync -avH --info=progress2 --delete "$initramfs/." "$root_amount"
+    rsync -avH --info=progress2 --delete "$initramfs/." "$root_amount" || { echo "failed to copy all files"; exit 1; }
     sleep 10
 else
-    rsync -avH --info=progress2 --delete "$initramfs/." "$root_amount" >/dev/null 2>&1
+    rsync -avH --info=progress2 --delete "$initramfs/." "$root_amount" >/dev/null || { echo "failed to copy all files"; exit 1; }
 fi
 chmod +x "$root_amount/init" "$root_amount/sbin/init" "$root_amount/bootstrap.sh" 2>/dev/null
 chmod +x "$root_bmount/sbin/init" "$root_bmount/usr/bin/"* "$root_bmount/usr/share/aurora/"* 2>/dev/null
 sync
 
-echo_c "Done.\n\n${BLUE_B}Cleaning up...\n" "GEEN_B"
+echo_c "Done. Initramfs: $(du -sh $initramfs | awk '{print $1}')\n\n${BLUE_B}Cleaning up...\n" "GEEN_B"
 umount "$statemount" "$root_amount" "$root_bmount"
 umount "$statemount" -l 2>/dev/null
 umount "$root_amount" -l 2>/dev/null
