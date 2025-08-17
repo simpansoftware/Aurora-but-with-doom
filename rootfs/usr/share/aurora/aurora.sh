@@ -660,38 +660,68 @@ EOF
 ##########
 
 connect() {
-    ifconfig $wifidevice down
+    ifconfig "$wifidevice" down
     pkill -12 udhcpc
     pkill udhcpc 2>/dev/null
     killall wpa_supplicant 2>/dev/null
     rm -rf /etc/wpa_supplicant* /etc/*dhcpc*
-    ifconfig $wifidevice up
-    if [ -n "$DIS" ]; then return; fi
+    ifconfig "$wifidevice" up
+    [ -n "$DIS" ] && return
     echo_c "Available Networks\n" GEEN_B | center
-    mapfile -t wifi_options < <(
-        iw dev "$wifidevice" scan | grep 'SSID:' | sed -E 's/.*SSID: //g' | sort -u
-    )
+    declare -A best
+    while read -r line; do
+        if [[ $line =~ ^signal: ]]; then
+            signal=$(echo "$line" | awk '{print $2}')
+        elif [[ $line =~ ^SSID: ]]; then
+            ssid=$(echo "$line" | sed 's/^SSID: //')
+            [ -z "$ssid" ] && continue
+            if [[ -z ${best["$ssid"]} || $signal -gt ${best["$ssid"]} ]]; then
+                best["$ssid"]=$sig
+            fi
+        fi
+    done < <(iw dev "$wifidevice" scan | grep -E 'SSID:|signal:')
+
+    wifi_options=()
+    for ssid in "${!best[@]}"; do
+        signal=${best[$ssid]}
+        if (( signal >= -50 )); then color=$'\x1b[1;38;5;82m●\e[0m'
+        elif (( signal >= -60 )); then color=$'\x1b[1;38;5;226m●\e[0m'
+        elif (( signal >= -70 )); then color=$'\x1b[1;38;5;208m●\e[0m'
+        else color=$'\x1b[1;38;5;196m●\e[0m'; fi
+        wifi_options+=("$color $ssid")
+    done
+    wifi_options+=("Enter SSID manually")
     wifi_options+=("Exit")
 
     while true; do
         menu "Choose a network" "${wifi_options[@]}"
         choice=$?
-        ssid="${wifi_options[$choice]}"
-        if [[ "$ssid" == "Exit" ]]; then
+        ssid_option="${wifi_options[$choice]}"
+
+        if [ "$choice" -eq 255 ]; then
+            fail "Cancelled."
+        fi
+
+        if [[ "$ssid_option" == "Exit" ]]; then
             read_center "Press Enter to continue..."
             return
+        elif [[ "$ssid_option" == "Enter Network manually" ]]; then
+            read_center -d "Enter SSID: " ssid
+        else
+            ssid="${ssid_option:2}"
         fi
         break
     done
+
     stty echo
     read_center -d "Enter password for $ssid: " psk
     conf="/etc/wpa_supplicant.conf"
+
     if grep -q "ssid=\"$ssid\"" "$conf" 2>/dev/null; then
         echo "Network (${ssid}) already configured." | center
     else
         if [ -z "$psk" ]; then
             cat >> "$conf" <<EOF
-
 network={
     ssid="$ssid"
     key_mgmt=NONE
