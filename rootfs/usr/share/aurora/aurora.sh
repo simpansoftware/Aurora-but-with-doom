@@ -671,7 +671,7 @@ connect() {
     declare -A best
     while read -r line; do
         if [[ $line =~ ^signal: ]]; then
-            signal=$(echo "$line" | awk '{print $2}')
+            signal=$(echo "$line" | awk '{print $2}' | sed 's/.00//')
         elif [[ $line =~ ^SSID: ]]; then
             ssid=$(echo "$line" | sed 's/^SSID: //')
             [ -z "$ssid" ] && continue
