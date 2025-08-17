@@ -721,8 +721,7 @@ connect() {
         elif [[ "$ssid_option" == "Enter Network manually" ]]; then
             read_center -d "Enter SSID: " ssid
         else
-            ssid=$(echo "$ssid_option" | sed -r 's/\x1B\[[0-9;]*m//g' | sed 's/^ *//')
-            ssid=${ssid#● }
+            ssid=$(echo "$ssid_option" | sed -r 's/\x1B\[[0-9;]*m//g; s/^[^ ]* //')
         fi
         break
     done
