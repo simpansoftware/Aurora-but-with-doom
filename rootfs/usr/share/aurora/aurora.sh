@@ -705,6 +705,7 @@ connect() {
             read_center -d "Enter SSID: " ssid
         else
             ssid=$(echo "$ssid_option" | sed -r 's/\x1B\[[0-9;]*m//g' | sed 's/^ *//')
+            ssid=${ssid#● }
         fi
         break
     done
