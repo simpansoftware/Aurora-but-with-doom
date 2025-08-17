@@ -192,13 +192,13 @@ menu() {
         done
 
         IFS= read -rsn1 key
-        if [[ $key == $'\x1b' ]]; then
+        if [[ $key == $'\e' ]]; then
             read -rsn2 -t 0.01 key_rest
             key+="$key_rest"
         fi
         case $key in
-            $'\x1b[A') ((selected--)) ;;
-            $'\x1b[B') ((selected++)) ;;
+            $'\e[A') ((selected--)) ;;
+            $'\e[B') ((selected++)) ;;
             '') break ;;
         esac
 
@@ -684,10 +684,10 @@ connect() {
     wifi_options=()
     for ssid in "${!best[@]}"; do
         signal=${best[$ssid]}
-        if (( signal >= -50 )); then color=$'\x1b[1;38;5;82m●\e[0m'
-        elif (( signal >= -60 )); then color=$'\x1b[1;38;5;226m●\e[0m'
-        elif (( signal >= -70 )); then color=$'\x1b[1;38;5;208m●\e[0m'
-        else color=$'\x1b[1;38;5;196m●\e[0m'; fi
+        if (( signal >= -50 )); then color=$'\e[1;38;5;82m●\e[0m'
+        elif (( signal >= -60 )); then color=$'\e[1;38;5;226m●\e[0m'
+        elif (( signal >= -70 )); then color=$'\e[1;38;5;208m●\e[0m'
+        else color=$'\e[1;38;5;196m●\e[0m'; fi
         wifi_options+=("$color $ssid")
     done
     wifi_options+=("Enter Network manually")
@@ -698,17 +698,13 @@ connect() {
         choice=$?
         ssid_option="${wifi_options[$choice]}"
 
-        if [ "$choice" -eq 255 ]; then
-            fail "Cancelled."
-        fi
-
         if [[ "$ssid_option" == "Exit" ]]; then
             read_center "Press Enter to continue..."
             return
         elif [[ "$ssid_option" == "Enter Network manually" ]]; then
             read_center -d "Enter SSID: " ssid
         else
-            ssid="${ssid_option:2}"
+            ssid=$(echo "$ssid_option" | sed -r 's/\x1B\[[0-9;]*m//g' | sed 's/^ *//')
         fi
         break
     done
