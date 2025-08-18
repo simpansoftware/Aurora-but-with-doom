@@ -903,6 +903,7 @@ chromium() {
     fi
     setup-xorg-base chromium gvfs font-dejavu openbox
     rc-update add dbus sysinit
+    openrc sysinit
     rm ~/.xinitrc
     cat <<EOF > ~/.xinitrc
 openbox &
