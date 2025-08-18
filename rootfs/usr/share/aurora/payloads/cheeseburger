@@ -1,0 +1,13 @@
+#!/bin/bash
+
+source /usr/share/aurora/functions
+cd /
+
+canwifi || return
+
+apk add mpv
+wget -q --show-progress https://raw.githubusercontent.com/EtherealWorkshop/Aurora/refs/heads/alpine/cheeseburger.mp4
+(
+    killall frecon-lite
+    mpv --vo=drm --loop /cheeseburger.mp4 --volume=100
+)
