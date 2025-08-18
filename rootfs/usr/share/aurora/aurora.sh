@@ -900,6 +900,7 @@ chromium() {
         tar --warning=no-unknown-keyword -xzf "/tmp/apk-tools-static/pkg.apk" -C "/tmp/apk-tools-static"
         chmod +x /tmp/apk-tools-static/sbin/apk.static
         /tmp/apk-tools-static/sbin/apk.static --arch $(uname -m) -X http://dl-cdn.alpinelinux.org/alpine/edge/main/ -U --allow-untrusted --root "/" --initdb add alpine-base
+        sync
     fi
     setup-xorg-base chromium gvfs font-dejavu openbox
     rc-update add dbus sysinit
