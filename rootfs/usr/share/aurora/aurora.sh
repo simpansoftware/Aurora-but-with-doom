@@ -910,7 +910,7 @@ chromium() {
     cat <<EOF > ~/.xinitrc
 openbox &
 while true; do
-    chromium --no-first-run --disable-infobars --start-maximized --no-sandbox
+    chromium --start-maximized --no-first-run --disable-infobars --disable-session-crashed-bubble --restore-last-session --no-sandbox
 done
 EOF
     killall frecon-lite
