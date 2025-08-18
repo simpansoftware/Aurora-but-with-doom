@@ -893,6 +893,27 @@ aftggp() {
     touch /etc/aftggp
 }
 
+chromium() {
+    if [ -f /usr/sbin/setup-xorg-base ] && [ -f /usr/sbin/setup-devd ]; then
+        mkdir -p "/tmp/apk-tools-static"
+        wget -q --show-progress "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/$(uname -m)/$(echo "$(wget -qO- --show-progress "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/$(uname -m)/" | grep "apk-tools-static")" | pcregrep -o1 '"(.+?.apk)"')" -O "/tmp/apk-tools-static/pkg.apk"
+        tar --warning=no-unknown-keyword -xzf "/tmp/apk-tools-static/pkg.apk" -C "/tmp/apk-tools-static"
+        chmod +x /tmp/apk-tools-static/sbin/apk.static
+        /tmp/apk-tools-static/sbin/apk.static --arch $(uname -m) -X http://dl-cdn.alpinelinux.org/alpine/edge/main/ -U --allow-untrusted --root "/" --initdb add alpine-base
+    fi
+    setup-xorg-base chromium gvfs font-dejavu openbox
+    rc-update add dbus sysinit
+    rm ~/.xinitrc
+    cat <<EOF > ~/.xinitrc
+openbox &
+while true; do
+    chromium --no-first-run --disable-infobars --start-maximized
+done
+EOF
+    killall frecon-lite
+    startx
+}
+
 ##################
 ## OPTIONS MENU ##
 ##################
@@ -969,7 +990,8 @@ menu2_options+=(
     "$(echo "3" ). AFTGGP [Aurora File Transfer]"
     "$(echo "4" ). Build Environment"
     "$(echo "5" ). KVS"
-    "$(echo "6" ). Previous Page"
+    "$(echo "5" ). Chromium"
+    "$(echo "7" ). Previous Page"
 )
 menu1_actions+=(
     "clear && wifi"
@@ -983,6 +1005,7 @@ menu2_actions+=(
     "canwifi aftggp"
     "clear && canwifi aurorabuildenv"
     "clear && kvs"
+    "canwifi chromium"
     "prevpage"
 )
 
