@@ -1,3 +1,13 @@
 launch_command: loadpage library ;; flush ;; history clear ;; key Esc 0 ;; key Up 0 ;; key Up 0 ;; key Left 0 ;; key Enter 0
 video:
-- Play video: parrun ytplayer '${embed-url}'
+- Play video: parrun ${video-player} '${embed-url}'
+saved_video:
+- '[Offline] Play saved file': parrun ${video-player} '${offline-path}' --force-window
+playlist:
+- Switch view: '%switch-view%'
+- Play all (videos): parrun ${video-player} ${url}
+saved_playlist:
+- Switch view: '%switch-view%'
+- '[Offline] Play all (videos)': parrun ${video-player} ${save-path}*${id}*/* --force-window
+channel:
+- Play all (videos): parrun ${video-player} ${url}

@@ -1,4 +1,4 @@
 #!/bin/bash
 
 killall frecon-lite
-mpv --vo=drm --loop --volume=100 "$1" --slang=en --ytdl-raw-options=ignore-config=,sub-lang=en,write-auto-sub=
+mpv --vo=drm --loop --volume=100 "$@" --slang=en --ytdl-raw-options=ignore-config=,sub-lang=en,write-auto-sub=
