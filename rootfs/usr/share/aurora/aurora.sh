@@ -208,34 +208,6 @@ menu() {
     return $selected
 }
 
-fail() {
-    export errormsg="$1"
-	sync
-    cd /
-    umount /dev/loop*p* 2>/dev/null
-    umount /dev/loop* 2>/dev/null
-	losetup -D
-    for arg in "$@"; do
-        if [ "$arg" = "--fatal" ]; then
-            echo_c "A fatal error occured. Please Reboot" RED_B | center
-            hang
-        fi
-    done
-    return 1
-}
-export -f fail
-
-hang() {
-	tput civis
-	stty -echo
-	sleep 1h
-	echo "You really still haven't turned off your device?" | center
-	sleep 1d
-	echo "I give up. Bye" | center
-	sleep 5
-	reboot -f
-}
-
 get_largest_cros_blockdev() {
 	local largest size dev_name tmp_size remo
 	size=0

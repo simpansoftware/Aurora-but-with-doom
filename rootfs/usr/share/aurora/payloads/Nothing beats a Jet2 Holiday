@@ -3,11 +3,8 @@
 source /usr/share/aurora/functions
 cd /
 
-canwifi || return
-
-apk add mpv
-wget -q --show-progress https://raw.githubusercontent.com/EtherealWorkshop/Aurora/refs/heads/alpine/jet2holiday.mp4
+canwifi apk add mpv yt-dlp
 (
     killall frecon-lite
-    mpv --vo=drm --loop /jet2holiday.mp4 --volume=100
+    mpv --vo=drm --loop --volume=100 https://www.youtube.com/watch?v=YQZEoZ4W0ac
 )
