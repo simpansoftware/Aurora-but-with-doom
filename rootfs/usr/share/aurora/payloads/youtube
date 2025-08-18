@@ -1,0 +1,8 @@
+#!/bin/bash
+
+chmod +x /usr/bin/ytplayer
+
+head -4 ~/.config/youtube-tui/commands.yml | sed -e 's/${video-player}/ytplayer/' -e '/Reload updated/d' > ~/.config/youtube-tui/commands.yml.tmp
+mv ~/.config/youtube-tui/commands.yml.tmp ~/.config/youtube-tui/commands.yml
+
+youtube-tui
