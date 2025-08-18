@@ -480,6 +480,9 @@ installcros() {
     read_center -d "This will wipe your ChromeOS drive. Please type 'confirm' to continue: " confirmation
     tput civis
     if [ ! "$confirmation" = "confirm" ]; then echo "Exiting..." | center; sleep 2; return; fi
+    if (( $(cat /sys/class/power_supply/BAT0/capacity) <= 20 )) && [ "$(cat /sys/class/power_supply/BAT0/status)" != "Charging" ]; then
+        fail "Battery Power below 20%. Please plug in your device."
+    fi
     mkdir -p $recoroot
     echo -e "Searching for ROOT-A on reco image" | center
     loop=$(losetup -fP --show $reco)
