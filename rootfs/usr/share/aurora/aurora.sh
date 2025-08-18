@@ -903,12 +903,13 @@ chromium() {
         /tmp/apk-tools-static/sbin/apk.static --arch $(uname -m) -X http://dl-cdn.alpinelinux.org/alpine/edge/main/ -U --allow-untrusted --root "/" --initdb add alpine-base
         sync
     fi
-    setup-xorg-base chromium gvfs font-dejavu openbox
+    setup-xorg-base chromium gvfs font-dejavu openbox hsetroot
     rc-update add dbus sysinit
     openrc sysinit
     rm ~/.xinitrc
     cat <<EOF > ~/.xinitrc
 openbox &
+hsetroot -cover /usr/share/aurora/aurora.png &
 while true; do
     chromium --start-maximized --no-first-run --disable-infobars --disable-session-crashed-bubble --restore-last-session --no-sandbox
 done
