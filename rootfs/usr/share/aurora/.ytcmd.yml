@@ -1,0 +1,3 @@
+launch_command: loadpage library ;; flush ;; history clear ;; key Esc 0 ;; key Up 0 ;; key Left 0 ;; key Enter 0
+video:
+- Play video: parrun ytplayer '${embed-url}'

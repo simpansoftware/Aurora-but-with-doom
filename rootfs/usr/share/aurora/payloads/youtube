@@ -4,7 +4,7 @@ source /usr/share/aurora/functions
 canwifi apk add mpv yt-dlp youtube-tui
 chmod +x /usr/bin/ytplayer
 
-head -4 ~/.config/youtube-tui/commands.yml | sed -e 's/${video-player}/ytplayer/' -e '/Reload updated/d' > ~/.config/youtube-tui/commands.yml.tmp
-mv ~/.config/youtube-tui/commands.yml.tmp ~/.config/youtube-tui/commands.yml
+rm -f ~/.config/youtube-tui/commands.yml
+cp /usr/share/aurora/.ytcmd.yml ~/.config/youtube-tui/commands.yml
 
 youtube-tui
