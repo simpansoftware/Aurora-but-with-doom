@@ -1,5 +1,5 @@
 origin=alpine
-default=
+default=0
 timeout=5
 setup=1
 shimboot=0

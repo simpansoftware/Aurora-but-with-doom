@@ -864,10 +864,10 @@ updateshim() {
     apk add git github-cli >/dev/null 2>&1
     if [ -d "/root/Aurora/.git" ]; then
         git config --global submodule.recurse true >/dev/null 2>&1
-        git -C "/root/Aurora" pull origin $(cat /usr/share/aurora/.origin) 2>&1 | center || return
+        git -C "/root/Aurora" pull origin $(cat /etc/aurora | grep origin | sed 's/origin=//') 2>&1 | center || return
     else
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
-        git clone --branch=$(cat /usr/share/aurora/.origin) https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive 2>&1 | center || return
+        git clone --branch=$(cat /etc/aurora | grep origin | sed 's/origin=//') https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive 2>&1 | center || return
         git config --global submodule.recurse true >/dev/null 2>&1
     fi
     echo "Copying files to root..." | center
@@ -1040,7 +1040,7 @@ setupuser() {
 setup() {
     tput cnorm
     stty echo
-    if [ ! -f /etc/setup ]; then
+    if cat /etc/aurora | grep -q "setup=1"; then
         clear
         splash
         echo -e "\nSetup Aurora" | center
@@ -1068,7 +1068,7 @@ setup() {
                echo "Aurora" > /etc/hostname
                echo "127.0.0.1 localhost Aurora" >> /etc/hosts ;;
         esac
-        touch /etc/setup
+        sed -i 's/setup=1/setup=0/' /etc/aurora
     fi
 }
 
