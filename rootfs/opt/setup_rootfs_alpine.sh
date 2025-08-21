@@ -16,4 +16,3 @@ echo "Aurora" > /etc/hostname
 echo "127.0.0.1 localhost Aurora" >> /etc/hosts
 echo "%wheel ALL=(ALL:ALL) NOPASSWD: ALL" >> /etc/sudoers
 echo root:root | chpasswd 2>/dev/null
-rm -f /etc/setup /etc/shimboot

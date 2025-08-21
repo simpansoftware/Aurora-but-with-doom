@@ -1,6 +1,6 @@
 *.bin
 *.Zone:*
 build/rootfs
-build/initramfs
+build/auroraboot
 build/alpine-minirootfs*
 *yamlmaker.sh

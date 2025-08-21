@@ -522,13 +522,15 @@ shimboot() {
     loop=$(losetup -Pf --show $shim)
     export loop
     if lsblk -o PARTLABEL $loop | grep "shimboot"; then
-        touch /etc/shimboot
+        sed -i 's/shimboot=0/shimboot=1/' /auroraroot/etc/aurora
         sync
         stty echo
-        read_center -d "Reboot to boot into shimboot instead of Aurora from the initramfs? (Y/n): " bootshimboot
+        read_center -d "Reboot to boot into shimboot instead of Aurora from auroraboot? (Y/n): " bootshimboot
         case $bootshimboot in
-            n|N|no|No|NO) return 0 ;;
-            *) losetup -D && reboot -f ;;
+            "n*"|"N*") return 0 ;;
+            *) losetup -D
+               
+               reboot -f ;;
         esac
     fi
 

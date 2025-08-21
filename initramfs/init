@@ -70,7 +70,7 @@ shimbootselected() {
 
         if [ "$i" -eq 1 ]; then
             echo "No shims found."
-            rm -f /auroraroot/etc/shimboot
+            sed -i 's/shimboot=1/shimboot=0/' /auroraroot/etc/aurora
             return 1
         fi
 
@@ -240,14 +240,15 @@ manageaurora() {
 }
 
 dboot() {
-    echo $1 > /auroraroot/etc/initramfs.defaultboot 
+    default=$1
+    sed -i "s/default=.*/default=$default/" /auroraroot/etc/aurora
     echo -n "Enter timeout length before booting (seconds): "
     read timeout
     if [ -z $timeout ]; then
         echo "No timeout specified. Defaulting to 5 Seconds"
         timeout="5"
     fi
-    echo $timeout >> /auroraroot/etc/initramfs.defaultboot
+    sed -i "s/timeout=.*/timeout=$timeout/" /auroraroot/etc/aurora
 }
 
 manage() {
@@ -300,9 +301,9 @@ manage() {
         echo -ne "${GEEN_B}(default)> ${COLOR_RESET}"
         read defaultchoice
         case $defaultchoice in
-            1) dboot "Aurora" ;;
-            2) dboot "Shimboot" ;;
-            3) rm -f /auroraroot/etc/initramfs.defaultboot ;;
+            1) dboot 1 ;;
+            2) dboot 2 ;;
+            3) dboot 0 ;;
             *) echo "Invalid Option" ;;
         esac
     else
@@ -330,16 +331,16 @@ mount $dev_partition /auroraroot || {
     exit 1
 }
 
-defaultboot="/auroraroot/etc/initramfs.defaultboot"
-if [ -f "$defaultboot" ]; then
+defaultboot="cat /auroraroot/etc/aurora | grep default | sed 's/default=//'"
+if [ "$defaultboot" != "0" ]; then
     timeout=$(cat "$defaultboot" | tail -n1)
     defaultboot=$(cat "$defaultboot" | head -n1)
     echo -e "${YELLOW_B}Booting $defaultboot in $timeout seconds... Press any key to cancel.${COLOR_RESET}"
     read -t $timeout -n1 key && cancel=true
     if [ -z "$cancel" ]; then
         case "$defaultboot" in
-            Aurora) auroraselected ;;
-            Shimboot) shimbootselected ;;
+            1) auroraselected ;;
+            2) shimbootselected ;;
             *) echo "Invalid default boot entry (what did you do)" ;;
         esac
         sleep 5
@@ -352,7 +353,7 @@ while true; do
     echo -e "2. Shimboot (If you have it)"
     echo -e "3. Manage partitions"
     echo -e "4. Shell\n"
-    echo -ne "${GEEN_B}(initramfs)> ${COLOR_RESET}"
+    echo -ne "${GEEN_B}(auroraboot)> ${COLOR_RESET}"
     read initselection
     case $initselection in
         1) auroraselected || sleep 5 ;;

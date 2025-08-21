@@ -1,0 +1,5 @@
+origin=alpine
+default=
+timeout=5
+setup=1
+shimboot=0

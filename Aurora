@@ -38,7 +38,7 @@ echo_c() {
 }
 cleanup() {
     for dir in proc sys dev run; do umount -l "$rootfs/$dir"; done
-    rm -rf "$rootfs" "$initramfs" "$statemount" "$root_amount" "$root_bmount"
+    rm -rf "$rootfs" "$auroraboot" "$statemount" "$root_amount" "$root_bmount"
 }
 lsbval() {
   local key="$1" lsbfile="${2:-$rootfs/etc/lsb-release}"
@@ -55,10 +55,10 @@ if [ -z "$shim" ] || echo "$shim" | grep -vq ".bin"; then
   echo_c "Please run on a raw shim." RED_B
 fi
 
-initramfs=$(mktemp -d)
+auroraboot=$(mktemp -d)
 rootfs=$(mktemp -d)
-rm -rf "$rootfs" "$initramfs"
-mkdir -p "$rootfs" "$initramfs"
+rm -rf "$rootfs" "$auroraboot"
+mkdir -p "$rootfs" "$auroraboot"
 [ -z "rootfs/usr/share/aurora/aurora.sh" ] && echo_c "Please run in the base directory of Aurora." RED_B
 
 if findmnt -T "$rootfs" -o OPTIONS -n | grep -qE 'noexec|nodev'; then
@@ -88,12 +88,12 @@ fi
 
 trap cleanup EXIT
 
-cp -Lar "$rootfs/." "$initramfs/"
-cp -r initramfs/. "$initramfs/"
-cp -r patches/initramfs/. "$initramfs/"
+cp -Lar "$rootfs/." "$auroraboot/"
+cp -r auroraboot/. "$auroraboot/"
+cp -r patches/auroraboot/. "$auroraboot/"
 echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Installing Bootloader Packages" GEEN_B
-chroot "$initramfs" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_initramfs_alpine.sh && /opt/setup_initramfs_alpine.sh $arch"
-echo_c "Done. Initramfs: $(du -sh $initramfs | awk '{print $1}')\n\n${BLUE_B}Installing Rootfs Packages" GEEN_B
+chroot "$auroraboot" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_auroraboot_alpine.sh && /opt/setup_auroraboot_alpine.sh $arch"
+echo_c "Done. auroraboot: $(du -sh $auroraboot | awk '{print $1}')\n\n${BLUE_B}Installing Rootfs Packages" GEEN_B
 cp -r rootfs/. "$rootfs/"
 mkdir -p "$rootfs/usr/share/patches/rootfs"
 cp -r patches/rootfs/. "$rootfs/usr/share/patches/rootfs/"
@@ -105,7 +105,7 @@ find "$rootfs/lib/firmware" -type f -not \( -path "*wifi*" -o -path "*rt*" -o -p
 trap - EXIT
 echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Building shim..." GEEN_B
 
-mkdir -p "$initramfs"
+mkdir -p "$auroraboot"
 
 shimdev=$(losetup -Pf --show "$shim")
 dev=$(losetup -Pf --show "$aurorashim")
@@ -131,7 +131,7 @@ else
 fi
 
 rm -f $rootfs/usr/bin/qemu-$arch-static
-rm -f $initramfs/usr/bin/qemu-$arch-static
+rm -f $auroraboot/usr/bin/qemu-$arch-static
 
 echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Partitioning shim..." GEEN_B
 sgdisk --zap-all "$dev"
@@ -180,27 +180,27 @@ if [ "$DEBUG" -eq "1" ]; then
 else
     rsync -avH --info=progress2 --delete "$rootfs/." "$root_bmount" >/dev/null || { echo "failed to copy all files"; exit 1; }
 fi
-echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Copying initramfs to shim" "GEEN_B"
-rm -f "$initramfs/bin/init"
-cp -ar initramfs/. "$initramfs"
+echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Copying auroraboot to shim" "GEEN_B"
+rm -f "$auroraboot/bin/init"
+cp -ar auroraboot/. "$auroraboot"
 if [ "$DEBUG" -eq "1" ]; then
-    rsync -avH --info=progress2 --delete "$initramfs/." "$root_amount" || { echo "failed to copy all files"; exit 1; }
+    rsync -avH --info=progress2 --delete "$auroraboot/." "$root_amount" || { echo "failed to copy all files"; exit 1; }
     sleep 10
 else
-    rsync -avH --info=progress2 --delete "$initramfs/." "$root_amount" >/dev/null || { echo "failed to copy all files"; exit 1; }
+    rsync -avH --info=progress2 --delete "$auroraboot/." "$root_amount" >/dev/null || { echo "failed to copy all files"; exit 1; }
 fi
 chmod +x "$root_amount/init" "$root_amount/sbin/init" "$root_amount/bootstrap.sh" 2>/dev/null
 chmod +x "$root_bmount/sbin/init" "$root_bmount/usr/bin/"* "$root_bmount/usr/share/aurora/"* 2>/dev/null
 sync
 
-echo_c "Done. Initramfs: $(du -sh $initramfs | awk '{print $1}')\n\n${BLUE_B}Cleaning up...\n" "GEEN_B"
+echo_c "Done. auroraboot: $(du -sh $auroraboot | awk '{print $1}')\n\n${BLUE_B}Cleaning up...\n" "GEEN_B"
 umount "$statemount" "$root_amount" "$root_bmount"
 umount "$statemount" -l 2>/dev/null
 umount "$root_amount" -l 2>/dev/null
 umount "$root_bmount" -l 2>/dev/null
 
 losetup -D
-rm -rf "$rootfs" "$initramfs" "$statemount" "$root_amount" "$root_bmount"
+rm -rf "$rootfs" "$auroraboot" "$statemount" "$root_amount" "$root_bmount"
 mv "$aurorashim" "${boardname}-aurora.bin" 2>/dev/null
 finalshim="${boardname}-aurora.bin"
 
