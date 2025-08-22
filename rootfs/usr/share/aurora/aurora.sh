@@ -875,12 +875,12 @@ updateshim() {
     mkdir -p /usr/share/patches/rootfs/
     cp -Lar /root/Aurora/patches/rootfs/. /usr/share/patches/rootfs/
     chmod +x /usr/share/aurora/* /usr/bin/* /sbin/init
-    initramfsmnt=$(mktemp -d)
-    mount ${device}3 $initramfsmnt
-    cp -Lar /root/Aurora/auroraboot/. $initramfsmnt/
-    cp -Lar /root/Aurora/patches/initramfs/. $initramfsmnt/
-    chmod +x $initramfsmnt/init $initramfsmnt/bootstrap.sh $initramfsmnt/sbin/init
-    umount $initramfsmnt
+    aurorabootmnt=$(mktemp -d)
+    mount ${device}3 $aurorabootmnt
+    cp -Lar /root/Aurora/aurora/. $aurorabootmnt/
+    cp -Lar /root/Aurora/patches/aurora/. $aurorabootmnt/
+    chmod +x $aurorabootmnt/init $aurorabootmnt/bootstrap.sh $aurorabootmnt/sbin/init
+    umount $aurorabootmnt
     sync
 }
 
