@@ -92,7 +92,7 @@ cp -Lar "$rootfs/." "$auroraboot/"
 cp -r auroraboot/. "$auroraboot/"
 cp -r patches/auroraboot/. "$auroraboot/"
 echo_c "Done. Rootfs: $(du -sh $rootfs | awk '{print $1}')\n\n${BLUE_B}Installing Bootloader Packages" GEEN_B
-chroot "$auroraboot" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_auroraboot_alpine.sh && /opt/setup_auroraboot_alpine.sh $arch"
+chroot "$auroraboot" /bin/sh -c "export PATH=/sbin:/bin:/usr/sbin:/usr/bin && chmod +x /opt/setup_auroraboot.sh && /opt/setup_auroraboot.sh $arch"
 echo_c "Done. Auroraboot: $(du -sh $auroraboot | awk '{print $1}')\n\n${BLUE_B}Installing Rootfs Packages" GEEN_B
 cp -r rootfs/. "$rootfs/"
 mkdir -p "$rootfs/usr/share/patches/rootfs"
