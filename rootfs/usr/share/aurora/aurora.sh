@@ -877,7 +877,7 @@ updateshim() {
     chmod +x /usr/share/aurora/* /usr/bin/* /sbin/init
     initramfsmnt=$(mktemp -d)
     mount ${device}3 $initramfsmnt
-    cp -Lar /root/Aurora/initramfs/. $initramfsmnt/
+    cp -Lar /root/Aurora/auroraboot/. $initramfsmnt/
     cp -Lar /root/Aurora/patches/initramfs/. $initramfsmnt/
     chmod +x $initramfsmnt/init $initramfsmnt/bootstrap.sh $initramfsmnt/sbin/init
     umount $initramfsmnt
