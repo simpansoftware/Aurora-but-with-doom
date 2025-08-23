@@ -243,9 +243,9 @@ dboot() {
     default=$1
     sed -i "s/default=.*/default=$default/" /auroraroot/etc/aurora
     if [ "$default" != "0" ]; then
-				echo -n "Enter timeout length before booting (seconds): "
-		    read timeout
-		fi
+		echo -n "Enter timeout length before booting (seconds): "
+		read timeout
+	fi
     if [ -z $timeout ]; then
         timeout="5"
     fi
