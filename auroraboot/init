@@ -242,10 +242,11 @@ manageaurora() {
 dboot() {
     default=$1
     sed -i "s/default=.*/default=$default/" /auroraroot/etc/aurora
-    echo -n "Enter timeout length before booting (seconds): "
-    read timeout
+    if [ "$default" != "0" ]; then
+				echo -n "Enter timeout length before booting (seconds): "
+		    read timeout
+		fi
     if [ -z $timeout ]; then
-        echo "No timeout specified. Defaulting to 5 Seconds"
         timeout="5"
     fi
     sed -i "s/timeout=.*/timeout=$timeout/" /auroraroot/etc/aurora
