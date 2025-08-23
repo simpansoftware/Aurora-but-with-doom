@@ -332,10 +332,9 @@ mount $dev_partition /auroraroot || {
     exit 1
 }
 
-defaultboot="cat /auroraroot/etc/aurora | grep default | sed 's/default=//'"
-if [ "$defaultboot" != "0" ]; then
-    timeout=$(cat "$defaultboot" | tail -n1)
-    defaultboot=$(cat "$defaultboot" | head -n1)
+defaultboot=$(cat /auroraroot/etc/aurora | grep default | sed 's/default=//')
+if [ "$defaultboot" != "0" ] && [ -z $defaultboot ]; then
+    timeout=$(cat /auroraroot/etc/aurora | grep timeout | sed 's/timeout=//')
     echo -e "${YELLOW_B}Booting $defaultboot in $timeout seconds... Press any key to cancel.${COLOR_RESET}"
     read -t $timeout -n1 key && cancel=true
     if [ -z "$cancel" ]; then
