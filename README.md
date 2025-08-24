@@ -33,7 +33,7 @@ Run the next command with a **raw** shim and the architecture of the chromebook 
 ```bash
 sudo bash Aurora /path/to/shim.bin
 ```
-Alternatively, you can automatically download a nanoshim and build with it with the following command (also don't keep the angled brackets in there, if you do even after this warning you're stupid):
+Alternatively, you can automatically download a nanoshim and build with it with the following command:
 ```bash
 sudo bash Aurora <board> --auto
 ```
@@ -47,7 +47,7 @@ sudo dd if=<board>-aurora.bin of=/dev/sdX bs=1M status=progress
 ```
 Otherwise, do `if=/path/to/<board>-aurora.bin` if you aren't working in the same directory as the prebuilt.
 ### Windows:
-Download Rufus, select your usb, select board-aurora.bin (download from prebuilts, or try to build with WSL). Use dd mode.
+Download Rufus, select your usb, select board-aurora.bin (download from prebuilts, or try to build with WSL). 
 
 ### MacOS:
 You're on your own lmao, good fucking luck (I can't be assed to look up stuff to write a proper guide, if someone wants to make a PR for this go ahead I guess).
@@ -72,7 +72,7 @@ You can then either download recovery images or shims in Aurora itself, or put t
 
 # Credits
 - [Sophia](https://github.com/soap-phia) - Lead developer of Aurora, Got Wifi
-- [Mariah Carey](https://github.com/xXMariahScaryXx) - Bugfixing and bugtesting
+- [Mariah Carey](https://github.com/xXMariahScaryXx) - Bugfixing and bugtesting, mostly the latter
 - [xmb9](https://github.com/xmb9) - [PRIISM] Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images
 - [Synaptic](https://github.com/Synaptic-1234) - Emotional Support
 - [Simon](https://github.com/simpansoftware) - [IRS] Brainstormed how to do wifi, helped with determining wireless interface
