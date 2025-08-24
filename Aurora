@@ -206,7 +206,7 @@ finalshim="${boardname}-aurora.bin"
 
 echo -e "${MAGENTA_B}Credits"
 echo -e "${PINK_B}Sophia${COLOR_RESET}: Lead developer of Aurora, Got Wifi"
-echo -e "${RED_B}Mariah Carey${COLOR_RESET}: Bugfixing and bugtesting"
+echo -e "${RED_B}Mariah Carey${COLOR_RESET}: Bugfixing and bugtesting, mostly the latter"
 echo -e "${YELLOW_B}xmb9${COLOR_RESET}: ${GEEN_B}[PRIISM]${COLOR_RESET} Made Priism, Giving Aurora the ability to Boot Shims & Use Reco Images"
 echo -e "${YELLOW_B}Synaptic${COLOR_RESET}: Emotional Support"
 echo -e "${CYAN_B}Simon${COLOR_RESET}: ${BLUE_B}[IRS]${COLOR_RESET} Brainstormed how to do wifi, helped with dhcpcd"
