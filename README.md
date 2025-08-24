@@ -70,6 +70,10 @@ You can then either download recovery images or shims in Aurora itself, or put t
 - Here's a list of shims we're gonna make work and test:
   1. Any future shims that are made
 
+# Uploading Files via another computer
+1. Use AFT on page 2 (reccomended)
+2. Use a linux computer with **ROOT ACCESS** ChromeOS Files will NOT WORK! Use VT2 if you only have a chromebook.
+
 # Credits
 - [Sophia](https://github.com/soap-phia) - Lead developer of Aurora, Got Wifi
 - [Mariah Carey](https://github.com/xXMariahScaryXx) - Bugfixing and bugtesting, mostly the latter
