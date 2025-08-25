@@ -8,6 +8,12 @@ Booting other shims :white_check_mark:<br>
 Wifi :white_check_mark:<br>
 Synaptic :x:<br>
 
+# Priorities
+1. Wifi on all possible ARM boards
+2. general improvement
+3. aurora 2.0
+4. docs
+
 # Building
 
 ## Dependencies
