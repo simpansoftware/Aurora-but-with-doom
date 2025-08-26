@@ -589,8 +589,6 @@ shimboot() {
         echo "Copying rootfs to ram..." | center
         pv_dircopy "$shimroot" /newroot
 
-        
-
         mkdir -p /newroot/dev/pts /newroot/proc /newroot/sys /newroot/tmp /newroot/run
         mount -t tmpfs -o mode=1777 none /newroot/tmp
         mount -t tmpfs -o mode=0555 run /newroot/run
@@ -611,6 +609,8 @@ shimboot() {
 
         mkdir -p /newroot/tmp/aurora
         chmod +x /usr/share/patches/rootfs/*
+        rm -f /newroot/etc/resolv.conf 
+        echo "nameserver 1.1.1.1" > /newroot/etc/resolv.conf
         if [ -n "$specialshim" ]; then
             rm -f /newroot/sbin/init
             cp /usr/share/patches/rootfs/${specialshim}init /newroot/sbin/init
