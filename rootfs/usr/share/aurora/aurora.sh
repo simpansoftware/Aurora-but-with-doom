@@ -879,8 +879,8 @@ updateshim() {
     chmod +x /usr/share/aurora/* /usr/bin/* /sbin/init
     aurorabootmnt=$(mktemp -d)
     mount ${device}3 $aurorabootmnt
-    cp -Lar /root/Aurora/aurora/. $aurorabootmnt/
-    cp -Lar /root/Aurora/patches/aurora/. $aurorabootmnt/
+    cp -Lar /root/Aurora/auroraboot/. $aurorabootmnt/
+    cp -Lar /root/Aurora/patches/auroraboot/. $aurorabootmnt/
     chmod +x $aurorabootmnt/init $aurorabootmnt/bootstrap.sh $aurorabootmnt/sbin/init
     umount $aurorabootmnt
     sync
