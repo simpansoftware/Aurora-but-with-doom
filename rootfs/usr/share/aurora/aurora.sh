@@ -615,6 +615,10 @@ shimboot() {
             rm -f /newroot/sbin/init
             cp /usr/share/patches/rootfs/${specialshim}init /newroot/sbin/init
         fi
+        if [ "$specialshim" = "sh1mmer" ]; then
+            canwifi rm /newroot/payloads/mrchromebox.sh
+            canwifi curl -sLk https://mrchromebox.tech/firmware-util.sh -o /newroot/payloads/mrchromebox.sh
+        fi
         if [ -f "/newroot/bin/kvs" ]; then  
             chmod +x /newroot/bin/kvs
             cat <<EOF > /newroot/sbin/init
