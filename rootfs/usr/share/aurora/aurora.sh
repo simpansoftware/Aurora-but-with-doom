@@ -580,6 +580,8 @@ shimboot() {
             for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
             cp /usr/share/patches/rootfs/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
             chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
+            canwifi rm /stateful/root/noarch/payloads/mrchromebox.sh
+            canwifi curl -sLk https://mrchromebox.tech/firmware-util.sh -o /stateful/root/noarch/payloads/mrchromebox.sh
             sync
             chmod +x $sh1mmerfile
         fi
@@ -614,10 +616,6 @@ shimboot() {
         if [ -n "$specialshim" ]; then
             rm -f /newroot/sbin/init
             cp /usr/share/patches/rootfs/${specialshim}init /newroot/sbin/init
-        fi
-        if [ "$specialshim" = "sh1mmer" ]; then
-            canwifi rm /newroot/payloads/mrchromebox.sh
-            canwifi curl -sLk https://mrchromebox.tech/firmware-util.sh -o /newroot/payloads/mrchromebox.sh
         fi
         if [ -f "/newroot/bin/kvs" ]; then  
             chmod +x /newroot/bin/kvs
