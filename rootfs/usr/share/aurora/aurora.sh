@@ -814,6 +814,7 @@ downloadshim() {
     	options_download=(
 	    "Sh1mmer Legacy - EtherealWorkshop/Sh1mmer/releases"
 	    "Shimboot - ading2210/shimboot/releases"
+        "Br0ker Sh1mmer - EtherealWorkshop/sh1mmer/actions"
         "Custom Shim from URL"
 	)
 
@@ -823,7 +824,8 @@ downloadshim() {
 	case "$download_choice" in
 	    0) export FINALSHIM_URL="https://github.com/EtherealWorkshop/sh1mmer/releases/download/v2.0.0/${board_name}.bin" ;;
 	    1) export FINALSHIM_URL="https://github.com/ading2210/shimboot/releases/download/v1.3.0/shimboot_${board_name}.zip" ;;
-	    2) tput cnorm
+        2) export FINALSHIM_URL="https://nightly.link/EtherealWorkshop/sh1mmer/actions/runs/17243134890/Br0ker%20Sh1mmer%20${board_name}.zip" ;;
+	    3) tput cnorm
            stty echo
            read_center -d "Enter Shim URL: " FINALSHIM_URL ;;
         *) fail "Invalid choice (somehow?????)" ;;
