@@ -576,7 +576,9 @@ shimboot() {
         mount $stateful /stateful || fail "Failed to mount stateful!"
         sh1mmerfile="/stateful/root/noarch/usr/sbin/sh1mmer_main.sh"
         if lsblk -o PARTLABEL $loop | grep "SH1MMER"; then
-            sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"' $sh1mmerfile
+            if ! grep -q "rm -f /etc/resolv.conf" "$sh1mmerfile"; then
+                sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"\nrm -f /etc/resolv.conf\necho "nameserver 1.1.1.1" > /etc/resolv.conf' "$sh1mmerfile"
+            fi
             for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
             cp /usr/share/patches/rootfs/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
             chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
@@ -611,8 +613,6 @@ shimboot() {
 
         mkdir -p /newroot/tmp/aurora
         chmod +x /usr/share/patches/rootfs/*
-        rm -f /newroot/etc/resolv.conf 
-        echo "nameserver 1.1.1.1" > /newroot/etc/resolv.conf
         if [ -n "$specialshim" ]; then
             rm -f /newroot/sbin/init
             cp /usr/share/patches/rootfs/${specialshim}init /newroot/sbin/init
