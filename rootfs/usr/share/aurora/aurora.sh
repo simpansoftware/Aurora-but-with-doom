@@ -234,7 +234,7 @@ splash() {
         tput cup 0 0
         clear
     fi
-    if [ "$(cat /sys/devices/virtual/dmi/id/product_name)" = "Barla" ] || [ "$(cat /sys/devices/virtual/dmi/id/product_name)" = "Treeya" ]; then
+    if cat /sys/devices/virtual/dmi/id/product_name | grep -Eqi 'treeya|barla'; then
         echo -e "${RED_B}Barla/Treeya wifi unsupported. Please contact @kxtzownsu on discord${COLOR_RESET}"
     else
         signal=$(iw dev $wifidevice link | grep signal | awk '{print $2}' | sed 's/.00//' | head -1)
@@ -752,7 +752,7 @@ wifi() {
     bigtext wifi
     stty echo
     export wifidevice=$(ip link | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
-    if [ "$(cat /sys/devices/virtual/dmi/id/product_name)" = "Barla" ] || [ "$(cat /sys/devices/virtual/dmi/id/product_name)" = "Treeya" ]; then
+    if cat /sys/devices/virtual/dmi/id/product_name | grep -Eqi 'treeya|barla'; then
         fail "Barla/Treeya wifi unsupported. Please contact @kxtzownsu on discord"
     fi
     if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
