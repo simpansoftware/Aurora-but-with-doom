@@ -88,4 +88,3 @@ You can then either download recovery images or shims in Aurora itself, or put t
 - [Simon](https://github.com/simpansoftware) - [IRS] Brainstormed how to do wifi, helped with determining wireless interface
 - [kraeb](https://github.com/DyingHynixMLC) - [IRS] QoL improvements and initial idea
 - [Evie](https://github.com/AC3GT) - Literally nothing
-- [kxtz](https://github.com/kxtzownsu) - KVG
