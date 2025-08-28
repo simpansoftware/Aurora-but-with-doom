@@ -868,12 +868,10 @@ updateshim() {
     echo ""
     apk add git github-cli >/dev/null 2>&1
     if [ -d "/root/Aurora/.git" ]; then
-        git config --global submodule.recurse true >/dev/null 2>&1
         git -C "/root/Aurora" pull origin $(cat /etc/aurora | grep origin | sed 's/origin=//') 2>&1 | center || return
     else
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
-        git clone --branch=$(cat /etc/aurora | grep origin | sed 's/origin=//') https://github.com/EtherealWorkshop/Aurora /root/Aurora --recursive 2>&1 | center || return
-        git config --global submodule.recurse true >/dev/null 2>&1
+        git clone --branch=$(cat /etc/aurora | grep origin | sed 's/origin=//') https://github.com/EtherealWorkshop/Aurora /root/Aurora 2>&1 | center || return
     fi
     echo "Copying files to root..." | center
     updated=0
