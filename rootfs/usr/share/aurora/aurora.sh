@@ -875,6 +875,10 @@ updateshim() {
         git config --global submodule.recurse true >/dev/null 2>&1
     fi
     echo "Copying files to root..." | center
+    updated=0
+    if ! cmp -s /usr/share/aurora/aurora.sh /root/Aurora/rootfs/usr/share/aurora/aurora.sh 2>/dev/null; then
+        updated=1
+    fi
     cp -Lar /root/Aurora/rootfs/. /
     mkdir -p /usr/share/patches/rootfs/
     cp -Lar /root/Aurora/patches/rootfs/. /usr/share/patches/rootfs/
@@ -885,7 +889,7 @@ updateshim() {
     cp -Lar /root/Aurora/patches/auroraboot/. $aurorabootmnt/
     chmod +x $aurorabootmnt/init $aurorabootmnt/bootstrap.sh $aurorabootmnt/sbin/init
     umount $aurorabootmnt
-    if ! cmp -s /usr/share/aurora/aurora.sh /root/Aurora/rootfs/usr/share/aurora/aurora.sh 2>/dev/null; then
+    if [ "$updated" = "1" ]; then
         exec bash /usr/share/aurora/aurora.sh <${TTY1} >>${TTY1} 2>&1
     fi
 }
