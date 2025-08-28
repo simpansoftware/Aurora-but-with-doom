@@ -890,6 +890,8 @@ updateshim() {
     chmod +x $aurorabootmnt/init $aurorabootmnt/bootstrap.sh $aurorabootmnt/sbin/init
     umount $aurorabootmnt
     if [ "$updated" = "1" ]; then
+        echo Restarting aurora.sh
+        sleep 3
         exec bash /usr/share/aurora/aurora.sh <${TTY1} >>${TTY1} 2>&1
     fi
 }
