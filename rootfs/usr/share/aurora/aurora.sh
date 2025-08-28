@@ -162,8 +162,7 @@ menu() {
     local prompt="$1"
     shift
     local args=""
-    [ -n "$1" ] && local args="$1"
-    shift
+    [ -n "$1" ] && local args="$1" && shift
     local options=("$@")
     local selected=0
     local count=${#options[@]}
