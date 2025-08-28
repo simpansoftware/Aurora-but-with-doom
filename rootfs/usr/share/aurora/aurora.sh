@@ -196,8 +196,8 @@ menu() {
             case $key in
                 $'\e[A') ((selected--)) ;;
                 $'\e[B') ((selected++)) ;;
-                $'\e[D') ((page--)) ;;
-                $'\e[C') ((page++)) ;;
+                $'\e[D') export page=$((page - 1)) ;;
+                $'\e[C') export page=$((page + 1)) ;;
                 '') break ;;
             esac
         else
@@ -209,8 +209,8 @@ menu() {
         fi
         ((selected < 0)) && selected=$((count - 1))
         ((selected >= count)) && selected=0
-        ((page < 0)) && page=3
-        ((page >= 4)) && page=1
+        ((page < 0)) && export page=3
+        ((page >= 4)) && export page=1
     done
     return $selected
 }
