@@ -968,7 +968,7 @@ crosrun() { # sigh
     cat /usr/share/cros/usr/sbin/sh1mmer_main.sh | grep -q "patched by aurora" || fail "Sh1mmer Unpatched (How???)"
     stty echo
     tput cnorm
-    pivot_cros /usr/share/cros
+    pivot_cros
     case $1 in
         shell) script -qfc 'stty sane && stty erase '^H' && exec bash -l' /dev/null ;;
         unenrollment) exec /usr/sbin/unenrollment.sh ;;

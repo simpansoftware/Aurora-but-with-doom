@@ -8,11 +8,10 @@ mount_basics() {
 }
 
 pivot_cros() {
-    newroot="$1"
     mount --make-rprivate /
-    mountpoint -q "$newroot" || mount --bind "$newroot" "$newroot"
-    mkdir -p "$newroot/.aurora"
-    pivot_root "$newroot" "$newroot/.aurora"
+    mountpoint -q "/usr/share/cros" || mount --bind "/usr/share/cros" "/usr/share/cros"
+    mkdir -p "/usr/share/cros/.aurora"
+    pivot_root "/usr/share/cros" "/usr/share/cros/.aurora"
     cd /
     mountpoint -q /.aurora || mount --bind /.aurora /.aurora
     mkdir -p /.aurora/.aurora
