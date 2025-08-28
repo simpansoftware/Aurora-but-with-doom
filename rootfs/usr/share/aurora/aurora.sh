@@ -665,13 +665,13 @@ connect() {
         if [[ $line =~ ^signal: ]]; then
             signal=$(echo "$line" | awk '{print $2}' | sed 's/.00//')
         elif [[ $line =~ ^SSID: ]]; then
-            ssid=$(echo "$line" | sed 's/^SSID: //')
+            ssid=$(echo "$line" | sed 's/^SSID: //' | tr -d '\000' | tr -d '[:cntrl:]' | sed 's/[[:space:]]*$//')
             [ -z "$ssid" ] && continue
             if [[ -z ${best["$ssid"]} || $signal -gt ${best["$ssid"]} ]]; then
                 best["$ssid"]=$signal
             fi
         fi
-    done < <(iw dev "$wifidevice" scan | grep -E 'SSID:|signal:')
+    done < <(iw dev "$wifidevice" scan | tr -d '\000' | grep -E 'SSID:|signal:')
 
     networks=()
     for ssid in "${!best[@]}"; do
