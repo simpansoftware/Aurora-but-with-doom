@@ -21,6 +21,7 @@
 
 cd /
 source /usr/share/aurora/functions
+source /usr/share/aurora/crosfunctions
 stty sane
 stty erase '^H'
 stty intr ''
@@ -55,7 +56,6 @@ mkdir -p $aroot/images/gurt
 declare -A VERSION
 rm -f /etc/aftggp
 rm -f /etc/kernverpending
-
 VERSION["BRANCH"]="alpine"
 VERSION["NUMBER"]="1.0.0"
 VERSION["BUILDDATE"]="[2025-08-14]"
@@ -1052,12 +1052,14 @@ menu3_options=(
     "2. Unenroll [Sh1mmer Deprovision, Cryptosmite, Br1ck, Icarus, Br0ker]"
     "3. Sh1mmer"
     "4. Block Updates"
+    "5. Previous Page"
 )
 menu3_actions=(
     "crosrun shell"
     "crosrun unenrollment"
     "crosrun sh1mmer"
     "crosrun aub"
+    "prevpage"
 )
 
 errormessage() {
