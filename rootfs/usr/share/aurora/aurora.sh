@@ -1192,7 +1192,7 @@ while true; do
     declare -n current_options="menu${page}_options"
     tput civis
     stty -echo
-    menu "Select an option (use ← → ↑ ↓ arrows, Enter to select)" "${current_options[@]}" -p
+    menu "Select an option (use ← → ↑ ↓ arrows, Enter to select)" -p "${current_options[@]}"
     choice=$?
     action="${current_actions[$choice]}"
     option="${current_options[$choice]}"
