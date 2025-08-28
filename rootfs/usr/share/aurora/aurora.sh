@@ -1006,7 +1006,7 @@ menu2_options+=(
 menu1_actions+=(
     "clear && wifi"
     "canwifi clear && download"
-    "canwifi updateshim"
+    "canwifi updateshim && sync"
     "nextpage"
     "reboot -f"
 )
@@ -1134,6 +1134,7 @@ if [ -f "/etc/wpa_supplicant.conf" ]; then
         echo -e "[${RED_B}-${COLOR_RESET}] No nearby saved networks found" | center
     else
         updateshim
+        sync
     fi
 fi
 release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
