@@ -24,6 +24,7 @@ pivot_cros() {
 }
 
 pivot_aurora() {
+    set -x
     mount --make-rprivate /
     mountpoint -q /.aurora || mount --bind /.aurora /.aurora
     mkdir -p /.aurora/usr/share/cros
