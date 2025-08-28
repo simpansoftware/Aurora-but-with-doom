@@ -169,7 +169,7 @@ menu() {
     local prompt="$1"
     shift
     local args=""
-    local args="$1"
+    [ -n "$1" ] && local args="$1"
     shift
     local options=("$@")
     local selected=0
