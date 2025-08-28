@@ -32,4 +32,5 @@ pivot_aurora() {
     umount -l /usr/share/cros/proc 2>/dev/null
     umount -l /usr/share/cros/sys  2>/dev/null
     mount_basics
+    exec bash /usr/share/aurora/aurora.sh <${TTY1} >>${TTY1} 2>&1
 }

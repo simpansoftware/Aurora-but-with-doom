@@ -984,6 +984,7 @@ crosrun() { # sigh
         aub) chmod +x /usr/sbin/updateblocker.sh
              exec /usr/sbin/updateblocker.sh ;;
     esac
+    pivot_aurora
 }
 
 pid1=false
