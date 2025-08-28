@@ -37,5 +37,5 @@ pivot_aurora() {
     pivot_root /.aurora /.aurora/usr/share/cros
     cd /
     mount_basics
-    exec bash /usr/share/aurora/aurora.sh <${TTY1} >>${TTY1} 2>&1
+    exec bash /usr/share/aurora/aurora.sh <${TTY1} >>${TTY1} 2>&1 || bash
 }
