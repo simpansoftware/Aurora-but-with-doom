@@ -1,14 +1,15 @@
 
 mount_basics() {
     if [ -d /.aurora/dev ]; then
-        oldroot="/.aurora"
+        newroot="/usr/share/cros"
     elif [ -d /usr/share/cros/dev ]; then
-        oldroot="/usr/share/cros"
+        newroot="/.aurora"
     else
         return 1
     fi
     for mountpoint in /dev /proc /sys; do
-        mount --move "${oldroot}${mountpoint}" $mountpoint
+        mkdir -p "${newroot}${mountpoint}"
+        mount --move $mountpoint "${newroot}${mountpoint}"
     done
     mount --make-rprivate /dev
 }
@@ -17,11 +18,11 @@ pivot_cros() {
     mount --make-rprivate /
     mountpoint -q "/usr/share/cros" || mount --bind "/usr/share/cros" "/usr/share/cros"
     mkdir -p "/usr/share/cros/.aurora"
+    mount_basics
     pivot_root "/usr/share/cros" "/usr/share/cros/.aurora"
     cd /
     mountpoint -q /.aurora || mount --bind /.aurora /.aurora
     mkdir -p /.aurora/.aurora
-    mount_basics
 }
 
 pivot_aurora() {
