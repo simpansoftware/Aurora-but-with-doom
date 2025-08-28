@@ -963,6 +963,20 @@ prevpage() {
     export page=$(( page - 1 ))
 }
 
+crosrun() { # sigh
+    [ -f /usr/share/cros/usr/sbin/sh1mmer_main.sh ] || fail "Sh1mmer directory nonexistent."
+    cat /usr/share/cros/usr/sbin/sh1mmer_main.sh | grep -q "patched by aurora" || fail "Sh1mmer Unpatched (How???)"
+    stty echo
+    tput cnorm
+    pivot_cros
+    case $1 in
+        shell) script -qfc 'stty sane && stty erase '^H' && exec bash -l' /dev/null ;;
+        unenrollment) exec /usr/sbin/unenrollment.sh ;;
+        sh1mmer) exec /usr/sbin/sh1mmer.sh ;;
+        aub) exec /usr/sbin/updateblocker.sh ;;
+    esac
+}
+
 pid1=false
 if [ "$$" -eq 1 ]; then
     pid1=true
@@ -973,16 +987,9 @@ menu1_options=(
     "2. Install a ChromeOS recovery image"
 )
 
-menu2_options=(
-    "1. Open Terminal"
-)
-
 menu1_actions=(
     "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
     "clear && installcros"
-)
-menu2_actions=(
-    "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
 )
 
 if $pid1; then
@@ -997,14 +1004,7 @@ menu1_options+=(
     "$( [ $pid1 = false ] && echo "6" || echo "7" ). Next Page"
     "$( [ $pid1 = false ] && echo "7" || echo "8" ). Exit and Reboot"
 )
-menu2_options+=(
-    "$(echo "2" ). Payloads Menu"
-    "$(echo "3" ). AFTGGP [Aurora File Transfer]"
-    "$(echo "4" ). Build Environment"
-    "$(echo "5" ). KVS"
-    "$(echo "5" ). Chromium"
-    "$(echo "7" ). Previous Page"
-)
+
 menu1_actions+=(
     "clear && wifi"
     "canwifi clear && download"
@@ -1012,13 +1012,52 @@ menu1_actions+=(
     "nextpage"
     "reboot -f"
 )
-menu2_actions+=(
+
+menu2_options=(
+    "1. Open Terminal"
+    "2. Payloads Menu"
+    "3. AFTGGP [Aurora File Transfer]"
+    "4. Build Environment"
+    "5. KVS"
+)
+menu2_actions=(
+    "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
     "clear && payloads"
     "canwifi aftggp"
     "clear && canwifi aurorabuildenv"
     "clear && kvs"
-    "canwifi chromium"
-    "prevpage"
+)
+
+if [ -f /usr/share/cros/usr/sbin/sh1mmer_main.sh ]; then
+    menu2_options+=(
+        "7. Next Page"
+        "8. Previous Page"
+    )
+    menu2_actions+=(
+        "nextpage"
+        "prevpage"
+    )
+
+else
+    menu2_options+=(
+        "7. Previous Page"
+    )
+    menu2_actions+=(
+        "prevpage"
+    )
+fi
+
+menu3_options=(
+    "1. Open a Cros Terminal"
+    "2. Unenroll [Sh1mmer Deprovision, Cryptosmite, Br1ck, Icarus, Br0ker]"
+    "3. Sh1mmer"
+    "4. Block Updates"
+)
+menu3_actions=(
+    "crosrun shell"
+    "crosrun unenrollment"
+    "crosrun sh1mmer"
+    "crosrun aub"
 )
 
 errormessage() {

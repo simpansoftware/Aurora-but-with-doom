@@ -1,0 +1,31 @@
+mount_basics() {
+  mountpoint -q /proc || mount -t proc proc /proc
+  mountpoint -q /sys  || mount -t sysfs sys /sys
+  if ! mountpoint -q /dev; then
+    mount -t devtmpfs devtmpfs /dev 2>/dev/null || mount --rbind /dev /dev
+    mount --make-rprivate /dev
+  fi
+}
+
+pivot_cros() {
+    newroot="$1"
+    mount --make-rprivate /
+    mountpoint -q "$newroot" || mount --bind "$newroot" "$newroot"
+    mkdir -p "$newroot/.aurora"
+    pivot_root "$newroot" "$newroot/.aurora"
+    cd /
+    mountpoint -q /.aurora || mount --bind /.aurora /.aurora
+    mkdir -p /.aurora/.aurora
+    mount_basics
+}
+
+pivot_aurora() {
+    mount --make-rprivate /
+    mountpoint -q /.aurora || mount --bind /.aurora /.aurora
+    mkdir -p /.aurora/.cros
+    pivot_root /.aurora /.aurora/.cros
+    cd /
+    umount -l /.cros/proc 2>/dev/null
+    umount -l /.cros/sys  2>/dev/null
+    mount_basics
+}
