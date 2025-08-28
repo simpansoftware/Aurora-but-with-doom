@@ -1,10 +1,4 @@
 
-export TTY1="/dev/tty1"
-export TTY2="/dev/tty2"
-export LOGTTY="/dev/tty3"
-export TTY3="/dev/tty4"
-[ -e /dev/pts/0 ] && export TTY1="/dev/pts/0" && export TTY2="/dev/pts/1" && export TTY3="/dev/pts/3" && export LOGTTY="/dev/pts/2"
-
 mount_basics() {
     if [ -d /.aurora/dev ]; then
         oldroot="/.aurora"
@@ -28,6 +22,11 @@ pivot_cros() {
     mountpoint -q /.aurora || mount --bind /.aurora /.aurora
     mkdir -p /.aurora/.aurora
     mount_basics
+    export TTY1="/dev/tty1"
+    export TTY2="/dev/tty2"
+    export LOGTTY="/dev/tty3"
+    export TTY3="/dev/tty4"
+    [ -e /dev/pts/0 ] && export TTY1="/dev/pts/0" && export TTY2="/dev/pts/1" && export TTY3="/dev/pts/3" && export LOGTTY="/dev/pts/2"
 }
 
 pivot_aurora() {
@@ -37,5 +36,10 @@ pivot_aurora() {
     pivot_root /.aurora /.aurora/usr/share/cros
     cd /
     mount_basics
+    export TTY1="/dev/tty1"
+    export TTY2="/dev/tty2"
+    export LOGTTY="/dev/tty3"
+    export TTY3="/dev/tty4"
+    [ -e /dev/pts/0 ] && export TTY1="/dev/pts/0" && export TTY2="/dev/pts/1" && export TTY3="/dev/pts/3" && export LOGTTY="/dev/pts/2"
     exec bash /usr/share/aurora/aurora.sh <${TTY1} >>${TTY1} 2>&1 || bash
 }
