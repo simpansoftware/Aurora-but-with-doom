@@ -977,9 +977,12 @@ crosrun() { # sigh
     pivot_cros
     case $1 in
         shell) script -qfc 'stty sane && stty erase '^H' && exec bash -l' /dev/null ;;
-        unenrollment) exec /usr/sbin/unenrollment.sh ;;
-        sh1mmer) exec /usr/sbin/sh1mmer.sh ;;
-        aub) exec /usr/sbin/updateblocker.sh ;;
+        unenrollment) chmod +x /usr/sbin/unenrollment.sh
+                      exec /usr/sbin/unenrollment.sh ;;
+        sh1mmer) chmod +x /usr/sbin/sh1mmer.sh
+                 exec /usr/sbin/sh1mmer.sh ;;
+        aub) chmod +x /usr/sbin/updateblocker.sh
+             exec /usr/sbin/updateblocker.sh ;;
     esac
 }
 
