@@ -8,7 +8,7 @@ mount_basics() {
         return 1
     fi
     for mountpoint in /dev /proc /sys; do
-        mount --rbind "${oldroot}${mountpoint}" $mountpoint
+        mount --move "${oldroot}${mountpoint}" $mountpoint
     done
     mount --make-rprivate /dev
 }
