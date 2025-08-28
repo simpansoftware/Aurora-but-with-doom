@@ -27,10 +27,7 @@ stty intr ''
 stty -echo
 export stty=$(stty -g)
 stty echo
-export TTY1="/dev/tty1"
-export TTY2="/dev/tty2"
-export LOGTTY="/dev/tty3"
-export TTY3="/dev/tty4"
+export TTY1="/dev/tty1" && export TTY2="/dev/tty2" && export LOGTTY="/dev/tty3" && export TTY3="/dev/tty4"
 [ -e /dev/pts/0 ] && export TTY1="/dev/pts/0" && export TTY2="/dev/pts/1" && export TTY3="/dev/pts/3" && export LOGTTY="/dev/pts/2"
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
@@ -38,12 +35,10 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 ## DEFINITIONS ##
 #################
 
-export device=$(lsblk -pro NAME,PARTLABEL,MOUNTPOINT | grep -i "Aurora /" | awk '{print $1}' | sed 's/[0-9]//')
 export aroot="/usr/share/aurora"
 export releaseBuild=1
 export shimroot="/shimroot"
 export recoroot="/recoroot"
-export PS1='\e[1;34m\]\u@\h \e[1;33m\]$(date +"%H:%M %b %d")\e[1;32m\] \w/\[\e[0m\] '
 export rogged=$((RANDOM % 100))
 alias ls='ls --color=auto'
 alias dir='dir --color=auto'
@@ -51,10 +46,8 @@ alias grep='grep --color=auto'
 mkdir -p $aroot/images/shims
 mkdir -p $aroot/build
 mkdir -p $aroot/images/recovery
-mkdir -p $aroot/images/gurt
 declare -A VERSION
-rm -f /etc/aftggp
-rm -f /etc/kernverpending
+rm -f /etc/aftggp /etc/kernverpending
 
 VERSION["BRANCH"]="alpine"
 VERSION["NUMBER"]="1.0.0"
@@ -871,11 +864,6 @@ downloadshim() {
     sync
 }
 
-downloadyo() {
-    cd $aroot/gurt
-    bash <(curl https://gurt.etherealwork.shop)
-}
-
 updateshim() {
     arch=$(uname -m)
     echo ""
@@ -900,7 +888,7 @@ updateshim() {
     mv /etc/aurora.bak /etc/aurora
     chmod +x /usr/share/aurora/* /usr/bin/* /sbin/init
     aurorabootmnt=$(mktemp -d)
-    mount ${device}3 $aurorabootmnt
+    mount "$(lsblk -pro NAME,PARTLABEL,MOUNTPOINT | grep -i "AuroraBoot" | awk '{print $1}')" $aurorabootmnt
     cp -Lar /root/Aurora/auroraboot/. $aurorabootmnt/
     cp -Lar /root/Aurora/patches/auroraboot/. $aurorabootmnt/
     chmod +x $aurorabootmnt/init $aurorabootmnt/bootstrap.sh $aurorabootmnt/sbin/init
@@ -974,6 +962,63 @@ payloads() {
         done
         read_center "Press Enter to continue..."
         return
+    fi
+}
+
+errormessage() {
+    if [ -n "$errormsg" ]; then 
+        echo -en "${RED_B}"
+        echo "Error: ${errormsg}" | center
+    fi
+    echo -e "${COLOR_RESET}"
+}
+
+setupuser() {
+    read_center -d "Username: " username
+    stty -echo
+    read_center -d "Password: " password
+    stty echo 
+    adduser -D "$username"
+    echo "$username:$password" | chpasswd 2>/dev/null
+    echo "$username ALL=(ALL:ALL) ALL" >> /etc/sudoers
+    mkdir -p /run/user/$(id -u $username)
+    chown $username:$username /run/user/$(id -u $username)
+    usermod -aG video $username
+    usermod -aG seat $username
+}
+
+setup() {
+    tput cnorm
+    stty echo
+    if cat /etc/aurora | grep -q "setup=1"; then
+        clear
+        splash
+        echo -e "\nSetup Aurora" | center
+        read_center -d "Setup a user? (Y/n) " setupuser
+        case $setupuser in
+            n|N) ;;
+            *) setupuser ;;
+        esac
+        while true; do
+            read_center -d "Enter your timezone: " timezone
+            timezone="*$(echo "$timezone" | sed 's/ /*/g')*"
+            timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -1)
+            if [[ -z "$timezonefile" ]]; then echo "Invalid timezone" | center; continue; fi
+            rm -rf /etc/localtime
+            ln -s "$timezonefile" /etc/localtime
+            break
+        done
+        read_center -d "Change Hostname? (y/N): " changehostname
+        case $changehostname in
+            y) read_center -d "Hostname: " hostname
+               hostname $hostname
+               echo "$hostname" > /etc/hostname
+               echo "127.0.0.1 localhost $hostname" >> /etc/hosts ;;
+            *) hostname Aurora
+               echo "Aurora" > /etc/hostname
+               echo "127.0.0.1 localhost Aurora" >> /etc/hosts ;;
+        esac
+        sed -i 's/setup=1/setup=0/' /etc/aurora
     fi
 }
 
@@ -1064,63 +1109,6 @@ menu3_actions=(
     "crosrun aub"
 )
 
-errormessage() {
-    if [ -n "$errormsg" ]; then 
-        echo -en "${RED_B}"
-        echo "Error: ${errormsg}" | center
-    fi
-    echo -e "${COLOR_RESET}"
-}
-
-setupuser() {
-    read_center -d "Username: " username
-    stty -echo
-    read_center -d "Password: " password
-    stty echo 
-    adduser -D "$username"
-    echo "$username:$password" | chpasswd 2>/dev/null
-    echo "$username ALL=(ALL:ALL) ALL" >> /etc/sudoers
-    mkdir -p /run/user/$(id -u $username)
-    chown $username:$username /run/user/$(id -u $username)
-    usermod -aG video $username
-    usermod -aG seat $username
-}
-
-setup() {
-    tput cnorm
-    stty echo
-    if cat /etc/aurora | grep -q "setup=1"; then
-        clear
-        splash
-        echo -e "\nSetup Aurora" | center
-        read_center -d "Setup a user? (Y/n) " setupuser
-        case $setupuser in
-            n|N) ;;
-            *) setupuser ;;
-        esac
-        while true; do
-            read_center -d "Enter your timezone: " timezone
-            timezone="*$(echo "$timezone" | sed 's/ /*/g')*"
-            timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -1)
-            if [[ -z "$timezonefile" ]]; then echo "Invalid timezone" | center; continue; fi
-            rm -rf /etc/localtime
-            ln -s "$timezonefile" /etc/localtime
-            break
-        done
-        read_center -d "Change Hostname? (y/N): " changehostname
-        case $changehostname in
-            y) read_center -d "Hostname: " hostname
-               hostname $hostname
-               echo "$hostname" > /etc/hostname
-               echo "127.0.0.1 localhost $hostname" >> /etc/hosts ;;
-            *) hostname Aurora
-               echo "Aurora" > /etc/hostname
-               echo "127.0.0.1 localhost Aurora" >> /etc/hosts ;;
-        esac
-        sed -i 's/setup=1/setup=0/' /etc/aurora
-    fi
-}
-
 #############
 ## STARTUP ##
 #############
@@ -1157,7 +1145,7 @@ EOF
     udevadm settle | center || :
 fi
 
-for wifi in iwlwifi iwlmvm ccm 8021q rtw88 rtwpci ath10k_sdio; do
+for wifi in iwlwifi iwlmvm ccm 8021q rtw88 rtwpci ath10k_sdio mt7921e mt7921s mt76; do
     modprobe -r "$wifi" 2>/dev/null || true
     modprobe "$wifi" 2>/dev/null
 done
