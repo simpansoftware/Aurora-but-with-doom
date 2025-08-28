@@ -2,4 +2,4 @@
 
 source /usr/share/aurora/functions
 clear
-cat /media/douglas | center
+cat /root/.douglas | center

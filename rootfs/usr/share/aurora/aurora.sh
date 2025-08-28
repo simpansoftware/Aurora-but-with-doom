@@ -885,17 +885,17 @@ updateshim() {
     cp -Lar /root/Aurora/patches/auroraboot/. $aurorabootmnt/
     chmod +x $aurorabootmnt/init $aurorabootmnt/bootstrap.sh $aurorabootmnt/sbin/init
     umount $aurorabootmnt
-    sync
+    exec bash /usr/share/aurora/aurora.sh <${TTY1} >>${TTY1} 2>&1
 }
 
 aftggp() {
     tput cnorm
     apk add python3 py3-flask py3-bcrypt >/dev/null
-    kill $(ps aux | grep "python3 /.ggp/" | grep -v grep | awk '{print $1}') 2>/dev/null
+    kill $(ps aux | grep "python3 /usr/share/ggp/" | grep -v grep | awk '{print $1}') 2>/dev/null
     rm -f /etc/aftggp
     read_center -d "Enter Password for AFT: " readpassword
     export readpassword
-    python3 /.ggp/GGP.py > $LOGTTY 2>&1 &
+    python3 /usr/share/ggp/GGP.py > $LOGTTY 2>&1 &
     touch /etc/aftggp
 }
 
@@ -1116,7 +1116,6 @@ for wifi in iwlwifi iwlmvm ccm 8021q rtw88 rtwpci ath10k_sdio; do
     modprobe -r "$wifi" 2>/dev/null || true
     modprobe "$wifi" 2>/dev/null
 done
-export needswifi=0
 if [ -f "/etc/wpa_supplicant.conf" ]; then
     echo -e "[${GEEN_B}+${COLOR_RESET}] Connecting to wifi" | center
     export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
