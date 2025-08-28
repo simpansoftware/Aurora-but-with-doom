@@ -21,16 +21,14 @@ pivot_cros() {
     mount_basics
     pivot_root "/usr/share/cros" "/usr/share/cros/.aurora"
     cd /
-    mountpoint -q /.aurora || mount --bind /.aurora /.aurora
-    mkdir -p /.aurora/.aurora
 }
 
 pivot_aurora() {
     mount --make-rprivate /
     mountpoint -q /.aurora || mount --bind /.aurora /.aurora
     mkdir -p /.aurora/usr/share/cros
+    mount_basics
     pivot_root /.aurora /.aurora/usr/share/cros
     cd /
-    mount_basics
     exec bash /usr/share/aurora/aurora.sh
 }
