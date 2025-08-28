@@ -22,10 +22,10 @@ pivot_cros() {
 pivot_aurora() {
     mount --make-rprivate /
     mountpoint -q /.aurora || mount --bind /.aurora /.aurora
-    mkdir -p /.aurora/.cros
-    pivot_root /.aurora /.aurora/.cros
+    mkdir -p /.aurora/usr/share/cros
+    pivot_root /.aurora /.aurora/usr/share/cros
     cd /
-    umount -l /.cros/proc 2>/dev/null
-    umount -l /.cros/sys  2>/dev/null
+    umount -l /usr/share/cros/proc 2>/dev/null
+    umount -l /usr/share/cros/sys  2>/dev/null
     mount_basics
 }
