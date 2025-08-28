@@ -21,7 +21,6 @@
 
 cd /
 source /usr/share/aurora/functions
-source /usr/share/aurora/crosfunctions
 stty sane
 stty erase '^H'
 stty intr ''
@@ -56,6 +55,7 @@ mkdir -p $aroot/images/gurt
 declare -A VERSION
 rm -f /etc/aftggp
 rm -f /etc/kernverpending
+
 VERSION["BRANCH"]="alpine"
 VERSION["NUMBER"]="1.0.0"
 VERSION["BUILDDATE"]="[2025-08-14]"
@@ -168,6 +168,9 @@ echo_menu() {
 menu() {
     local prompt="$1"
     shift
+    local args=""
+    local args="$1"
+    shift
     local options=("$@")
     local selected=0
     local count=${#options[@]}
@@ -196,14 +199,25 @@ menu() {
             read -rsn2 -t 0.01 key_rest
             key+="$key_rest"
         fi
-        case $key in
-            $'\e[A') ((selected--)) ;;
-            $'\e[B') ((selected++)) ;;
-            '') break ;;
-        esac
-
+        if [ "$args" = "-p" ]; then
+            case $key in
+                $'\e[A') ((selected--)) ;;
+                $'\e[B') ((selected++)) ;;
+                $'\e[D') ((page--)) ;;
+                $'\e[C') ((page++)) ;;
+                '') break ;;
+            esac
+        else
+            case $key in
+                $'\e[A') ((selected--)) ;;
+                $'\e[B') ((selected++)) ;;
+                '') break ;;
+            esac
+        fi
         ((selected < 0)) && selected=$((count - 1))
         ((selected >= count)) && selected=0
+        ((page < 0)) && page=3
+        ((page >= 4)) && page=1
     done
     return $selected
 }
@@ -963,30 +977,29 @@ payloads() {
     fi
 }
 
-nextpage() {
-    export page=$(( page + 1 ))
-}
-
-prevpage() {
-    export page=$(( page - 1 ))
-}
-
 crosrun() { # sigh
     [ -f /usr/share/cros/usr/sbin/sh1mmer_main.sh ] || fail "Sh1mmer directory nonexistent."
     cat /usr/share/cros/usr/sbin/sh1mmer_main.sh | grep -q "patched by aurora" || fail "Sh1mmer Unpatched (How???)"
     stty echo
     tput cnorm
-    pivot_cros
+    mount --bind /usr/share/cros /usr/share/cros
+    for mnt in /dev /proc /sys; do
+        mkdir -p /usr/share/cros$mnt
+        mount --bind "$mnt" "/usr/share/cros$mnt"
+    done
     case $1 in
-        shell) script -qfc 'stty sane && stty erase '^H' && exec bash -l' /dev/null ;;
-        unenrollment) chmod +x /usr/sbin/unenrollment.sh
-                      exec /usr/sbin/unenrollment.sh ;;
-        sh1mmer) chmod +x /usr/sbin/sh1mmer.sh
-                 exec /usr/sbin/sh1mmer.sh ;;
-        aub) chmod +x /usr/sbin/updateblocker.sh
-             exec /usr/sbin/updateblocker.sh ;;
+        shell) script="/bin/bash" ;;
+        unenrollment) script="/usr/sbin/unenrollment.sh" ;;
+        sh1mmer) script="/usr/sbin/sh1mmer.sh" ;;
+        aub) script="/usr/sbin/updateblocker.sh" ;;
     esac
-    pivot_aurora
+    chmod +x "/usr/share/cros${script}"
+    TERM=linux
+    chroot /usr/share/cros /bin/bash -c "${script}"
+    for mnt in /dev /proc /sys; do
+        umount "/usr/share/cros$mnt"
+    done
+    umount /usr/share/cros
 }
 
 pid1=false
@@ -1013,7 +1026,7 @@ menu1_options+=(
     "$( [ $pid1 = false ] && echo "3" || echo "4" ). Connect to WiFi"
     "$( [ $pid1 = false ] && echo "4" || echo "5" ). Download a ChromeOS recovery image/shim"
     "$( [ $pid1 = false ] && echo "5" || echo "6" ). Update shim"
-    "$( [ $pid1 = false ] && echo "6" || echo "7" ). Next Page"
+    "$( [ $pid1 = false ] && echo "6" || echo "7" ). Payloads"
     "$( [ $pid1 = false ] && echo "7" || echo "8" ). Exit and Reboot"
 )
 
@@ -1021,57 +1034,34 @@ menu1_actions+=(
     "clear && wifi"
     "canwifi clear && download"
     "canwifi updateshim && sync"
-    "nextpage"
+    "clear && payloads"
     "reboot -f"
 )
 
 menu2_options=(
     "1. Open Terminal"
-    "2. Payloads Menu"
-    "3. AFTGGP [Aurora File Transfer]"
-    "4. Build Environment"
-    "5. KVS"
+    "2. AFTGGP [Aurora File Transfer]"
+    "3. Build Environment"
+    "4. KVS"
 )
 menu2_actions=(
     "clear && script -qfc 'stty sane && stty erase '^H' && exec bash -l || exec busybox sh -l' /dev/null"
-    "clear && payloads"
     "canwifi aftggp"
     "clear && canwifi aurorabuildenv"
     "clear && kvs"
 )
-
-if [ -f /usr/share/cros/usr/sbin/sh1mmer_main.sh ]; then
-    menu2_options+=(
-        "7. Next Page"
-        "8. Previous Page"
-    )
-    menu2_actions+=(
-        "nextpage"
-        "prevpage"
-    )
-
-else
-    menu2_options+=(
-        "7. Previous Page"
-    )
-    menu2_actions+=(
-        "prevpage"
-    )
-fi
 
 menu3_options=(
     "1. Open a Cros Terminal"
     "2. Unenroll [Sh1mmer Deprovision, Cryptosmite, Br1ck, Icarus, Br0ker]"
     "3. Sh1mmer"
     "4. Block Updates"
-    "5. Previous Page"
 )
 menu3_actions=(
     "crosrun shell"
     "crosrun unenrollment"
     "crosrun sh1mmer"
     "crosrun aub"
-    "prevpage"
 )
 
 errormessage() {
@@ -1214,7 +1204,7 @@ while true; do
     declare -n current_options="menu${page}_options"
     tput civis
     stty -echo
-    menu "Select an option (use ↑ ↓ arrows, Enter to select)" "${current_options[@]}"
+    menu "Select an option (use ← → ↑ ↓ arrows, Enter to select)" "${current_options[@]}" -p
     choice=$?
     action="${current_actions[$choice]}"
     option="${current_options[$choice]}"

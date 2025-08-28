@@ -1,6 +1,5 @@
 #!/bin/bash
 
-source .aurora/usr/share/aurora/crosfunctions
-echo "Not yet implemented." | center
+echo "Not yet implemented."
 read
 pivot_aurora
