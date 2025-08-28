@@ -885,7 +885,9 @@ updateshim() {
     cp -Lar /root/Aurora/patches/auroraboot/. $aurorabootmnt/
     chmod +x $aurorabootmnt/init $aurorabootmnt/bootstrap.sh $aurorabootmnt/sbin/init
     umount $aurorabootmnt
-    exec bash /usr/share/aurora/aurora.sh <${TTY1} >>${TTY1} 2>&1
+    if ! cmp -s /usr/share/aurora/aurora.sh /root/Aurora/rootfs/usr/share/aurora/aurora.sh 2>/dev/null; then
+        exec bash /usr/share/aurora/aurora.sh <${TTY1} >>${TTY1} 2>&1
+    fi
 }
 
 aftggp() {

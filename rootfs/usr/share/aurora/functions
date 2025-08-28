@@ -1,5 +1,4 @@
 #!/bin/bash
-
 export COLOR_RESET="\e[0m"
 export BLACK_B="\e[1;30m"
 export RED_B="\e[1;31m"
