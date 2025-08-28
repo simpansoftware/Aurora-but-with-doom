@@ -881,7 +881,9 @@ updateshim() {
     fi
     cp -Lar /root/Aurora/rootfs/. /
     mkdir -p /usr/share/patches/rootfs/
+    mv /etc/aurora /etc/aurora.bak
     cp -Lar /root/Aurora/patches/rootfs/. /usr/share/patches/rootfs/
+    mv /etc/aurora.bak /etc/aurora
     chmod +x /usr/share/aurora/* /usr/bin/* /sbin/init
     aurorabootmnt=$(mktemp -d)
     mount ${device}3 $aurorabootmnt
