@@ -212,6 +212,6 @@ chmod +x /bin/sh1mmer_switch_root
 [ "$(poll_key)" = "d" ] && notice_and_self_shell
 
 enable_input
-exec sh1mmer_switch_root || :
+exec sh1mmer_switch_root 2>/dev/null || :
 
 fail "Failed to exec switch_root."
