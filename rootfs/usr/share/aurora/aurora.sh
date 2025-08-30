@@ -162,7 +162,10 @@ menu() {
     local prompt="$1"
     shift
     local args=""
-    [ -n "$1" ] && local args="$1" && shift
+    if [[ "$1" == "-p" ]]; then
+        args="$1"
+        shift
+    fi
     local options=("$@")
     local selected=0
     local count=${#options[@]}
