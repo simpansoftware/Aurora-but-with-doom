@@ -279,7 +279,7 @@ splash() {
 │ 'o*           .        .'    .         │
 │              ┏┓   '. O           *     │
 │     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
-│     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
+│     o        ┛┗┗┛┛ ┗┛┛ ┗┻     +        │
 ╘════════════════════════════════════════╛
 EOF
     echo -ne "$CYAN_B"
@@ -586,7 +586,7 @@ shimboot() {
                 sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"\nrm -f /etc/resolv.conf\necho "nameserver 1.1.1.1" > /etc/resolv.conf' "$sh1mmerfile"
             fi
             for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
-            cp /usr/share/patches/rootfs/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
+            cp /usr/share/patches/sh1mmer/bootstrap/noarch/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
             chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
             canwifi rm /stateful/root/noarch/payloads/mrchromebox.sh
             canwifi curl -sLk https://mrchromebox.tech/firmware-util.sh -o /stateful/root/noarch/payloads/mrchromebox.sh
@@ -618,10 +618,10 @@ shimboot() {
         clear
 
         mkdir -p /newroot/tmp/aurora
-        chmod +x /usr/share/patches/rootfs/*
         if [ -n "$specialshim" ]; then
             rm -f /newroot/sbin/init
-            cp /usr/share/patches/rootfs/${specialshim}init /newroot/sbin/init
+            cp /usr/share/patches/sh1mmer/bootstrap/noarch/sbin/init /newroot/sbin/init
+            chmod +x /newroot/sbin/init
         fi
         if [ -f "/newroot/bin/kvs" ]; then  
             chmod +x /newroot/bin/kvs
@@ -879,15 +879,15 @@ updateshim() {
         updated=1
     fi
     cp -Lar /root/Aurora/rootfs/. /
-    mkdir -p /usr/share/patches/rootfs/
+    mkdir -p /usr/share/patches/sh1mmer/
     mv /etc/aurora /etc/aurora.bak
-    cp -Lar /root/Aurora/patches/rootfs/. /usr/share/patches/rootfs/
+    cp -Lar /root/Aurora/patches/sh1mmer/. /usr/share/patches/sh1mmer/
     mv /etc/aurora.bak /etc/aurora
     chmod +x /usr/share/aurora/* /usr/bin/* /sbin/init
     aurorabootmnt=$(mktemp -d)
     mount "$(lsblk -pro NAME,PARTLABEL,MOUNTPOINT | grep -i "AuroraBoot" | awk '{print $1}')" $aurorabootmnt
     cp -Lar /root/Aurora/auroraboot/. $aurorabootmnt/
-    cp -Lar /root/Aurora/patches/auroraboot/. $aurorabootmnt/
+    cp -Lar /root/Aurora/patches/shimboot/. $aurorabootmnt/
     chmod +x $aurorabootmnt/init $aurorabootmnt/bootstrap.sh $aurorabootmnt/sbin/init
     umount $aurorabootmnt
     if [ "$updated" = "1" ]; then
@@ -1128,7 +1128,7 @@ if $pid; then
 │ 'o*           .        .'    .         │
 │              ┏┓   '. O           *     │
 │     .*       ┣┫┓┏┏┓┏┓┏┓┏┓  .    \      │
-│     o        ┛┗┗┻┛ ┗┛┛ ┗┻     +        │
+│     o        ┛┗┗┛┛ ┗┛┛ ┗┻     +        │
 ╘════════════════════════════════════════╛
 EOF
     echo -e "${COLOR_RESET}"
