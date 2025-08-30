@@ -192,7 +192,14 @@ move_mounts() {
 }
 
 move_mounts
-exec switch_root "$NEWROOT_MNT" /sbin/init -v --default-console output || :
+mkdir -p $NEWROOT_MNT/tmp/oldroot
+pivot_root $NEWROOT_MNT $NEWROOT_MNT/tmp/oldroot
+mkdir -p /tmp/aurora
+mkdir -p /tmp/shimroot
+mount --move /tmp/oldroot/tmp/aurora /tmp/aurora
+mount --move /tmp/oldroot/tmp/aurora/shimroot /tmp/shimroot
+echo "e"
+exec /sbin/init -v --default-console output
 EOF
 chmod +x /bin/sh1mmer_switch_root
 
