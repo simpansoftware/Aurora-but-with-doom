@@ -198,7 +198,7 @@ mkdir -p /tmp/aurora
 mkdir -p /tmp/shimroot
 mount --move /tmp/oldroot/tmp/aurora /tmp/aurora
 mount --move /tmp/oldroot/tmp/aurora/shimroot /tmp/shimroot
-exec /usr/sbin/sh1mmer_factory.sh
+exec /usr/sbin/sh1mmer_main.sh
 EOF
 chmod +x /bin/sh1mmer_switch_root
 
