@@ -198,7 +198,7 @@ mkdir -p /tmp/aurora
 mkdir -p /tmp/shimroot
 mount --move /tmp/oldroot/tmp/aurora /tmp/aurora
 mount --move /tmp/oldroot/tmp/aurora/shimroot /tmp/shimroot
-echo "e"
+echo "$$"
 exec /sbin/init -v --default-console output
 EOF
 chmod +x /bin/sh1mmer_switch_root
