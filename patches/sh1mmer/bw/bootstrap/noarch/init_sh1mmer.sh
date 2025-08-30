@@ -205,13 +205,13 @@ mkdir -p /tmp/aurora
 mkdir -p /tmp/shimroot
 mount --move /tmp/oldroot/tmp/aurora /tmp/aurora
 mount --move /tmp/oldroot/tmp/aurora/shimroot /tmp/shimroot
-exec /usr/sbin/sh1mmer_main.sh
+exec /usr/sbin/sh1mmer_factory.sh
 EOF
 chmod +x /bin/sh1mmer_switch_root
 
 [ "$(poll_key)" = "d" ] && notice_and_self_shell
 
 enable_input
-exec sh1mmer_switch_root 2>/dev/null || :
+exec sh1mmer_switch_root >dev/null || :
 
 fail "Failed to exec switch_root."
