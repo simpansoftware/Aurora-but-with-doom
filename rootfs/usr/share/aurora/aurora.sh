@@ -586,7 +586,7 @@ shimboot() {
                 sed -i '/^#!\/bin\/bash$/a export PATH="/bin:/sbin:/usr/bin:/usr/sbin"\nrm -f /etc/resolv.conf\necho "nameserver 1.1.1.1" > /etc/resolv.conf' "$sh1mmerfile"
             fi
             for i in 1 2; do sed -i '$d' $sh1mmerfile; done && echo "reboot -f" >> $sh1mmerfile && echo "Successfully patched sh1mmer_main.sh."
-            cp /usr/share/patches/sh1mmer/bootstrap/noarch/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
+            cp /usr/share/patches/sh1mmer/legacy/bootstrap/noarch/init_sh1mmer.sh /stateful/bootstrap/noarch/init_sh1mmer.sh && echo "Successfully patched init_sh1mmer.sh."
             chmod +x /stateful/bootstrap/noarch/init_sh1mmer.sh
             canwifi rm /stateful/root/noarch/payloads/mrchromebox.sh
             canwifi curl -sLk https://mrchromebox.tech/firmware-util.sh -o /stateful/root/noarch/payloads/mrchromebox.sh
