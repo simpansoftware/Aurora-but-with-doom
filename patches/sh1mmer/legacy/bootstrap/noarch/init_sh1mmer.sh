@@ -191,10 +191,6 @@ move_mounts() {
 	echo "Done."
 }
 
-if [ ! -e /dev/console ]; then
-    mknod -m 622 /dev/console c 5 1 || true
-fi
-
 move_mounts
 mkdir -p $NEWROOT_MNT/tmp/oldroot
 pivot_root $NEWROOT_MNT $NEWROOT_MNT/tmp/oldroot
@@ -202,8 +198,7 @@ mkdir -p /tmp/aurora
 mkdir -p /tmp/shimroot
 mount --move /tmp/oldroot/tmp/aurora /tmp/aurora
 mount --move /tmp/oldroot/tmp/aurora/shimroot /tmp/shimroot
-echo "$$"
-exec /sbin/init -v
+exec /usr/sbin/sh1mmer_main.sh
 EOF
 chmod +x /bin/sh1mmer_switch_root
 
