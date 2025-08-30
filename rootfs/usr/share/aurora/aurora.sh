@@ -864,6 +864,9 @@ downloadshim() {
 }
 
 updateshim() {
+    update-ca-certificates
+    ntpd -q -p pool.ntp.org
+    sync
     arch=$(uname -m)
     echo ""
     apk add git github-cli >/dev/null 2>&1
