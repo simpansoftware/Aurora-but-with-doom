@@ -191,6 +191,10 @@ move_mounts() {
 	echo "Done."
 }
 
+if [ ! -e /dev/console ]; then
+    mknod -m 622 /dev/console c 5 1 || true
+fi
+
 move_mounts
 mkdir -p $NEWROOT_MNT/tmp/oldroot
 pivot_root $NEWROOT_MNT $NEWROOT_MNT/tmp/oldroot
