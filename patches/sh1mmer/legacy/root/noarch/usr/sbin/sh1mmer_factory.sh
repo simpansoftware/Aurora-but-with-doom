@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+
 TARGET=/usr/sbin/sh1mmer_main.sh
 export PATH=/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/sbin:/usr/local/bin
 export LD_LIBRARY_PATH=/lib64:/lib:/usr/lib64:/usr/lib:/usr/local/lib64:/usr/local/lib
