@@ -50,13 +50,7 @@ kill_frecon() {
 }
 # Starts the 'frecon' daemon.
 tty_start_frecon() {
-	if [ -e "${FRECON_TTY}" ]; then
-		# There is a limitation about frecon[-lite] (created in initramfs stage)
-		# can't detect new input device by udev monitor after switch_root is called.
-		# The workaround is to re-create frecon[-lite] in new rootfs so udev
-		# monitor can be re-started again. Finally new input device can be detected.
-		kill_frecon
-	fi
+	kill_frecon
 	kernel_msg "Starting frecon..."
 	if [ "${FRECON_PATH}" != "${FRECON_LITE_PATH}" ]; then
 		udevd --daemon
