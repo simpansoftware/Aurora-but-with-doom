@@ -150,11 +150,11 @@ tty_init() {
 	if ! pgrep frecon >/dev/null 2>&1; then
 		export HAS_FRECON=0
 		ttys="${ttys} tty1"
-	else
-		export HAS_FRECON=1
-		tty_start_frecon
-		local frecon_tty="$(readlink -f ${FRECON_TTY})"
-		ttys="${frecon_tty#/dev/} ${ttys}"
+	#else
+	#	export HAS_FRECON=1
+	#	tty_start_frecon
+	#	local frecon_tty="$(readlink -f ${FRECON_TTY})"
+	#	ttys="${frecon_tty#/dev/} ${ttys}"
 	fi
 	ttys="${ttys} ${TTY_CONSOLE} null"
 	kernel_msg "Finding best TTY from ${ttys}..."
