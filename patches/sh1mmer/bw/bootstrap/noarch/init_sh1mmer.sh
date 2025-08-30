@@ -102,6 +102,7 @@ determine_rootfs() {
 }
 
 patch_new_root_sh1mmer() {
+	cp /bin/frecon-lite "$NEWROOT_MNT/sbin/frecon-lite"
 	[ -f "$NEWROOT_MNT/sbin/chromeos_startup" ] && sed -i "s/BLOCK_DEVMODE=1/BLOCK_DEVMODE=/g" "$NEWROOT_MNT/sbin/chromeos_startup"
 	[ -f "$NEWROOT_MNT/usr/share/cros/dev_utils.sh" ] && sed -i "/^dev_check_block_dev_mode\(\)/a return" "$NEWROOT_MNT/usr/share/cros/dev_utils.sh"
 	[ -f "$NEWROOT_MNT/sbin/chromeos-boot-alert" ] && sed -i "/^mode_block_devmode\(\)/a return" "$NEWROOT_MNT/sbin/chromeos-boot-alert"
@@ -131,26 +132,32 @@ mount -t tmpfs tmpfs "$NEWROOT_MNT" -o "size=$TMPFS_SIZE" || fail "Failed to mou
 determine_rootfs || fail "Could not determine rootfs"
 mount -o ro "$ROOTFS_DEV" "$ROOTFS_MNT" || fail "Failed to mount rootfs $ROOTFS_DEV"
 
-printf "\033[?25l\033[2J\033[H"
+if pgrep frecon >/dev/null 2>&1; then
+	# start our known good frecon-lite build
+	exec </dev/null >/dev/null 2>&1
+	pkill -9 frecon || :
+	rm -rf /run/frecon
+	frecon-lite --enable-vt1 --daemon --no-login --enable-vts --pre-create-vts --num-vts=8 --enable-gfx
+	until [ -e /run/frecon/vt0 ]; do
+		sleep 0.1
+	done
+	exec </run/frecon/vt0 >/run/frecon/vt0 2>&1
+	disable_input
+	printf "\033]input:on\a\033]switchvt:0\a"
+	printf "\033]image:file=/bin/startingUp.png;scale=1\a"
+else
+	printf "\033[?25l\033[2J"
+	ply-image /bin/startingUp.png 2>/dev/null
+fi
 
-printf "${COLOR_CYAN_B}"
-echo "ICBfX18gXyAgXyBfIF9fICBfXyBfXyAgX18gX19fIF9fXyAKIC8gX198IHx8IC8gfCAgXC8gIHwgIFwvICB8IF9ffCBfIFwKIFxfXyBcIF9fIHwgfCB8XC98IHwgfFwvfCB8IF98fCAgIC8KIHxfX18vX3x8X3xffF98ICB8X3xffCAgfF98X19ffF98X1wKCg==" | base64 -d
-printf "${COLOR_RESET}"
-echo "Sh1mmer is loading..."
-echo "Bootloader date: ${SCRIPT_DATE}"
-echo "https://github.com/MercuryWorkshop/sh1mmer"
-echo ""
-
-echo "Pro tip: you can hold:"
-echo "[x] at startup to enable xtrace"
-echo "[s] at startup to open an early shell"
-echo "[d] now to open a later shell"
-echo ""
-
-echo "Copying rootfs..."
+printf "\033[H"
+clear_line
 pv_dircopy "$ROOTFS_MNT" "$NEWROOT_MNT"
 umount "$ROOTFS_MNT"
-echo ""
+
+printf "\033[H"
+clear_line
+echo "Patching..."
 
 SKIP_SH1MMER_PATCH=0
 
