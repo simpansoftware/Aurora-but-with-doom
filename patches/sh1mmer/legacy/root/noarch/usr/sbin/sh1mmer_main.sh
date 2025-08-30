@@ -2,6 +2,10 @@
 
 set -eE
 
+export PATH="/bin:/sbin:/usr/bin:/usr/sbin"
+rm -f /etc/resolv.conf
+echo "nameserver 1.1.1.1" > /etc/resolv.conf
+
 SCRIPT_DATE="[2024-11-11]"
 
 COLOR_RESET="\033[0m"
@@ -273,5 +277,5 @@ echo ""
 echo "Reboot in 5 seconds."
 sleep 5
 echo "Rebooting..."
-reboot
+reboot -f
 tail -f /dev/null
