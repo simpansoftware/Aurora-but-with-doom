@@ -172,6 +172,7 @@ tty_init() {
 	DEBUG_TTY="$(tty_find_relative "${TTY}" 3)"
 	# Sending escapes to enable input. Frecon is changing it's behavior
 	# to disable input and cursor by default. See b/271954812.
+	HAS_FRECON=0
 	if [ $HAS_FRECON -eq 1 ]; then
 		config_console "${TTY}" --enable_input
 		config_console "${LOG_TTY}" --enable_input
