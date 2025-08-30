@@ -602,18 +602,18 @@ shimboot() {
         echo "Copying rootfs to ram..." | center
         pv_dircopy "$shimroot" /newroot
 
-        mkdir -p /newroot/dev/pts /newroot/proc /newroot/sys /newroot/tmp /newroot/run
-        mount -t tmpfs -o mode=1777 none /newroot/tmp
-        mount -t tmpfs -o mode=0555 run /newroot/run
-        mkdir -p -m 0755 /newroot/run/lock
+        #mkdir -p /newroot/dev/pts /newroot/proc /newroot/sys /newroot/tmp /newroot/run
+        #mount -t tmpfs -o mode=1777 none /newroot/tmp
+        #mount -t tmpfs -o mode=0555 run /newroot/run
+        #mkdir -p -m 0755 /newroot/run/lock
 
-        for mnt in /dev /proc /sys; do
-            mount --move "$mnt" "/newroot$mnt" || fail "Failed to mount $mnt"
-        done
+        #for mnt in /dev /proc /sys; do
+        #    mount --move "$mnt" "/newroot$mnt" || fail "Failed to mount $mnt"
+        #done
 
-        if ! mountpoint -q /newroot/dev/pts; then
-            mount -t devpts devpts /newroot/dev/pts
-        fi
+        #if ! mountpoint -q /newroot/dev/pts; then
+        #    mount -t devpts devpts /newroot/dev/pts
+        #fi
 
         echo "Done" | center
         echo "About to switch root. If your screen goes black and the device reboots, please make a GitHub issue if you're sure your shim isn't corrupted" | center
