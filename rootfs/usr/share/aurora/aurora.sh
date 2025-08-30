@@ -636,6 +636,7 @@ EOF
         chmod +x /newroot/sbin/init
         stty echo
         tput cnorm
+        sync
         exec switch_root /newroot /sbin/init
         # pivot_root /newroot /newroot/tmp/aurora
         echo "Successfully switched root. Starting init..."
