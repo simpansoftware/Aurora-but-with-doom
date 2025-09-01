@@ -212,13 +212,6 @@ menu() {
         fi
         ((selected < 0)) && selected=$((count - 1))
         ((selected >= count)) && selected=0
-		if ((page < 0)); then
-		    export page=3 updatedpage=1
-		    return 0
-		elif ((page >= 4)); then
-		    export page=1 updatedpage=1
-		    return 0
-		fi
     done
     return $selected
 }
@@ -1202,7 +1195,7 @@ for chmod in /usr/bin/aurorabuildenv; do
     chmod +x $chmod
 done
 clear
-export page=1
+export page=1 updatedpage=0
 while true; do
     export TERM=xterm-direct
     stty $stty
@@ -1214,6 +1207,13 @@ while true; do
     errormessage
     export errormsg=""
     export login=""
+	if ((page <= 1)); then
+		export page=3
+		return 0
+	elif ((page >= 4)); then
+		export page=1
+		return 0
+	fi
     declare -n current_actions="menu${page}_actions"
     declare -n current_options="menu${page}_options"
     tput civis
