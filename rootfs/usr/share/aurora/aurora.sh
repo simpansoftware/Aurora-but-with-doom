@@ -294,8 +294,8 @@ EOF
     else
         echo -e "$kernelver" | center
     fi
-    echo -e "\nhttps://github.com/EtherealWorkshop/Aurora${COLOR_RESET}" | center
-	echo -e "Page $page" | center
+    echo -e "\nhttps://github.com/EtherealWorkshop/Aurora" | center
+	echo -e "Page ${page}${COLOR_RESET}" | center
     funText | center
 }
 
