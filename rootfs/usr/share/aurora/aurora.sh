@@ -242,7 +242,7 @@ splash() {
         tput cup 0 0
         clear
     fi
-    if cat /sys/devices/virtual/dmi/id/product_name | grep -Eqi 'treeya|barla' 2>/dev/null; then
+    if cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null | grep -Eqi 'treeya|barla' 2>/dev/null; then
         echo -e "${RED_B}Barla/Treeya wifi unsupported. Please contact @kxtzownsu on discord${COLOR_RESET}"
     else
         signal=$(iw dev $wifidevice link | grep signal | awk '{print $2}' | sed 's/.00//' | head -1)
