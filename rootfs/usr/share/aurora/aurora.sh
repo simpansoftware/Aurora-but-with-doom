@@ -199,8 +199,8 @@ menu() {
             case $key in
                 $'\e[A') ((selected--)) ;;
                 $'\e[B') ((selected++)) ;;
-                $'\e[D') export page=$((page - 1)) && export updatedpage=1 && return ;;
-                $'\e[C') export page=$((page + 1)) && export updatedpage=1 && return ;;
+				$'\e[D') export page=$((page - 1)) && export updatedpage=1 && return 255 ;;
+				$'\e[C') export page=$((page + 1)) && export updatedpage=1 && return 255 ;;
                 '') break ;;
             esac
         else
@@ -212,8 +212,8 @@ menu() {
         fi
         ((selected < 0)) && selected=$((count - 1))
         ((selected >= count)) && selected=0
-        ((page < 0)) && export page=3
-        ((page >= 4)) && export page=1
+        ((page < 0)) && export page=3 && export updatedpage=1 && return $selected
+        ((page >= 4)) && export page=1 && export updatedpage=1 && return $selected
     done
     return $selected
 }
@@ -1154,14 +1154,14 @@ EOF
     udevadm trigger | center || :
     udevadm settle | center || :
 fi
-
+clear
 for wifi in iwlwifi iwlmvm ccm 8021q rtw88 rtwpci ath10k_sdio mt7921e mt7921s mt76; do
     modprobe -r "$wifi" 2>$LOGTTY || true
     modprobe "$wifi" 2>$LOGTTY
 done
 sleep 2
 if [ -e "/etc/wpa_supplicant.conf" ]; then
-    ls /etc/wpa_supplicant.conf 2>$LOGTTY
+    ls /etc/wpa_supplicant.conf >$LOGTTY 2>&1
     echo -e "[${GEEN_B}+${COLOR_RESET}] Connecting to wifi" | center
     export wifidevice=$(ip link 2>$LOGTTY | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
     if [ -n "$wifidevice" ]; then
