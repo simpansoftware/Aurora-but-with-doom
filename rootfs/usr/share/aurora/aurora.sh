@@ -1166,7 +1166,14 @@ sleep 2
 if [ -e "/etc/wpa_supplicant.conf" ]; then
     ls /etc/wpa_supplicant.conf >$LOGTTY 2>&1
     echo -e "[${GEEN_B}+${COLOR_RESET}] Connecting to wifi" | center
-    export wifidevice=$(ip link 2>$LOGTTY | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
+    export wifidevice=$(ip link | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
+    ifconfig "$wifidevice" down
+    pkill -12 udhcpc
+    pkill udhcpc 2>/dev/null
+    killall wpa_supplicant 2>/dev/null
+    rm -rf /etc/*dhcpc*
+    ifconfig "$wifidevice" up
+	sleep 3
     if [ -n "$wifidevice" ]; then
 				    wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >"$LOGTTY" 2>&1
 				else
