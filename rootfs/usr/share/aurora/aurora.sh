@@ -169,6 +169,7 @@ menu() {
     local options=("$@")
     local selected=0
     local count=${#options[@]}
+    updatedpage=0
     tput civis
     echo "$prompt" | center
     for i in "${!options[@]}"; do
@@ -198,8 +199,8 @@ menu() {
             case $key in
                 $'\e[A') ((selected--)) ;;
                 $'\e[B') ((selected++)) ;;
-                $'\e[D') export page=$((page - 1)) ;;
-                $'\e[C') export page=$((page + 1)) ;;
+                $'\e[D') export page=$((page - 1)) && export updatedpage=1 && return ;;
+                $'\e[C') export page=$((page + 1)) && export updatedpage=1 && return ;;
                 '') break ;;
             esac
         else
@@ -211,8 +212,8 @@ menu() {
         fi
         ((selected < 0)) && selected=$((count - 1))
         ((selected >= count)) && selected=0
-        ((page < 0)) && export page=3
-        ((page >= 4)) && export page=1
+        ((page < 0)) && export page=3 && export updatedpage=1 && return
+        ((page >= 4)) && export page=1 && export updatedpage=1 && return
     done
     return $selected
 }
@@ -1212,6 +1213,10 @@ while true; do
     tput civis
     stty -echo
     menu "Select an option (use ← → ↑ ↓ arrows, Enter to select)" -p "${current_options[@]}"
+    if [[ -n "$updatedpage" && "$updatedpage" == "1" ]]; then
+        updatedpage=0
+        continue
+    fi
     choice=$?
     action="${current_actions[$choice]}"
     option="${current_options[$choice]}"
