@@ -766,7 +766,7 @@ wifi() {
     bigtext wifi
     stty echo
     export wifidevice=$(ip link | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
-    if cat /sys/devices/virtual/dmi/id/product_name | grep -Eqi 'treeya|barla' 2>/dev/null; then
+    if cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null | grep -Eqi 'treeya|barla' 2>/dev/null; then
         fail "Barla/Treeya wifi unsupported. Please contact @kxtzownsu on discord"
     fi
     if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
