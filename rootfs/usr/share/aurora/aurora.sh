@@ -735,6 +735,7 @@ EOF
         else
             wpa_passphrase "$ssid" "$psk" >> "$conf"
         fi
+								sync
     fi
     ip link set "$wifidevice" down
     ip link set "$wifidevice" up
@@ -1157,11 +1158,15 @@ for wifi in iwlwifi iwlmvm ccm 8021q rtw88 rtwpci ath10k_sdio mt7921e mt7921s mt
     modprobe -r "$wifi" 2>/dev/null || true
     modprobe "$wifi" 2>/dev/null
 done
-if [ -f "/etc/wpa_supplicant.conf" ]; then
+sleep 2
+if [ -e "/etc/wpa_supplicant.conf" ]; then
     echo -e "[${GEEN_B}+${COLOR_RESET}] Connecting to wifi" | center
     export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
-    wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
-
+    if [ -n "$wifidevice" ] 2>/dev/null; then
+				    wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
+    else
+				    echo -e "[${RED_B}-${COLOR_RESET}] Failed to find wifi device. Please connect manually." | center
+				fi
     connected=0
     for i in $(seq 1 30); do
         if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
