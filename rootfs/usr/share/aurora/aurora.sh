@@ -1197,6 +1197,11 @@ done
 clear
 export page=1 updatedpage=0
 while true; do
+	if ((page <= 0)); then
+		export page=3
+	elif ((page >= 4)); then
+		export page=1
+	fi
     export TERM=xterm-direct
     stty $stty
     eval "setup"
@@ -1207,11 +1212,6 @@ while true; do
     errormessage
     export errormsg=""
     export login=""
-	if ((page <= 0)); then
-		export page=3
-	elif ((page >= 4)); then
-		export page=1
-	fi
     declare -n current_actions="menu${page}_actions"
     declare -n current_options="menu${page}_options"
     tput civis
