@@ -1155,15 +1155,16 @@ EOF
 fi
 
 for wifi in iwlwifi iwlmvm ccm 8021q rtw88 rtwpci ath10k_sdio mt7921e mt7921s mt76; do
-    modprobe -r "$wifi" 2>/dev/null || true
-    modprobe "$wifi" 2>/dev/null
+    modprobe -r "$wifi" 2>$LOGTTY || true
+    modprobe "$wifi" 2>$LOGTTY
 done
 sleep 2
 if [ -e "/etc/wpa_supplicant.conf" ]; then
+    ls /etc/wpa_supplicant.conf 2>$LOGTTY
     echo -e "[${GEEN_B}+${COLOR_RESET}] Connecting to wifi" | center
-    export wifidevice=$(ip link 2>/dev/null | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
-    if [ -n "$wifidevice" ] 2>/dev/null; then
-				    wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >/dev/null 2>&1
+    export wifidevice=$(ip link 2>$LOGTTY | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
+    if [ -n "$wifidevice" ] 2>$LOGTTY then;
+				    wpa_supplicant -B -i "$wifidevice" -c /etc/wpa_supplicant.conf >$LOGTTY 2>&1
     else
 				    echo -e "[${RED_B}-${COLOR_RESET}] Failed to find wifi device. Please connect manually." | center
 				fi
