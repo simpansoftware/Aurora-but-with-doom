@@ -292,11 +292,12 @@ EOF
     kernelver=$(getkv)
     if [ -f /etc/kernverpending ]; then
         kernelver=$(cat /etc/kernverpending)
-        echo -e "Kernver: $kernelver ${YELLOW_B}(pending reboot)${COLOR_RESET}" | center
+        echo -e "$kernelver ${YELLOW_B}(pending reboot)${COLOR_RESET}" | center
     else
         echo -e "$kernelver" | center
     fi
     echo -e "\nhttps://github.com/EtherealWorkshop/Aurora${COLOR_RESET}" | center
+	echo -e "Page $page" | center
     funText | center
 }
 
