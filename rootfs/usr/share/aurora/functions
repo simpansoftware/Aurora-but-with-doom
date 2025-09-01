@@ -73,7 +73,7 @@ center() {
     local width=$(tput cols)
     local offset="${1:-0}"
     while IFS= read -r line || [[ -n $line ]]; do
-		local plain=$(printf '%s' "$line" | perl -0777 -pe 's/\x1b\[[0-9;]*[mK]//g; s/\x00//g')
+		local plain=$(printf '%s' "$line" | tr -d '\0' | sed -E 's/\x1b\[[0-9;]*[mK]//g')
         local len=${#plain}
         local pad=$(( (width - len) / 2 + offset ))
         (( pad < 0 )) && pad=0
