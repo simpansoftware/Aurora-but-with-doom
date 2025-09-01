@@ -212,8 +212,8 @@ menu() {
         fi
         ((selected < 0)) && selected=$((count - 1))
         ((selected >= count)) && selected=0
-        ((page < 0)) && export page=3 && export updatedpage=1 && return
-        ((page >= 4)) && export page=1 && export updatedpage=1 && return
+        ((page < 0)) && export page=3
+        ((page >= 4)) && export page=1
     done
     return $selected
 }
