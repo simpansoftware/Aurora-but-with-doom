@@ -878,8 +878,12 @@ updateshim() {
     arch=$(uname -m)
     echo ""
     apk add git github-cli >/dev/null 2>&1
-    if [ -d "/root/Aurora/.git" ]; then
-        git -C "/root/Aurora" pull origin $(cat /etc/aurora | grep origin | sed 's/origin=//') 2>&1 | center || return
+    if [ -d "/root/Aurora/.git" ]; then		
+		if ! git -C "/root/Aurora" pull origin "$(cat /etc/aurora | grep origin | sed 's/origin=//')" 2>&1 | center; then
+		    echo "git pull failed, recloning" | center
+		    rm -rf /root/Aurora
+        	git clone --branch=$(cat /etc/aurora | grep origin | sed 's/origin=//') https://github.com/EtherealWorkshop/Aurora /root/Aurora 2>&1 | center || return
+		fi
     else
         [ -d "/root/Aurora" ] && rm -rf "/root/Aurora"
         git clone --branch=$(cat /etc/aurora | grep origin | sed 's/origin=//') https://github.com/EtherealWorkshop/Aurora /root/Aurora 2>&1 | center || return
