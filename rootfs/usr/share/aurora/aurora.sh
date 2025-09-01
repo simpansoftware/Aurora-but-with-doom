@@ -1170,8 +1170,13 @@ if [ -e "/etc/wpa_supplicant.conf" ]; then
 				fi
     connected=0
     for i in $(seq 1 30); do
-        if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
-            udhcpc -i "$wifidevice" >/dev/null 2>&1 && connected=1
+        if iw dev "$wifidevice" link 2>>"$LOGTTY" | grep -q 'Connected'; then
+            if udhcpc -i "$wifidevice" >>"$LOGTTY" 2>&1; then
+                connected=1
+                echo "success on attempt $i" >>"$LOGTTY"
+            else
+                echo "failure on attempt $i" >>"$LOGTTY"
+            fi
             break
         fi
         sleep 1
