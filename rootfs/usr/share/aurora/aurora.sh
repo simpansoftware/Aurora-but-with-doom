@@ -1207,12 +1207,10 @@ while true; do
     errormessage
     export errormsg=""
     export login=""
-	if ((page <= 1)); then
+	if ((page <= 0)); then
 		export page=3
-		return 0
 	elif ((page >= 4)); then
 		export page=1
-		return 0
 	fi
     declare -n current_actions="menu${page}_actions"
     declare -n current_options="menu${page}_options"
