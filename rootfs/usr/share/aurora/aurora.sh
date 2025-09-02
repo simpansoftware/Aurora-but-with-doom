@@ -652,135 +652,145 @@ EOF
     fi
 }
 
+chromium() {
+    apk add pcre-tools
+    if [ ! -f /usr/sbin/setup-xorg-base ] && [ ! -f /usr/sbin/setup-devd ]; then
+        mkdir -p "/tmp/apk-tools-static"
+        wget -q --show-progress "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/$(uname -m)/$(echo "$(wget -qO- --show-progress "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/$(uname -m)/" | grep "apk-tools-static")" | pcregrep -o1 '"(.+?.apk)"')" -O "/tmp/apk-tools-static/pkg.apk"
+        tar --warning=no-unknown-keyword -xzf "/tmp/apk-tools-static/pkg.apk" -C "/tmp/apk-tools-static"
+        chmod +x /tmp/apk-tools-static/sbin/apk.static
+        /tmp/apk-tools-static/sbin/apk.static --arch $(uname -m) -X http://dl-cdn.alpinelinux.org/alpine/edge/main/ -U --allow-untrusted --root "/" --initdb add alpine-base
+        sync
+    fi
+    setup-xorg-base chromium gvfs font-dejavu openbox hsetroot
+    rc-update add dbus sysinit
+    openrc sysinit
+    rm ~/.xinitrc
+    cat <<EOF > ~/.xinitrc
+openbox &
+hsetroot -cover /usr/share/aurora/aurora.png &
+while true; do
+    chromium --start-maximized --no-first-run --disable-infobars --disable-session-crashed-bubble --restore-last-session --no-sandbox
+done
+EOF
+    killall frecon-lite
+    startx
+}
+
+##################
+## OPTIONS MENU ##
+##################
+
+payloads() {
+    mapfile -t payloadchoose < <(find "$aroot/payloads" -maxdepth 1 -type f 2>/dev/null)
+    options_payload=()
+    for f in "${payloadchoose[@]}"; do
+        options_payload+=("$(basename "$f")")
+    done
+    options_payload+=("Exit")
+
+    menu "Choose payload to run:" "${options_payload[@]}"
+    choice=$?
+    payload_name="${options_payload[$choice]}"
+    if [[ $payload_name == "Exit" ]]; then
+        return
+    else
+        for payload_path in "${payloadchoose[@]}"; do
+            if [[ "$(basename "$payload_path")" == "$payload_name" ]]; then
+                source "$payload_path"
+                break
+            fi
+        done
+        read_center "Press Enter to continue..."
+        return
+    fi
+}
+
+errormessage() {
+    if [ -n "$errormsg" ]; then 
+        echo -en "${RED_B}"
+        echo "Error: ${errormsg}" | center
+    fi
+    echo -e "${COLOR_RESET}"
+}
+
+setupuser() {
+    read_center -d "Username: " username
+    stty -echo
+    read_center -d "Password: " password
+    stty echo 
+    adduser -D "$username"
+    echo "$username:$password" | chpasswd 2>/dev/null
+    echo "$username ALL=(ALL:ALL) ALL" >> /etc/sudoers
+    mkdir -p /run/user/$(id -u $username)
+    chown $username:$username /run/user/$(id -u $username)
+    usermod -aG video $username
+    usermod -aG seat $username
+}
+
+setup() {
+    tput cnorm
+    stty echo
+    if cat /etc/aurora | grep -q "setup=1"; then
+        clear
+        splash
+        echo -e "\nSetup Aurora" | center
+        read_center -d "Setup a user? (Y/n) " setupuser
+        case $setupuser in
+            n|N) ;;
+            *) setupuser ;;
+        esac
+        while true; do
+            read_center -d "Enter your timezone: " timezone
+            timezone="*$(echo "$timezone" | sed 's/ /*/g')*"
+            timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -1)
+            if [[ -z "$timezonefile" ]]; then echo "Invalid timezone" | center; continue; fi
+            rm -rf /etc/localtime
+            ln -s "$timezonefile" /etc/localtime
+            break
+        done
+        read_center -d "Change Hostname? (y/N): " changehostname
+        case $changehostname in
+            y) read_center -d "Hostname: " hostname
+               hostname $hostname
+               echo "$hostname" > /etc/hostname
+               echo "127.0.0.1 localhost $hostname" >> /etc/hosts ;;
+            *) hostname Aurora
+               echo "Aurora" > /etc/hostname
+               echo "127.0.0.1 localhost Aurora" >> /etc/hosts ;;
+        esac
+        sed -i 's/setup=1/setup=0/' /etc/aurora
+    fi
+}
+
+crosrun() { # sigh
+    [ -f /usr/share/cros/usr/sbin/sh1mmer_main.sh ] || fail "Sh1mmer directory nonexistent."
+    cat /usr/share/cros/usr/sbin/sh1mmer_main.sh | grep -q "patched by aurora" || fail "Sh1mmer Unpatched (How???)"
+    stty echo
+    tput cnorm
+    mount --bind /usr/share/cros /usr/share/cros
+    for mnt in /dev /proc /sys; do
+        mkdir -p /usr/share/cros$mnt
+        mount --bind "$mnt" "/usr/share/cros$mnt"
+    done
+    case $1 in
+        shell) script="/bin/bash" ;;
+        unenrollment) script="/usr/sbin/unenrollment.sh" ;;
+        sh1mmer) script="/usr/sbin/sh1mmer.sh" ;;
+        aub) script="/usr/sbin/updateblocker.sh" ;;
+    esac
+    chmod +x "/usr/share/cros${script}"
+    TERM=linux
+    chroot /usr/share/cros /bin/bash -c "${script}"
+    for mnt in /dev /proc /sys; do
+        umount "/usr/share/cros$mnt"
+    done
+    umount /usr/share/cros
+}
+
 ##########
 ## WIFI ##
 ##########
-
-connect() {
-    ifconfig "$wifidevice" down
-    pkill -12 udhcpc
-    pkill udhcpc 2>/dev/null
-    killall wpa_supplicant 2>/dev/null
-    rm -rf /etc/wpa_supplicant* /etc/*dhcpc*
-    ifconfig "$wifidevice" up
-    [ -n "$DIS" ] && return
-    echo_c "Available Networks\n" GEEN_B | center
-
-    declare -A best
-    while read -r line; do
-        if [[ $line =~ ^signal: ]]; then
-            signal=$(echo "$line" | awk '{print $2}' | sed 's/.00//')
-        elif [[ $line =~ ^SSID: ]]; then
-            ssid=$(echo "$line" | sed 's/^SSID: //' | tr -d '\000' | tr -d '[:cntrl:]' | sed 's/[[:space:]]*$//')
-            [ -z "$ssid" ] && continue
-            if [[ -z ${best["$ssid"]} || $signal -gt ${best["$ssid"]} ]]; then
-                best["$ssid"]=$signal
-            fi
-        fi
-    done < <(iw dev "$wifidevice" scan | tr -d '\000' | grep -E 'SSID:|signal:')
-
-    networks=()
-    for ssid in "${!best[@]}"; do
-        networks+=("${best[$ssid]}:$ssid")
-    done
-
-    IFS=$'\n' sorted=($(printf "%s\n" "${networks[@]}" | sort -t: -k1 -nr))
-    unset networks
-
-    wifi_options=()
-    for entry in "${sorted[@]}"; do
-        signal=${entry%%:*}
-        ssid=${entry##*:}
-
-        if (( signal >= -50 )); then color=$'\e[1;38;5;82m▃▅▇\e[0m'
-        elif (( signal >= -60 )); then color=$'\e[1;38;5;226m▃▅\e[1;38;5;236m▇\e[0m'
-        elif (( signal >= -70 )); then color=$'\e[1;38;5;208m▃\e[1;38;5;236m▅▇\e[0m'
-        else color=$'\e[1;38;5;196m▃\e[1;38;5;236m▅▇\e[0m'; fi
-
-        wifi_options+=("$color $ssid")
-    done
-    wifi_options+=("Enter Network manually")
-    wifi_options+=("Exit")
-
-    while true; do
-        menu "Choose a network" "${wifi_options[@]}"
-        choice=$?
-        ssid_option="${wifi_options[$choice]}"
-
-        if [[ "$ssid_option" == "Exit" ]]; then
-            read_center "Press Enter to continue..."
-            return
-        elif [[ "$ssid_option" == "Enter Network manually" ]]; then
-            read_center -d "Enter SSID: " ssid
-        else
-            ssid=$(echo "$ssid_option" | sed -r 's/\x1B\[[0-9;]*m//g' | awk '{$1=""; sub(/^ /,""); print}')
-        fi
-        break
-    done
-
-    stty echo
-    read_center -d "Enter password for $ssid: " psk
-    conf="/etc/wpa_supplicant.conf"
-
-    if grep -q "ssid=\"$ssid\"" "$conf" 2>/dev/null; then
-        echo "Network (${ssid}) already configured." | center
-    else
-        if [ -z "$psk" ]; then
-            cat >> "$conf" <<EOF
-network={
-    ssid="$ssid"
-    key_mgmt=NONE
-}
-EOF
-        else
-            wpa_passphrase "$ssid" "$psk" >> "$conf"
-        fi
-								sync
-    fi
-    ip link set "$wifidevice" down
-    ip link set "$wifidevice" up
-
-    wpa_supplicant -B -i "$wifidevice" -c "$conf" >/dev/null
-
-    for i in {1..15}; do
-        if iw dev "$wifidevice" link | grep -q 'Connected'; then
-            echo "Connected!" | center
-            break
-        fi
-        sleep 1
-    done
-
-    if ! iw dev "$wifidevice" link | grep -q 'Connected'; then
-        killall wpa_supplicant 2>/dev/null
-        rm /etc/wpa_supplicant.conf
-        return 1
-    fi
-
-    udhcpc -i "$wifidevice" 2>/dev/null || {
-        return 1
-    }
-}
-
-wifi() {
-    chmod +x /usr/bin/bigtext
-    bigtext wifi
-    stty echo
-    export wifidevice=$(ip link | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
-    if cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null | grep -Eqi 'treeya|barla' 2>/dev/null; then
-        fail "Barla/Treeya wifi unsupported. Please contact @kxtzownsu on discord"
-    fi
-    if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
-        echo "Currently connected to a network." | center
-        read_center -d "Disconnect from this network? (y/N): " connectornah
-        case $connectornah in
-            y|Y|yes|Yes) DIS=1 connect || fail "Failed to connect." ;;
-            *) ;;
-        esac
-    else
-        connect || fail "Failed to connect."
-    fi
-    sync
-}
 
 download() {
     chmod +x /usr/bin/bigtext
@@ -924,140 +934,130 @@ aftggp() {
     touch /etc/aftggp
 }
 
-chromium() {
-    apk add pcre-tools
-    if [ ! -f /usr/sbin/setup-xorg-base ] && [ ! -f /usr/sbin/setup-devd ]; then
-        mkdir -p "/tmp/apk-tools-static"
-        wget -q --show-progress "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/$(uname -m)/$(echo "$(wget -qO- --show-progress "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/$(uname -m)/" | grep "apk-tools-static")" | pcregrep -o1 '"(.+?.apk)"')" -O "/tmp/apk-tools-static/pkg.apk"
-        tar --warning=no-unknown-keyword -xzf "/tmp/apk-tools-static/pkg.apk" -C "/tmp/apk-tools-static"
-        chmod +x /tmp/apk-tools-static/sbin/apk.static
-        /tmp/apk-tools-static/sbin/apk.static --arch $(uname -m) -X http://dl-cdn.alpinelinux.org/alpine/edge/main/ -U --allow-untrusted --root "/" --initdb add alpine-base
-        sync
-    fi
-    setup-xorg-base chromium gvfs font-dejavu openbox hsetroot
-    rc-update add dbus sysinit
-    openrc sysinit
-    rm ~/.xinitrc
-    cat <<EOF > ~/.xinitrc
-openbox &
-hsetroot -cover /usr/share/aurora/aurora.png &
-while true; do
-    chromium --start-maximized --no-first-run --disable-infobars --disable-session-crashed-bubble --restore-last-session --no-sandbox
-done
-EOF
-    killall frecon-lite
-    startx
-}
+connect() {
+    ifconfig "$wifidevice" down
+    pkill -12 udhcpc
+    pkill udhcpc 2>/dev/null
+    killall wpa_supplicant 2>/dev/null
+    rm -rf /etc/wpa_supplicant* /etc/*dhcpc*
+    ifconfig "$wifidevice" up
+    [ -n "$DIS" ] && return
+    echo_c "Available Networks\n" GEEN_B | center
 
-##################
-## OPTIONS MENU ##
-##################
-
-payloads() {
-    mapfile -t payloadchoose < <(find "$aroot/payloads" -maxdepth 1 -type f 2>/dev/null)
-    options_payload=()
-    for f in "${payloadchoose[@]}"; do
-        options_payload+=("$(basename "$f")")
-    done
-    options_payload+=("Exit")
-
-    menu "Choose payload to run:" "${options_payload[@]}"
-    choice=$?
-    payload_name="${options_payload[$choice]}"
-    if [[ $payload_name == "Exit" ]]; then
-        return
-    else
-        for payload_path in "${payloadchoose[@]}"; do
-            if [[ "$(basename "$payload_path")" == "$payload_name" ]]; then
-                source "$payload_path"
-                break
+    declare -A best
+    while read -r line; do
+        if [[ $line =~ ^signal: ]]; then
+            signal=$(echo "$line" | awk '{print $2}' | sed 's/.00//')
+        elif [[ $line =~ ^SSID: ]]; then
+            ssid=$(echo "$line" | sed 's/^SSID: //' | tr -d '\000' | tr -d '[:cntrl:]' | sed 's/[[:space:]]*$//')
+            [ -z "$ssid" ] && continue
+            if [[ -z ${best["$ssid"]} || $signal -gt ${best["$ssid"]} ]]; then
+                best["$ssid"]=$signal
             fi
-        done
-        read_center "Press Enter to continue..."
-        return
-    fi
-}
+        fi
+    done < <(iw dev "$wifidevice" scan | tr -d '\000' | grep -E 'SSID:|signal:')
 
-errormessage() {
-    if [ -n "$errormsg" ]; then 
-        echo -en "${RED_B}"
-        echo "Error: ${errormsg}" | center
-    fi
-    echo -e "${COLOR_RESET}"
-}
+    networks=()
+    for ssid in "${!best[@]}"; do
+        networks+=("${best[$ssid]}:$ssid")
+    done
 
-setupuser() {
-    read_center -d "Username: " username
-    stty -echo
-    read_center -d "Password: " password
-    stty echo 
-    adduser -D "$username"
-    echo "$username:$password" | chpasswd 2>/dev/null
-    echo "$username ALL=(ALL:ALL) ALL" >> /etc/sudoers
-    mkdir -p /run/user/$(id -u $username)
-    chown $username:$username /run/user/$(id -u $username)
-    usermod -aG video $username
-    usermod -aG seat $username
-}
+    IFS=$'\n' sorted=($(printf "%s\n" "${networks[@]}" | sort -t: -k1 -nr))
+    unset networks
 
-setup() {
-    tput cnorm
+    wifi_options=()
+    for entry in "${sorted[@]}"; do
+        signal=${entry%%:*}
+        ssid=${entry##*:}
+
+        if (( signal >= -50 )); then color=$'\e[1;38;5;82m▃▅▇\e[0m'
+        elif (( signal >= -60 )); then color=$'\e[1;38;5;226m▃▅\e[1;38;5;236m▇\e[0m'
+        elif (( signal >= -70 )); then color=$'\e[1;38;5;208m▃\e[1;38;5;236m▅▇\e[0m'
+        else color=$'\e[1;38;5;196m▃\e[1;38;5;236m▅▇\e[0m'; fi
+
+        wifi_options+=("$color $ssid")
+    done
+    wifi_options+=("Enter Network manually")
+    wifi_options+=("Exit")
+
+    while true; do
+        menu "Choose a network" "${wifi_options[@]}"
+        choice=$?
+        ssid_option="${wifi_options[$choice]}"
+
+        if [[ "$ssid_option" == "Exit" ]]; then
+            read_center "Press Enter to continue..."
+            return
+        elif [[ "$ssid_option" == "Enter Network manually" ]]; then
+            read_center -d "Enter SSID: " ssid
+        else
+            ssid=$(echo "$ssid_option" | sed -r 's/\x1B\[[0-9;]*m//g' | awk '{$1=""; sub(/^ /,""); print}')
+        fi
+        break
+    done
+
     stty echo
-    if cat /etc/aurora | grep -q "setup=1"; then
-        clear
-        splash
-        echo -e "\nSetup Aurora" | center
-        read_center -d "Setup a user? (Y/n) " setupuser
-        case $setupuser in
-            n|N) ;;
-            *) setupuser ;;
-        esac
-        while true; do
-            read_center -d "Enter your timezone: " timezone
-            timezone="*$(echo "$timezone" | sed 's/ /*/g')*"
-            timezonefile=$(find /usr/share/zoneinfo -type f -iname "$timezone" | head -1)
-            if [[ -z "$timezonefile" ]]; then echo "Invalid timezone" | center; continue; fi
-            rm -rf /etc/localtime
-            ln -s "$timezonefile" /etc/localtime
+    read_center -d "Enter password for $ssid: " psk
+    conf="/etc/wpa_supplicant.conf"
+
+    if grep -q "ssid=\"$ssid\"" "$conf" 2>/dev/null; then
+        echo "Network (${ssid}) already configured." | center
+    else
+        if [ -z "$psk" ]; then
+            cat >> "$conf" <<EOF
+network={
+    ssid="$ssid"
+    key_mgmt=NONE
+}
+EOF
+        else
+            wpa_passphrase "$ssid" "$psk" >> "$conf"
+        fi
+		sync
+    fi
+    ip link set "$wifidevice" down
+    ip link set "$wifidevice" up
+
+    wpa_supplicant -B -i "$wifidevice" -c "$conf" >/dev/null
+
+    for i in {1..15}; do
+        if iw dev "$wifidevice" link | grep -q 'Connected'; then
+            echo "Connected!" | center
             break
-        done
-        read_center -d "Change Hostname? (y/N): " changehostname
-        case $changehostname in
-            y) read_center -d "Hostname: " hostname
-               hostname $hostname
-               echo "$hostname" > /etc/hostname
-               echo "127.0.0.1 localhost $hostname" >> /etc/hosts ;;
-            *) hostname Aurora
-               echo "Aurora" > /etc/hostname
-               echo "127.0.0.1 localhost Aurora" >> /etc/hosts ;;
-        esac
-        sed -i 's/setup=1/setup=0/' /etc/aurora
+        fi
+        sleep 1
+    done
+
+    if ! iw dev "$wifidevice" link | grep -q 'Connected'; then
+        killall wpa_supplicant 2>/dev/null
+        rm /etc/wpa_supplicant.conf
+        return 1
     fi
+
+    udhcpc -i "$wifidevice" 2>/dev/null || {
+        return 1
+    }
 }
 
-crosrun() { # sigh
-    [ -f /usr/share/cros/usr/sbin/sh1mmer_main.sh ] || fail "Sh1mmer directory nonexistent."
-    cat /usr/share/cros/usr/sbin/sh1mmer_main.sh | grep -q "patched by aurora" || fail "Sh1mmer Unpatched (How???)"
+wifi() {
+    chmod +x /usr/bin/bigtext
+    bigtext wifi
     stty echo
-    tput cnorm
-    mount --bind /usr/share/cros /usr/share/cros
-    for mnt in /dev /proc /sys; do
-        mkdir -p /usr/share/cros$mnt
-        mount --bind "$mnt" "/usr/share/cros$mnt"
-    done
-    case $1 in
-        shell) script="/bin/bash" ;;
-        unenrollment) script="/usr/sbin/unenrollment.sh" ;;
-        sh1mmer) script="/usr/sbin/sh1mmer.sh" ;;
-        aub) script="/usr/sbin/updateblocker.sh" ;;
-    esac
-    chmod +x "/usr/share/cros${script}"
-    TERM=linux
-    chroot /usr/share/cros /bin/bash -c "${script}"
-    for mnt in /dev /proc /sys; do
-        umount "/usr/share/cros$mnt"
-    done
-    umount /usr/share/cros
+    export wifidevice=$(ip link | grep -E "^[0-9]+: " | grep -oE '^[0-9]+: [^:]+' | awk '{print $2}' | grep -E '^wl' | head -n1)
+    if cat /sys/devices/virtual/dmi/id/product_name 2>/dev/null | grep -Eqi 'treeya|barla' 2>/dev/null; then
+        fail "Barla/Treeya wifi unsupported. Please contact @kxtzownsu on discord"
+    fi
+    if iw dev "$wifidevice" link 2>/dev/null | grep -q 'Connected'; then
+        echo "Currently connected to a network." | center
+        read_center -d "Disconnect from this network? (y/N): " connectornah
+        case $connectornah in
+            y|Y|yes|Yes) DIS=1 connect || fail "Failed to connect." ;;
+            *) ;;
+        esac
+    else
+        connect || fail "Failed to connect."
+    fi
+    sync
 }
 
 pid1=false
@@ -1125,6 +1125,7 @@ menu3_actions=(
 #############
 ## STARTUP ##
 #############
+
 if $pid; then
     clear
     tput civis
@@ -1158,6 +1159,8 @@ EOF
     udevadm settle | center || :
 fi
 printf '\033c' > $LOGTTY
+
+
 for wifi in iwlwifi iwlmvm ccm 8021q rtw88 rtwpci ath10k_sdio mt7921e mt7921s mt76; do
     modprobe -r "$wifi" 2>$LOGTTY || true
     modprobe "$wifi" 2>$LOGTTY
@@ -1200,6 +1203,8 @@ if [ -e "/etc/wpa_supplicant.conf" ]; then
         sync
     fi
 fi
+
+
 release_board=$(lsbval CHROMEOS_RELEASE_BOARD 2>/dev/null)
 export board_name=${release_board%%-*}
 for chmod in /usr/bin/aurorabuildenv; do
