@@ -15,10 +15,10 @@ doom() {
     rc-update add alsa sysinit
     openrc sysinit
     
-    mkdir -p /usr/share/doom
-    cd /usr/share/doom
+    mkdir -p ~/.config/gzdoom
+    cd ~/.config/gzdoom
     if [ ! -f "doom1.wad" ]; then
-        wget -q --show-progress "https://archive.org/download/DoomsharewareEpisode/doom.zip" -O doom.zip
+        wget -q --show-progress "https://dn721200.ca.archive.org/0/items/DoomsharewareEpisode/doom.ZIP" -O doom.zip
         unzip -j doom.zip "*.WAD" "*.wad" || true
         if [ -f "DOOM1.WAD" ]; then
             mv DOOM1.WAD doom1.wad
@@ -33,9 +33,8 @@ amixer sset Master unmute 2>/dev/null || true
 amixer sset Master 80% 2>/dev/null || true
 openbox &
 hsetroot -cover /usr/share/aurora/aurora.png &
-cd /usr/share/doom
 while true; do
-    gzdoom -iwad doom1.wad -fullscreen
+    gzdoom -iwad ~/.config/gzdoom/doom1.wad -fullscreen
     sleep 1
 done
 EOF
