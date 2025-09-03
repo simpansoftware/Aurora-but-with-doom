@@ -15,6 +15,11 @@ jobs:
       matrix:
         board:
           - corsola
+          - grunt
+          - nissa
+          - octopus
+          - dedede
+          - jacuzzi
 
     steps:
     - name: github is annoying
