@@ -1,0 +1,85 @@
+name: All
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag'
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        board:
+          - ambassador
+          - banon
+          - brask
+          - brya
+          - clapper
+          - coral
+          - corsola
+          - cyan
+          - dedede
+          - edgar
+          - elm
+          - enguarde
+          - fizz
+          - glimmer
+          - grunt
+          - hana
+          - hatch
+          - jacuzzi
+          - kalista
+          - kefka
+          - kukui
+          - lulu
+          - nami
+          - nissa
+          - octopus
+          - orco
+          - puff
+          - pyro
+          - reef
+          - reks
+          - relm
+          - sand
+          - sentry
+          - snappy
+          - stout
+          - strongbad
+          - tidus
+          - trogdor
+          - ultima
+          - volteer
+          - zork
+
+    steps:
+    - name: github is annoying
+      run: |
+        git config --global url."https://${{ secrets.SUPERDUPERSECRET }}@github.com/".insteadOf https://github.com/
+
+    - name: Checkout repo
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        token: ${{ secrets.SUPERDUPERSECRET }}
+
+    - name: Build Aurora
+      run: |
+        set -e
+        chmod +x Aurora
+        sudo apt update
+        sudo apt install wget curl bash e2fsprogs gdisk cgpt rsync qemu-user-static binfmt-support
+        sudo ./Aurora "${{ matrix.board }}" --auto
+
+    - name: Upload built shim
+      uses: softprops/action-gh-release@v2
+      with:
+        name: Aurora ${{ inputs.tag }}
+        tag_name: ${{ inputs.tag }}
+        files: ./${{ matrix.board }}-aurora.bin
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
