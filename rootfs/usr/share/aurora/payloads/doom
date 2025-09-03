@@ -10,7 +10,7 @@ doom() {
         /tmp/apk-tools-static/sbin/apk.static --arch $(uname -m) -X http://dl-cdn.alpinelinux.org/alpine/edge/main/ -U --allow-untrusted --root "/" --initdb add alpine-base
         sync
     fi
-    setup-xorg-base prboom-plus gvfs font-dejavu openbox hsetroot alsa-utils
+    setup-xorg-base gzdoom gvfs font-dejavu openbox hsetroot alsa-utils
     rc-update add dbus sysinit
     rc-update add alsa sysinit
     openrc sysinit
@@ -35,7 +35,7 @@ openbox &
 hsetroot -cover /usr/share/aurora/aurora.png &
 cd /usr/share/doom
 while true; do
-    prboom-plus -iwad doom1.wad -fullscreen
+    gzdoom -iwad doom1.wad -fullscreen
     sleep 1
 done
 EOF
