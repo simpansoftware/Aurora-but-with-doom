@@ -18,7 +18,6 @@ jobs:
           - grunt
           - nissa
           - octopus
-          - dedede
           - jacuzzi
 
     steps:
