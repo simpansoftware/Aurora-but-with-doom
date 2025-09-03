@@ -677,49 +677,6 @@ EOF
     startx
 }
 
-doom() {
-    apk add pcre-tools
-    if [ ! -f /usr/sbin/setup-xorg-base ] && [ ! -f /usr/sbin/setup-devd ]; then
-        mkdir -p "/tmp/apk-tools-static"
-        wget -q --show-progress "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/$(uname -m)/$(echo "$(wget -qO- --show-progress "https://dl-cdn.alpinelinux.org/alpine/latest-stable/main/$(uname -m)/" | grep "apk-tools-static")" | pcregrep -o1 '"(.+?.apk)"')" -O "/tmp/apk-tools-static/pkg.apk"
-        tar --warning=no-unknown-keyword -xzf "/tmp/apk-tools-static/pkg.apk" -C "/tmp/apk-tools-static"
-        chmod +x /tmp/apk-tools-static/sbin/apk.static
-        /tmp/apk-tools-static/sbin/apk.static --arch $(uname -m) -X http://dl-cdn.alpinelinux.org/alpine/edge/main/ -U --allow-untrusted --root "/" --initdb add alpine-base
-        sync
-    fi
-    setup-xorg-base prboom-plus gvfs font-dejavu openbox hsetroot alsa-utils
-    rc-update add dbus sysinit
-    rc-update add alsa sysinit
-    openrc sysinit
-    
-    mkdir -p /usr/share/doom
-    cd /usr/share/doom
-    if [ ! -f "doom1.wad" ]; then
-        wget -q --show-progress "https://archive.org/download/DoomsharewareEpisode/doom.zip" -O doom.zip
-        unzip -j doom.zip "*.WAD" "*.wad" || true
-        if [ -f "DOOM1.WAD" ]; then
-            mv DOOM1.WAD doom1.wad
-        fi
-        rm -f doom.zip
-    fi
-    
-    rm ~/.xinitrc
-    cat <<EOF > ~/.xinitrc
-alsactl init 2>/dev/null || true
-amixer sset Master unmute 2>/dev/null || true
-amixer sset Master 80% 2>/dev/null || true
-openbox &
-hsetroot -cover /usr/share/aurora/aurora.png &
-cd /usr/share/doom
-while true; do
-    prboom-plus -iwad doom1.wad -fullscreen
-    sleep 1
-done
-EOF
-    killall frecon-lite
-    startx
-}
-
 ##################
 ## OPTIONS MENU ##
 ##################
